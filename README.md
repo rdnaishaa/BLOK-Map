@@ -26,7 +26,7 @@ Fitur ini akan menampilkan daftar makanan dan minuman berupa Card Items (`katalo
 
 ---
 
-### 2. **Cafe and Restaurant**
+## 2. **Cafe and Restaurant**
 Fitur ini menampilkan *page* lengkap yang berisi `artikel` dari restaurant dan kafe sebagai referensi kuliner bagi pengunjung yang sedang "craving" makanan VIRAL, ngopi, ataupun makan cantik, `informasiRestaurant` berupa detail alamat dari restaurant, `rating` , galeri foto, dan `review` dari para pengunjung yang pernah mencobanya.
 
 | **Guest** | **Admin** | **Pengunjung (Traveller)** |
@@ -35,7 +35,7 @@ Fitur ini menampilkan *page* lengkap yang berisi `artikel` dari restaurant dan k
 
 ---
 
-### 3. **Spot Hangout**
+## 3. **Spot Hangout**
 Fitur ini menampilkan *page* lengkap yang berisi `artikel` dari tempat nongkrong atau tempat bermain sebagai referensi bagi pengunjung yang ingin "Deeptalk" bersama teman, kekasih, keluarga, ataupun "me time". `informasiHangout` berupa detail alamat dari spot hangout, `rating` , galeri foto, dan `review` dari para pengunjung yang pernah mendatanginya.
  
 | **Guest** | **Admin** | **Pengunjung (Traveller)** |
@@ -44,7 +44,7 @@ Fitur ini menampilkan *page* lengkap yang berisi `artikel` dari tempat nongkrong
 
 ---
 
-### 4. **Review & Rating**
+## 4. **Review & Rating**
 Fitur ini memungkinkan pengunjung yang sudah pernah mendatangi Spot Hangout, Cafe, ataupun Restaurant untuk memberikan `review` dan `rating`, sehingga para pengunjung tidak akan tertipu.
 
 | **Guest** | **Admin** | **Pengunjung (Traveller)** |
@@ -53,7 +53,7 @@ Fitur ini memungkinkan pengunjung yang sudah pernah mendatangi Spot Hangout, Caf
 
 ---
 
-### 6. **How To Get**
+## 5. **How To Get**
 Fitur ini menyediakan panduan untuk mengunjungi Blok-M menggunakan transportasi umum (MRT, LRT, TransJakarta), disertai dengan foto rute dan penjelasan.
 
 | **Guest** | **Admin** | **Pengunjung (Traveller)** |
@@ -62,7 +62,7 @@ Fitur ini menyediakan panduan untuk mengunjungi Blok-M menggunakan transportasi 
 
 ---
 
-### 7. **Login & Register**
+## 6. **Login & Register**
 Fitur autentikasi untuk memungkinkan pengguna `register` dan `login` dan memberi mereka akses untuk memberikan review dan mengelola konten (khusus admin).
 
 | **Guest** | **Admin** | **Pengunjung (Traveller)** |
