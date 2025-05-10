@@ -52,7 +52,7 @@ CREATE INDEX idx_restaurants_price ON restaurants(price);
 --- spot hangout
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE IF NOT EXISTS restaurants (
+CREATE TABLE IF NOT EXISTS spots (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   namaHangout VARCHAR(200) NOT NULL,
   kategori VARCHAR(100) NOT NULL CHECK (kategori IN (
@@ -62,7 +62,6 @@ CREATE TABLE IF NOT EXISTS restaurants (
     'Refleksi',
     'Rohani',
     'Family Friendly'
-
   )),
   lokasi VARCHAR(100) NOT NULL CHECK (lokasi IN (
     'Blok-M Square',
@@ -76,13 +75,14 @@ CREATE TABLE IF NOT EXISTS restaurants (
   informasiHangout TEXT NOT NULL,
   price DECIMAL(10, 2) NOT NULL,
   image_url VARCHAR(255),
-  type VARCHAR(20) NOT NULL DEFAULT 'restaurant' CHECK (type IN ('restaurant', 'cafe')),
+  type VARCHAR(20) NOT NULL DEFAULT 'Tempat Nongkrong',
   rating FLOAT DEFAULT 0,
   artikel TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Indexes for better performance
 CREATE INDEX idx_spots_kategori ON spots(kategori);
 CREATE INDEX idx_spots_lokasi ON spots(lokasi);
 CREATE INDEX idx_spots_price ON spots(price);
