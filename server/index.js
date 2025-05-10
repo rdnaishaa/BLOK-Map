@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to BlokMap API!');
 });
 
-// Start server
+// connect server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
