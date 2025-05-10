@@ -1,8 +1,8 @@
-const baseResponse = (res, { success = true, status = 200, message = 'Success', data = null }) => {
+const baseResponse = (res, success, status, message, payload) => {
   return res.status(status).json({
     success,
     message,
-    data
+    payload,
   });
 };
 

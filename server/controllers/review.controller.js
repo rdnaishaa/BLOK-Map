@@ -6,7 +6,7 @@ const ReviewController = {
     try {
       const { user_id, place_id, rating, comment } = req.body;
       const newReview = await ReviewModel.create({ user_id, place_id, rating, comment });
-      res.status(201).json({ success: true, data: newReview });
+      res.status(201).json({ success: true, payload: newReview });
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: 'Gagal membuat review.' });
@@ -16,10 +16,10 @@ const ReviewController = {
   async getAllReviews(req, res) {
     try {
       const reviews = await ReviewModel.findAll();
-      res.json({ success: true, data: reviews });
+      res.json({ success: true, payload: reviews });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal mengambil data review.' });
+      res.status(500).json({ success: false, message: 'Gagal mengambil payload review.' });
     }
   },
 
@@ -30,7 +30,7 @@ const ReviewController = {
       if (!review) {
         return res.status(404).json({ success: false, message: 'Review tidak ditemukan.' });
       }
-      res.json({ success: true, data: review });
+      res.json({ success: true, payload: review });
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: 'Gagal mengambil review.' });
@@ -45,7 +45,7 @@ const ReviewController = {
       if (!updated) {
         return res.status(404).json({ success: false, message: 'Review tidak ditemukan.' });
       }
-      res.json({ success: true, data: updated });
+      res.json({ success: true, payload: updated });
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: 'Gagal memperbarui review.' });
