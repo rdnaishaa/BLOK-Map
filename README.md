@@ -22,7 +22,7 @@ Blok-M sebagai pusat "skena", kuliner, budaya, tempat nongkrong bagi semua kalan
 
 Fitur ini akan menampilkan daftar makanan dan minuman berupa Card Items (`katalog`) dan memiliki fitur (`kategori dan rentangHarga`), setiap katalog memiliki *attribute* berupa `kategori, namaKatalog, namaRestaurant, dan harga`. Ketika `katalog` diklik akan beralih ke (`CatalogDetailPage`) yang memiliki *detail* informasi (`kategori, namaKatalog, rating, namaRestaurant, deskripsiKatalog, informasiRestaurant, dan review`).
 
-|                                     **Admin**                                      |                             **Pengunjung (Traveller)**                              |
+|                                     **Admin**                                      |                             **Pengunjung (User)**                              |
 |:----------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
 | Dapat menambah, mengedit, dan menghapus item makanan serta melihat detail katalog. | Dapat melihat item makanan dan minuman, tetapi tidak dapat mengedit atau menghapus. |
 
@@ -32,7 +32,7 @@ Fitur ini akan menampilkan daftar makanan dan minuman berupa Card Items (`katalo
 
 Fitur ini menampilkan *page* lengkap yang berisi `artikel` dari restaurant dan kafe sebagai referensi kuliner bagi pengunjung yang sedang "craving" makanan VIRAL, ngopi, ataupun makan cantik, `informasiRestaurant` berupa detail alamat dari restaurant, `rating` , galeri foto, dan `review` dari para pengunjung yang pernah mencobanya.
 
-|                                      **Admin**                                       |                                  **Pengunjung (Traveller)**                                   |
+|                                      **Admin**                                       |                                  **Pengunjung (User)**                                   |
 |:------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|
 | Dapat menambah, mengedit, dan menghapus data restoran, serta melihat detail lengkap. | Dapat melihat informasi lengkap tentang restoran dan kafe, seperti nama, kategori, dan lokasi |
 
@@ -42,7 +42,7 @@ Fitur ini menampilkan *page* lengkap yang berisi `artikel` dari restaurant dan k
 
 Fitur ini menampilkan *page* lengkap yang berisi `artikel` dari tempat nongkrong atau tempat bermain sebagai referensi bagi pengunjung yang ingin "Deeptalk" bersama teman, kekasih, keluarga, ataupun "me time". `informasiHangout` berupa detail alamat dari spot hangout, `rating` , galeri foto, dan `review` dari para pengunjung yang pernah mendatanginya.
 
-|                        **Admin**                        |      **Pengunjung (Traveller)**      |
+|                        **Admin**                        |      **Pengunjung (User)**      |
 |:-------------------------------------------------------:|:------------------------------------:|
 | Dapat menambah, mengedit, dan menghapus tempat hangout. | Dapat melihat detail tempat hangout. |
 
@@ -52,7 +52,7 @@ Fitur ini menampilkan *page* lengkap yang berisi `artikel` dari tempat nongkrong
 
 Fitur ini memungkinkan pengunjung yang sudah pernah mendatangi Spot Hangout, Cafe, ataupun Restaurant untuk memberikan `review` dan `rating`, sehingga para pengunjung tidak akan tertipu.
 
-|                     **Admin**                     |                              **Pengunjung (Traveller)**                              |
+|                     **Admin**                     |                              **Pengunjung (User)**                              |
 |:-------------------------------------------------:|:------------------------------------------------------------------------------------:|
 | Dapat mengedit, menghapus, dan memoderasi review. | Dapat membuat dan mengedit review yang mereka buat, serta melihat review orang lain. |
 
@@ -62,7 +62,7 @@ Fitur ini memungkinkan pengunjung yang sudah pernah mendatangi Spot Hangout, Caf
 
 Fitur ini menyediakan panduan untuk mengunjungi Blok-M menggunakan transportasi umum (MRT, LRT, TransJakarta), disertai dengan foto rute dan penjelasan.
 
-|                   **Admin**                    |       **Pengunjung (Traveller)**       |
+|                   **Admin**                    |       **Pengunjung (User)**       |
 |:----------------------------------------------:|:--------------------------------------:|
 | Dapat mengedit informasi transportasi yang ada | Dapat melihat cara-cara menuju Blok-M. |
 
@@ -72,7 +72,7 @@ Fitur ini menyediakan panduan untuk mengunjungi Blok-M menggunakan transportasi 
 
 Fitur autentikasi untuk memungkinkan pengguna `register` dan `login` dan memberi mereka akses untuk memberikan review dan mengelola konten (khusus admin).
 
-|                         **Admin**                          |                    **Pengunjung (Traveller)**                     |
+|                         **Admin**                          |                    **Pengunjung (User)**                     |
 |:----------------------------------------------------------:|:-----------------------------------------------------------------:|
 | Dapat mengakses dashboard untuk mengelola data dan konten. | Dapat login untuk memberikan review dan mengakses fitur tambahan. |
 # DATASET
