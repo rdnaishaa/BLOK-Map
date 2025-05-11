@@ -1,70 +1,102 @@
-// server/controllers/review.controller.js
-const ReviewModel = require('../models/review.model');
+const ReviewModel = require("../models/review.model");
+const BaseResponse = require("../utils/baseResponse.util");
 
 const ReviewController = {
+  // Get reviews based on category and ID
+  async getReviews(req, res) {
+    try {
+      const { category, id } = req.params;
+      const result = await ReviewModel.getAllByCategory(category, id);
+      return res.status(200).json(BaseResponse.success(result.rows));
+    } catch (error) {
+      return res.status(400).json(BaseResponse.error(error.message));
+    }
+  },
+
+  // Create a new review
   async createReview(req, res) {
     try {
-      const { user_id, place_id, rating, comment } = req.body;
-      const newReview = await ReviewModel.create({ user_id, place_id, rating, comment });
-      res.status(201).json({ success: true, payload: newReview });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal membuat review.' });
-    }
-  },
+      const { content, rating, spot_id = null, cafe_id = null, resto_id = null } = req.body;
+      const user_id = req.user.id;
 
-  async getAllReviews(req, res) {
-    try {
-      const reviews = await ReviewModel.findAll();
-      res.json({ success: true, payload: reviews });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal mengambil payload review.' });
-    }
-  },
-
-  async getReviewById(req, res) {
-    try {
-      const { id } = req.params;
-      const review = await ReviewModel.findById(id);
-      if (!review) {
-        return res.status(404).json({ success: false, message: 'Review tidak ditemukan.' });
+      // Validate rating
+      if (rating < 1 || rating > 5) {
+        return res.status(400).json(BaseResponse.error("Rating must be between 1 and 5"));
       }
-      res.json({ success: true, payload: review });
+
+      const result = await ReviewModel.create({
+        user_id,
+        content,
+        rating,
+        spot_id,
+        cafe_id,
+        resto_id
+      });
+
+      return res.status(201).json(BaseResponse.success(result.rows[0]));
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal mengambil review.' });
+      return res.status(500).json(BaseResponse.error(error.message));
     }
   },
 
+  // Update an existing review
   async updateReview(req, res) {
     try {
       const { id } = req.params;
-      const { rating, comment } = req.body;
-      const updated = await ReviewModel.update(id, { rating, comment });
-      if (!updated) {
-        return res.status(404).json({ success: false, message: 'Review tidak ditemukan.' });
+      const { content, rating } = req.body;
+
+      // Validate rating
+      if (rating < 1 || rating > 5) {
+        return res.status(400).json(BaseResponse.error("Rating must be between 1 and 5"));
       }
-      res.json({ success: true, payload: updated });
+
+      const result = await ReviewModel.update(id, { content, rating });
+      return res.status(200).json(BaseResponse.success(result.rows[0]));
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal memperbarui review.' });
+      return res.status(400).json(BaseResponse.error(error.message));
     }
   },
 
+  // Delete a review
   async deleteReview(req, res) {
     try {
       const { id } = req.params;
-      const deleted = await ReviewModel.delete(id);
-      if (!deleted) {
-        return res.status(404).json({ success: false, message: 'Review tidak ditemukan.' });
-      }
-      res.json({ success: true, message: 'Review berhasil dihapus.' });
+      await ReviewModel.delete(id);
+      return res.status(200).json(BaseResponse.success(null, 'Review deleted successfully'));
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal menghapus review.' });
+      return res.status(400).json(BaseResponse.error(error.message));
     }
   },
+
+  // Admin set status (approve / reject)
+async moderateReview(req, res) {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json(BaseResponse.error('Invalid status value'));
+    }
+
+    const result = await ReviewModel.updateStatus(id, status);
+    return res.status(200).json(BaseResponse.success(result.rows[0]));
+  } catch (error) {
+    return res.status(400).json(BaseResponse.error(error.message));
+  }
+},
+
+// Admin edit review (opsional)
+async adminEditReview(req, res) {
+  try {
+    const { id } = req.params;
+    const { content, rating } = req.body;
+
+    const result = await ReviewModel.adminEdit(id, { content, rating });
+    return res.status(200).json(BaseResponse.success(result.rows[0]));
+  } catch (error) {
+    return res.status(400).json(BaseResponse.error(error.message));
+  }
+},
+
 };
 
 module.exports = ReviewController;

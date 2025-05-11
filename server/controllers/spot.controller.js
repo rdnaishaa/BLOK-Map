@@ -1,5 +1,5 @@
 const spotModel = require("../models/spot.model");
-const baseResponse = require("../utils/baseResponse");
+const BaseResponse = require("../utils/baseResponse.util");
 
 exports.createSpot = async (req, res) => {
     const { namaHangout, kategori, lokasi, informasiHangout } = req.body;
