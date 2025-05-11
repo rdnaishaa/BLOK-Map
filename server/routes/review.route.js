@@ -1,21 +1,18 @@
-// server/routes/review.route.js
 const express = require('express');
 const router = express.Router();
 const ReviewController = require('../controllers/review.controller');
+const { verifyUser, verifyAdmin } = require('../middleware/auth');
 
-// Semua review
-router.get('/', ReviewController.getAllReviews);
+// User routes
+router.get('/:category/:id', ReviewController.getReviews);  
+router.post('/', verifyUser, ReviewController.createReview);  
+router.put('/:id', verifyUser, ReviewController.updateReview);  
+router.delete('/:id', verifyUser, ReviewController.deleteReview);  
 
-// Satu review berdasarkan ID
-router.get('/:id', ReviewController.getReviewById);
+// Admin routes - Moderation
+router.delete('/admin/:id', verifyAdmin, ReviewController.deleteReview);
+router.put('/admin/:id/status', verifyAdmin, ReviewController.moderateReview); // approve/reject
+router.put('/admin/:id', verifyAdmin, ReviewController.adminEditReview); // edit review
 
-// Buat review baru
-router.post('/', ReviewController.createReview);
-
-// Update review
-router.put('/:id', ReviewController.updateReview);
-
-// Hapus review
-router.delete('/:id', ReviewController.deleteReview);
 
 module.exports = router;
