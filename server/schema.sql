@@ -56,6 +56,36 @@ CREATE TABLE IF NOT EXISTS restaurants (
   
 );
 
+CREATE TABLE IF NOT EXISTS catalogs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    namaKatalog VARCHAR(100) NOT NULL,
+    kategori VARCHAR(100) NOT NULL CHECK (kategori IN (
+        'Sweetness Overload',
+        'Umami-rich',
+        'Fine Dining',
+        'Amigos (Agak MInggir GOt Sedikit)',
+        'Sip and savor',
+        'Brew Coffee'
+    )),
+    lokasi VARCHAR(100) NOT NULL CHECK (lokasi IN (
+        'Blok-M Square',
+        'Plaza Blok-M',
+        'Melawai',
+        'Taman Literasi',
+        'Barito',
+        'Gulai Tikungan (Mahakam)',
+        'Senayan',
+        'Kebayoran Baru'
+    )),
+    namaRestaurant VARCHAR(100) NOT NULL,
+    harga INTEGER NOT NULL,
+    rating DECIMAL(3,2) CHECK (rating >= 0 AND rating <= 5),
+    deskripsiKatalog TEXT NOT NULL,
+    informasiRestaurant TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 --- spot hangout
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 

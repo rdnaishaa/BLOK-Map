@@ -4,6 +4,7 @@ const cors = require('cors');
 const reviewRoutes = require('./routes/review.route');
 const restaurantRoutes = require('./routes/restaurant.route');
 const spotRoutes = require('./routes/spot.route');
+const catalogRoutes = require('./routes/catalog.route');
 const { pool } = require('./config/pg.database');
 
 dotenv.config();
@@ -24,6 +25,7 @@ pool.connect()
 app.use('/reviews', reviewRoutes);
 app.use('/restaurant', restaurantRoutes);
 app.use('/spots', spotRoutes);
+app.use('/catalogs', catalogRoutes); // Added catalog routes
 
 // Default route
 app.get('/', (req, res) => {
