@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const ReviewController = require('../controllers/review.controller');
-const { verifyUser, verifyAdmin } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
 
 // User routes
 router.get('/:category/:id', ReviewController.getReviews);  
-router.post('/', verifyUser, ReviewController.createReview);  // Pastikan ini mengarah ke fungsi yang benar
-router.put('/:id', verifyUser, ReviewController.updateReview);  
-router.delete('/:id', verifyUser, ReviewController.deleteReview);
+router.post('/', protect, ReviewController.createReview);  
+router.put('/:id', protect, ReviewController.updateReview);  
+router.delete('/:id', protect, ReviewController.deleteReview);  
 
 // Admin routes - Moderation
-router.delete('/admin/:id', verifyAdmin, ReviewController.deleteReview);
-router.put('/admin/:id/status', verifyAdmin, ReviewController.moderateReview); // approve/reject
-router.put('/admin/:id', verifyAdmin, ReviewController.adminEditReview); // edit review
+router.delete('/admin/:id', protect, authorize('admin'), ReviewController.deleteReview);
+router.put('/admin/:id/status', protect, authorize('admin'), ReviewController.moderateReview);
+router.put('/admin/:id', protect, authorize('admin'), ReviewController.adminEditReview);
 
 module.exports = router;

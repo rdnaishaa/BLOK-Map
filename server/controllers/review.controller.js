@@ -2,6 +2,16 @@ const ReviewModel = require("../models/review.model");
 const BaseResponse = require("../utils/baseResponse.util");
 
 const ReviewController = {
+  async getReviews(req, res) {
+    try {
+      const { category, id } = req.params;
+      const result = await ReviewModel.getAllByCategory(category, id);
+      return res.status(200).json(BaseResponse.success(result.rows));
+    } catch (error) {
+      return res.status(400).json(BaseResponse.error(error.message));
+    }
+  },
+
   async createReview(req, res) {
     try {
       const { content, rating, spot_id = null, cafe_id = null, resto_id = null } = req.body;
