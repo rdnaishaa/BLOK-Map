@@ -4,7 +4,7 @@ const cors = require('cors');
 const reviewRoutes = require('./routes/review.route');
 const restaurantRoutes = require('./routes/restaurant.route');
 const spotRoutes = require('./routes/spot.route');
-const { pool } = require('./config/pg.database'); // Menggunakan pool
+const { pool } = require('./config/pg.database');
 
 dotenv.config();
 
