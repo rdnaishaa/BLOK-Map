@@ -1,58 +1,107 @@
 -- review ica
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL,
-  type VARCHAR(50) NOT NULL CHECK (type IN ('restaurant', 'spot_hangout')),
-  item_id INTEGER NOT NULL,
-  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
-  review_text TEXT,
+  user_id INTEGER REFERENCES users(id),
+  content TEXT NOT NULL,
+  rating INTEGER CHECK (rating BETWEEN 1 AND 5),
+  spot_id INTEGER REFERENCES spots(id),
+  cafe_id INTEGER REFERENCES cafes(id),
+  resto_id INTEGER REFERENCES restaurants(id),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE reviews
+ADD COLUMN status VARCHAR(20) DEFAULT 'pending'; -- pending, approved, rejected
+
 
 --- restaurant&cafe
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+CREATE TABLE articles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),               
+    judulArtikel VARCHAR(255) NOT NULL,          
+    kontenArtikel TEXT NOT NULL,                
+    rating DECIMAL(3,2) CHECK (rating >= 0 AND rating <= 5),  
+    spot_id INTEGER REFERENCES spots(id) ON DELETE CASCADE,  
+    image_url VARCHAR(255),    
+    price NUMRANGE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
+);
+
 CREATE TABLE IF NOT EXISTS restaurants (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  namaRestaurant VARCHAR(200) NOT NULL,
-  kategori VARCHAR(100) NOT NULL CHECK (kategori IN (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),        
+    namaRestaurant VARCHAR(100) NOT NULL, 
+    kategori VARCHAR(100) NOT NULL CHECK (kategori IN (
     'Sweetness Overload',
     'Umami-rich',
     'Fine Dining',
     'Amigos (Agak MInggir GOt Sedikit)',
     'Sip and savor',
     'Brew Coffee',
-
-  )),
-  lokasi VARCHAR(100) NOT NULL CHECK (lokasi IN (
+  )),   
+    lokasi VARCHAR(100) NOT NULL CHECK (lokasi IN (
     'Blok-M Square',
     'Plaza Blok-M',
     'Melawai',
-    'Sambas',
     'Taman Literasi',
-    'Bekas Stasiun Blok-M',
-    'Gulai Tikungan (Mahakam)'
+    'Barito',
+    'Gulai Tikungan (Mahakam)',
+    'Senayan',
+    'Kebayoran Baru'
   )),
-  informasiRestaurant TEXT NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  image_url VARCHAR(255),
-  type VARCHAR(20) NOT NULL DEFAULT 'restaurant' CHECK (type IN ('restaurant', 'cafe')),
-  rating FLOAT DEFAULT 0,
-  artikel TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    informasiRestaurant VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  
 );
 
-CREATE INDEX idx_restaurants_kategori ON restaurants(kategori);
-CREATE INDEX idx_restaurants_lokasi ON restaurants(lokasi);
-CREATE INDEX idx_restaurants_type ON restaurants(type);
-CREATE INDEX idx_restaurants_price ON restaurants(price);
+CREATE TABLE IF NOT EXISTS catalogs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    namaKatalog VARCHAR(100) NOT NULL,
+    kategori VARCHAR(100) NOT NULL CHECK (kategori IN (
+        'Sweetness Overload',
+        'Umami-rich',
+        'Fine Dining',
+        'Amigos (Agak MInggir GOt Sedikit)',
+        'Sip and savor',
+        'Brew Coffee'
+    )),
+    lokasi VARCHAR(100) NOT NULL CHECK (lokasi IN (
+        'Blok-M Square',
+        'Plaza Blok-M',
+        'Melawai',
+        'Taman Literasi',
+        'Barito',
+        'Gulai Tikungan (Mahakam)',
+        'Senayan',
+        'Kebayoran Baru'
+    )),
+    namaRestaurant VARCHAR(100) NOT NULL,
+    harga INTEGER NOT NULL,
+    rating DECIMAL(3,2) CHECK (rating >= 0 AND rating <= 5),
+    deskripsiKatalog TEXT NOT NULL,
+    informasiRestaurant TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 --- spot hangout
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE IF NOT EXISTS restaurants (
+CREATE TABLE articles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),               
+    judulArtikel VARCHAR(255) NOT NULL,          
+    kontenArtikel TEXT NOT NULL,                
+    rating DECIMAL(3,2) CHECK (rating >= 0 AND rating <= 5),  
+    spot_id INTEGER REFERENCES spots(id) ON DELETE CASCADE,  
+    image_url VARCHAR(255),    
+    price NUMRANGE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
+);
+
+CREATE TABLE IF NOT EXISTS spots (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   namaHangout VARCHAR(200) NOT NULL,
   kategori VARCHAR(100) NOT NULL CHECK (kategori IN (
@@ -62,27 +111,18 @@ CREATE TABLE IF NOT EXISTS restaurants (
     'Refleksi',
     'Rohani',
     'Family Friendly'
-
   )),
   lokasi VARCHAR(100) NOT NULL CHECK (lokasi IN (
     'Blok-M Square',
     'Plaza Blok-M',
     'Melawai',
-    'Sambas',
     'Taman Literasi',
-    'Bekas Stasiun Blok-M',
-    'Gulai Tikungan (Mahakam)'
+    'Barito',
+    'Gulai Tikungan (Mahakam)',
+    'Senayan',
+    'Kebayoran Baru'
   )),
   informasiHangout TEXT NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  image_url VARCHAR(255),
-  type VARCHAR(20) NOT NULL DEFAULT 'restaurant' CHECK (type IN ('restaurant', 'cafe')),
-  rating FLOAT DEFAULT 0,
-  artikel TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE INDEX idx_spots_kategori ON spots(kategori);
-CREATE INDEX idx_spots_lokasi ON spots(lokasi);
-CREATE INDEX idx_spots_price ON spots(price);
