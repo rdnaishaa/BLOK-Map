@@ -2,7 +2,6 @@ const ReviewModel = require("../models/review.model");
 const BaseResponse = require("../utils/baseResponse.util");
 
 const ReviewController = {
-  // Get reviews based on category and ID
   async getReviews(req, res) {
     try {
       const { category, id } = req.params;
@@ -13,13 +12,11 @@ const ReviewController = {
     }
   },
 
-  // Create a new review
   async createReview(req, res) {
     try {
       const { content, rating, spot_id = null, cafe_id = null, resto_id = null } = req.body;
       const user_id = req.user.id;
 
-      // Validate rating
       if (rating < 1 || rating > 5) {
         return res.status(400).json(BaseResponse.error("Rating must be between 1 and 5"));
       }
@@ -69,34 +66,33 @@ const ReviewController = {
   },
 
   // Admin set status (approve / reject)
-async moderateReview(req, res) {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    if (!['approved', 'rejected'].includes(status)) {
-      return res.status(400).json(BaseResponse.error('Invalid status value'));
+  async moderateReview(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).json(BaseResponse.error('Invalid status value'));
+      }
+
+      const result = await ReviewModel.updateStatus(id, status);
+      return res.status(200).json(BaseResponse.success(result.rows[0]));
+    } catch (error) {
+      return res.status(400).json(BaseResponse.error(error.message));
     }
+  },
 
-    const result = await ReviewModel.updateStatus(id, status);
-    return res.status(200).json(BaseResponse.success(result.rows[0]));
-  } catch (error) {
-    return res.status(400).json(BaseResponse.error(error.message));
-  }
-},
+  // Admin edit review (optional)
+  async adminEditReview(req, res) {
+    try {
+      const { id } = req.params;
+      const { content, rating } = req.body;
 
-// Admin edit review (opsional)
-async adminEditReview(req, res) {
-  try {
-    const { id } = req.params;
-    const { content, rating } = req.body;
-
-    const result = await ReviewModel.adminEdit(id, { content, rating });
-    return res.status(200).json(BaseResponse.success(result.rows[0]));
-  } catch (error) {
-    return res.status(400).json(BaseResponse.error(error.message));
-  }
-},
-
+      const result = await ReviewModel.adminEdit(id, { content, rating });
+      return res.status(200).json(BaseResponse.success(result.rows[0]));
+    } catch (error) {
+      return res.status(400).json(BaseResponse.error(error.message));
+    }
+  },
 };
 
 module.exports = ReviewController;
