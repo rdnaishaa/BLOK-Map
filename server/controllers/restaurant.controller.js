@@ -1,120 +1,56 @@
 const restaurantModel = require("../models/restaurant.model");
-const baseResponse = require("../utils/baseResponse");
+const baseResponse = require("../utils/baseResponse.util");
 
-exports.createRestaurant = async (req, res) => {
-  const { 
-    namaRestaurant, 
-    kategori, 
-    lokasi, 
-    informasiRestaurant, 
-    price, 
-    type, 
-    artikel 
-  } = req.body;
-  
-  const image = req.file;
-  
+exports.createArticle = async (req, res) => {
   try {
-    // Validate kategori and lokasi
-    const validKategori = restaurantModel .getKategoriList().includes(kategori);
-    const validLokasi = restaurantModel .getLokasiList().includes(lokasi);
-    
-    if (!validKategori || !validLokasi) {
-      return baseResponse(res, false, 400, "Invalid kategori or lokasi", null);
+    const { article, image } = req.body;
+    const newArticle = await restaurantModel.createArticle(article, image);
+    return baseResponse.success(res, 201, "Article created successfully", newArticle);
+  } catch (error) {
+    console.error("Error creating article:", error);
+    return baseResponse.error(res, 500, "Internal server error");
+  }
+}
+
+exports.getArticleById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const article = await restaurantModel.getArticleById(id);
+    if (!article) {
+      return baseResponse.error(res, 404, "Article not found");
     }
-    
-    const restaurant = await restaurantModel .createRestaurant(
-      { namaRestaurant, kategori, lokasi, informasiRestaurant, price, type, artikel },
-      image
-    );
-    
-    return baseResponse(res, true, 201, "Restaurant created successfully", restaurant);
+    return baseResponse.success(res, 200, "Article retrieved successfully", article);
   } catch (error) {
-    return baseResponse(res, false, 500, "Error creating restaurant", error);
+    console.error("Error getting article by id:", error);
+    return baseResponse.error(res, 500, "Internal server error");
   }
-};
+}
 
-exports.getAllRestaurants = async (req, res) => {
+exports.updateArticle = async (req, res) => {
   try {
-    const restaurants = await restaurantModel .getAllRestaurants(req.query);
-    const categories = await restaurantModel .getKategoriList();
-    const location = await restaurantModel .getLokasiList();
-    
-    return baseResponse(res, true, 200, "Restaurants retrieved successfully", {
-      restaurants,
-      categories,
-      location,
-      search_query: req.query.search || '',
-      selected_kategori: req.query.kategori || '',
-      selected_lokasi: req.query.lokasi || '',
-      selected_type: req.query.type || ''
-    });
-  } catch (error) {
-    return baseResponse(res, false, 500, "Error retrieving restaurants", error);
-  }
-};
-
-exports.getRestaurantById = async (req, res) => {
-  try {
-    const restaurant = await restaurantModel .getRestaurantById(req.params.id);
-    if (!restaurant) {
-      return baseResponse(res, false, 404, "Restaurant not found", null);
+    const { id } = req.params;
+    const { article, image } = req.body;
+    const updatedArticle = await restaurantModel.updateArticle(id, article, image);
+    if (!updatedArticle) {
+      return baseResponse.error(res, 404, "Article not found");
     }
-    return baseResponse(res, true, 200, "Restaurant retrieved successfully", restaurant);
+    return baseResponse.success(res, 200, "Article updated successfully", updatedArticle);
   } catch (error) {
-    return baseResponse(res, false, 500, "Error retrieving restaurant", error);
+    console.error("Error updating article:", error);
+    return baseResponse.error(res, 500, "Internal server error");
   }
-};
+}
 
-exports.updateRestaurant = async (req, res) => {
-  const { id } = req.params;
-  const image = req.file;
-  
+exports.deleteArticle = async (req, res) => {
   try {
-    const restaurant = await restaurantModel .updateRestaurant(
-      id,
-      req.body,
-      image
-    );
-    
-    if (!restaurant) {
-      return baseResponse(res, false, 404, "Restaurant not found", null);
+    const { id } = req.params;
+    const deletedArticle = await restaurantModel.deleteArticle(id);
+    if (!deletedArticle) {
+      return baseResponse.error(res, 404, "Article not found");
     }
-    
-    return baseResponse(res, true, 200, "Restaurant updated successfully", restaurant);
+    return baseResponse.success(res, 200, "Article deleted successfully", deletedArticle);
   } catch (error) {
-    return baseResponse(res, false, 500, "Error updating restaurant", error);
+    console.error("Error deleting article:", error);
+    return baseResponse.error(res, 500, "Internal server error");
   }
-};
-
-exports.deleteRestaurant = async (req, res) => {
-  try {
-    const restaurant = await restaurantModel .deleteRestaurant(req.params.id);
-    
-    if (!restaurant) {
-      return baseResponse(res, false, 404, "Restaurant not found", null);
-    }
-    
-    return baseResponse(res, true, 200, "Restaurant deleted successfully", restaurant);
-  } catch (error) {
-    return baseResponse(res, false, 500, "Error deleting restaurant", error);
-  }
-};
-
-exports.getKategoriList = async (req, res) => {
-  try {
-    const categories = await restaurantModel .getKategoriList();
-    return baseResponse(res, true, 200, "Kategori list retrieved", categories);
-  } catch (error) {
-    return baseResponse(res, false, 500, "Error getting kategori list", error);
-  }
-};
-
-exports.getLokasiList = async (req, res) => {
-  try {
-    const location = await restaurantModel .getLokasiList();
-    return baseResponse(res, true, 200, "Lokasi list retrieved", location);
-  } catch (error) {
-    return baseResponse(res, false, 500, "Error getting lokasi list", error);
-  }
-};
+}

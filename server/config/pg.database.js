@@ -14,17 +14,6 @@ cloudinary.config({
   connectionString: process.env.CLOUDINARY_URL,
 });
 
-const connect = async () => {
-  try {
-    await pool.connect();
-    console.log("Connected to the database");
-  } catch (error) {
-    console.error("Error connecting to the database", error);
-  }
-};
-
-connect();
-
 const query = async (text, params) => {
   try {
     const res = await pool.query(text, params);
