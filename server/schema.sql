@@ -1,18 +1,22 @@
 -- review ica
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id),
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
   content TEXT NOT NULL,
-  rating INTEGER CHECK (rating BETWEEN 1 AND 5),
-  spot_id INTEGER REFERENCES spots(id),
-  cafe_id INTEGER REFERENCES cafes(id),
-  resto_id INTEGER REFERENCES restaurants(id),
+  rating INTEGER CHECK (rating BETWEEN 1 AND 5) NOT NULL,
+  spot_id UUID REFERENCES spots(id) ON DELETE CASCADE,
+  cafe_id UUID REFERENCES cafes(id) ON DELETE CASCADE,
+  resto_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  status VARCHAR(20) DEFAULT 'pending' NOT NULL, -- pending, approved, rejected
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  -- Add constraint to ensure only one location type is set
+  CONSTRAINT one_location_only CHECK (
+    (spot_id IS NOT NULL AND cafe_id IS NULL AND resto_id IS NULL) OR
+    (spot_id IS NULL AND cafe_id IS NOT NULL AND resto_id IS NULL) OR
+    (spot_id IS NULL AND cafe_id IS NULL AND resto_id IS NOT NULL)
+  )
 );
-ALTER TABLE reviews
-ADD COLUMN status VARCHAR(20) DEFAULT 'pending'; -- pending, approved, rejected
-
 
 --- restaurant&cafe
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
