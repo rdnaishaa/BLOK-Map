@@ -44,34 +44,6 @@ CREATE TABLE categories (
     ))
 );
 
-
-CREATE TABLE IF NOT EXISTS spots (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    namaSpot VARCHAR(100) NOT NULL,
-    kategori VARCHAR(100) NOT NULL CHECK (kategori IN (
-        'Atraksi',
-        'Tempat Nongkrong',
-        'Entertainment',
-        'Refleksi',
-        'Rohani',
-        'Family Friendly'
-    )),
-    lokasi VARCHAR(100) NOT NULL CHECK (lokasi IN (
-        'Blok-M Square',
-        'Plaza Blok-M',
-        'Melawai',
-        'Taman Literasi',
-        'Barito',
-        'Gulai Tikungan (Mahakam)',
-        'Senayan',
-        'Kebayoran Baru'
-    )),
-    informasiSpot TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -102,7 +74,6 @@ CREATE TABLE catalogs (
     deskripsiKatalog TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
