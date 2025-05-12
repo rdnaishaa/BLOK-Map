@@ -4,18 +4,17 @@ exports.createCatalog = async (catalog) => {
   try {
     const res = await db.query(
       `INSERT INTO catalogs (
-        namaKatalog, kategori, lokasi, namaRestaurant, harga, rating, deskripsiKatalog, informasiRestaurant
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+        namaKatalog, kategori_id, lokasi, places_id, harga, rating, deskripsiKatalog
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
       RETURNING *`,
       [
         catalog.namaKatalog,
-        catalog.kategori,
+        catalog.kategori_id,
         catalog.lokasi,
-        catalog.namaRestaurant,
+        catalog.places_id,
         catalog.harga,
         catalog.rating,
-        catalog.deskripsiKatalog,
-        catalog.informasiRestaurant
+        catalog.deskripsiKatalog
       ]
     );
     return res.rows[0];
@@ -30,9 +29,9 @@ exports.getCatalogs = async (query) => {
     const conditions = [];
     const values = [];
 
-    if (query.kategori) {
-      conditions.push("kategori = $1");
-      values.push(query.kategori);
+    if (query.kategori_id) {
+      conditions.push("kategori_id = $1");
+      values.push(query.kategori_id);
     }
 
     if (query.harga) {
@@ -41,7 +40,11 @@ exports.getCatalogs = async (query) => {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
-    const res = await db.query(`SELECT id, kategori, namaKatalog, namaRestaurant, harga FROM catalogs ${whereClause}`, values);
+    const res = await db.query(
+      `SELECT id, kategori_id, namaKatalog, harga, rating, lokasi 
+       FROM catalogs ${whereClause}`,
+      values
+    );
 
     return res.rows;
   } catch (error) {
@@ -50,18 +53,34 @@ exports.getCatalogs = async (query) => {
   }
 };
 
-exports.getCatalogById = async (id) => {
+exports.getCatalogByKategori = async (kategori) => {
   try {
     const res = await db.query(
-      `SELECT id, kategori, namaKatalog, rating, namaRestaurant, deskripsiKatalog, informasiRestaurant, review 
-       FROM catalogs WHERE id = $1`,
-      [id]
+      `SELECT id, kategori_id, namaKatalog, rating, lokasi, deskripsiKatalog, harga 
+       FROM catalogs WHERE kategori_id = $1`,
+      [kategori]
     );
 
-    if (res.rows.length === 0) return null;
-    return res.rows[0];
+    if (res.rows.length === 0) return [];
+    return res.rows;
   } catch (error) {
-    console.error("Error fetching catalog by id:", error);
+    console.error("Error fetching catalogs by kategori:", error);
+    throw error;
+  }
+};
+
+exports.getCatalogByPrice = async (min, max) => {
+  try {
+    const res = await db.query(
+      `SELECT id, kategori_id, namaKatalog, rating, lokasi, deskripsiKatalog, harga 
+       FROM catalogs WHERE harga BETWEEN $1 AND $2`,
+      [min, max]
+    );
+
+    if (res.rows.length === 0) return [];
+    return res.rows;
+  } catch (error) {
+    console.error("Error fetching catalogs by price:", error);
     throw error;
   }
 };
@@ -71,25 +90,23 @@ exports.updateCatalog = async (id, catalogData) => {
     const res = await db.query(
       `UPDATE catalogs SET
         namaKatalog = $1,
-        kategori = $2,
+        kategori_id = $2,
         lokasi = $3,
-        namaRestaurant = $4,
+        places_id = $4,
         harga = $5,
         rating = $6,
         deskripsiKatalog = $7,
-        informasiRestaurant = $8,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $9
+      WHERE id = $8
       RETURNING *`,
       [
         catalogData.namaKatalog,
-        catalogData.kategori,
+        catalogData.kategori_id,
         catalogData.lokasi,
-        catalogData.namaRestaurant,
+        catalogData.places_id,
         catalogData.harga,
         catalogData.rating,
         catalogData.deskripsiKatalog,
-        catalogData.informasiRestaurant,
         id
       ]
     );

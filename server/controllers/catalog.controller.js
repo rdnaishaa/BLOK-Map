@@ -1,80 +1,98 @@
 const catalogModel = require("../models/catalog.model");
 const baseResponse = require("../utils/baseResponse.util");
 
-const getCatalogs = async (req, res) => {
-    const { kategori, rentangHarga } = req.query;
+exports.getCatalogs = async (req, res) => {
+  const { kategori_id, rentangHarga } = req.query;
 
-    try {
-        let query = {};
+  try {
+    let query = {};
 
-        if (kategori) {
-            query.kategori = kategori;
-        }
-
-        if (rentangHarga) {
-            const [min, max] = rentangHarga.split('-').map(Number);
-            query.harga = { min, max };
-        }
-
-        const catalogs = await catalogModel.getCatalogs(query);
-        res.json(baseResponse(200, "Catalogs fetched successfully", catalogs));
-    } catch (error) {
-        res.status(500).json(baseResponse(500, "Error fetching catalogs", error));
+    if (kategori_id) {
+      query.kategori_id = kategori_id;
     }
+
+    if (rentangHarga) {
+      const [min, max] = rentangHarga.split('-').map(Number);
+      query.harga = { min, max };
+    }
+
+    const catalogs = await catalogModel.getCatalogs(query);
+    return baseResponse(res, true, 200, "Catalogs fetched successfully", catalogs);
+  } catch (error) {
+    console.error("Error fetching catalogs:", error);
+    return baseResponse(res, false, 500, "Error fetching catalogs", error.message);
+  }
 };
 
-const getCatalogDetail = async (req, res) => {
-    const { id } = req.params;
+exports.getCatalogDetail = async (req, res) => {
+  const { id } = req.params;
 
-    try {
-        const catalog = await catalogModel.getCatalogById(id);
+  try {
+    const catalog = await catalogModel.getCatalogById(id);
 
-        if (!catalog) {
-            return res.status(404).json(baseResponse(404, "Catalog not found"));
-        }
-
-        res.json(baseResponse(200, "Catalog detail fetched successfully", catalog));
-    } catch (error) {
-        res.status(500).json(baseResponse(500, "Error fetching catalog detail", error));
+    if (!catalog) {
+      return baseResponse(res, false, 404, "Catalog not found", null);
     }
+
+    return baseResponse(res, true, 200, "Catalog detail fetched successfully", catalog);
+  } catch (error) {
+    console.error("Error fetching catalog detail:", error);
+    return baseResponse(res, false, 500, "Error fetching catalog detail", error.message);
+  }
 };
 
-const updateCatalog = async (req, res) => {
-    const { id } = req.params;
-    const catalogData = req.body;
+exports.createCatalog = async (req, res) => {
+  const { namaKatalog, kategori_id, lokasi, places_id, harga, rating, deskripsiKatalog } = req.body;
 
-    try {
-        const updatedCatalog = await catalogModel.updateCatalog(id, catalogData);
+  try {
+    const catalog = await catalogModel.createCatalog({
+      namaKatalog,
+      kategori_id,
+      lokasi,
+      places_id,
+      harga,
+      rating,
+      deskripsiKatalog
+    });
 
-        if (!updatedCatalog) {
-            return res.status(404).json(baseResponse(404, "Catalog not found"));
-        }
-
-        res.json(baseResponse(200, "Catalog updated successfully", updatedCatalog));
-    } catch (error) {
-        res.status(500).json(baseResponse(500, "Error updating catalog", error));
-    }
+    return baseResponse(res, true, 201, "Catalog created successfully", catalog);
+  } catch (error) {
+    console.error("Error creating catalog:", error);
+    return baseResponse(res, false, 500, "Error creating catalog", error.message);
+  }
 };
 
-const deleteCatalog = async (req, res) => {
-    const { id } = req.params;
+exports.updateCatalog = async (req, res) => {
+  const { id } = req.params;
+  const catalogData = req.body;
 
-    try {
-        const deletedCatalog = await catalogModel.deleteCatalog(id);
+  try {
+    const updatedCatalog = await catalogModel.updateCatalog(id, catalogData);
 
-        if (!deletedCatalog) {
-            return res.status(404).json(baseResponse(404, "Catalog not found"));
-        }
-
-        res.json(baseResponse(200, "Catalog deleted successfully", deletedCatalog));
-    } catch (error) {
-        res.status(500).json(baseResponse(500, "Error deleting catalog", error));
+    if (!updatedCatalog) {
+      return baseResponse(res, false, 404, "Catalog not found", null);
     }
+
+    return baseResponse(res, true, 200, "Catalog updated successfully", updatedCatalog);
+  } catch (error) {
+    console.error("Error updating catalog:", error);
+    return baseResponse(res, false, 500, "Error updating catalog", error.message);
+  }
 };
 
-module.exports = {
-    getCatalogs,
-    getCatalogDetail,
-    updateCatalog,
-    deleteCatalog
+exports.deleteCatalog = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedCatalog = await catalogModel.deleteCatalog(id);
+
+    if (!deletedCatalog) {
+      return baseResponse(res, false, 404, "Catalog not found", null);
+    }
+
+    return baseResponse(res, true, 200, "Catalog deleted successfully", deletedCatalog);
+  } catch (error) {
+    console.error("Error deleting catalog:", error);
+    return baseResponse(res, false, 500, "Error deleting catalog", error.message);
+  }
 };

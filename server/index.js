@@ -20,8 +20,8 @@ pool.connect()
 // Routes
 app.use('/auth', require('./routes/auth.route'));
 app.use('/reviews', require('./routes/review.route'));
-app.use('/restaurant', require('./routes/restaurant.route'));
-app.use('/spots', require('./routes/spot.route'));
+app.use('/articles', require('./routes/articles.route'));
+app.use('/places', require('./routes/places.route'));
 app.use('/catalogs', require('./routes/catalog.route')); 
 
 // Default route
