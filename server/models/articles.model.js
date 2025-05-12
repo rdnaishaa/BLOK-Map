@@ -10,14 +10,13 @@ exports.createArticle = async (article, image) => {
 
     const res = await db.query(
       `INSERT INTO articles (
-        title, content, rating, restaurant_id, image_url
-      ) VALUES ($1, $2, $3, $4, $5) 
+        judulArtikel, kontenArtikel, places_id, image_url
+      ) VALUES ($1, $2, $3, $4) 
       RETURNING *`,
       [
-        article.title,
-        article.content,
-        article.rating,
-        article.restaurant_id,
+        article.judulArtikel,
+        article.kontenArtikel,
+        article.places_id,
         imageUrl
       ]
     );
@@ -26,19 +25,30 @@ exports.createArticle = async (article, image) => {
     console.error("Error creating article:", error);
     throw error;
   }
-}
+};
 
-exports.getArticleById = async (id) => {
+exports.getAllArticles = async (query) => {
+  try {
+    const res = await db.query("SELECT * FROM articles ORDER BY created_at DESC");
+    return res.rows;
+  } catch (error) {
+    console.error("Error getting all articles:", error);
+    throw error;
+  }
+};
+
+exports.getArticleByKategori = async (kategori) => {
   try {
     const res = await db.query(
-      "SELECT * FROM articles WHERE id = $1",
-      [id]
+      `SELECT a.* FROM articles a
+       JOIN kategori k ON a.kategori_id = k.id
+       WHERE k.nama_kategori = $1
+       ORDER BY a.created_at DESC`,
+      [kategori]
     );
-
-    if (res.rows.length === 0) return null;
-    return res.rows[0];
+    return res.rows;
   } catch (error) {
-    console.error("Error getting article by id:", error);
+    console.error("Error getting articles by category name:", error);
     throw error;
   }
 };
@@ -53,17 +63,15 @@ exports.updateArticle = async (id, articleData, image) => {
 
     const res = await db.query(
       `UPDATE articles SET
-        title = $1,
-        content = $2,
-        rating = $3,
-        image_url = $4,
+        judulArtikel = $1,
+        kontenArtikel = $2,
+        image_url = $3,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $5
+      WHERE id = $4
       RETURNING *`,
       [
-        articleData.title,
-        articleData.content,
-        articleData.rating,
+        articleData.judulArtikel,
+        articleData.kontenArtikel,
         imageUrl,
         id
       ]

@@ -1,7 +1,7 @@
 CREATE TABLE places (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    namaRestaurant VARCHAR(100) NOT NULL,
-    kategori_id INTEGER REFERENCES categories(id)
+    namaTempat VARCHAR(100) NOT NULL,
+    kategori_id UUID REFERENCES categories(id),
     lokasi VARCHAR(100) NOT NULL CHECK (lokasi IN (
         'Blok-M Square',
         'Plaza Blok-M',
@@ -13,8 +13,8 @@ CREATE TABLE places (
         'Kebayoran Baru'
     )),
     rating DECIMAL(3,2) CHECK (rating >= 0 AND rating <= 5),
-    price NUMRANGE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    price DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE articles (
