@@ -1,18 +1,9 @@
-class BaseResponse {
-  static success(data, message = 'Success') {
-    return {
-      success: true,
-      message,
-      data,
-    };
-  }
+const baseResponse = (res, success, status, message, payload) => {
+  return res.status(status).json({
+    success,
+    message,
+    payload,
+  });
+};
 
-  static error(message) {
-    return {
-      success: false,
-      message,
-    };
-  }
-}
-
-module.exports = BaseResponse;
+module.exports = baseResponse;

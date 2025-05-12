@@ -1,4 +1,4 @@
-const db = require("../config/pgDatabase");
+const db = require("../config/pg.database");
 
 const KATEGORI_CHOICES = [
     'Atraksi',

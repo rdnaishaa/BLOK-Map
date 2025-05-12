@@ -1,21 +1,13 @@
 const express = require('express');
 const spotController = require('../controllers/spot.controller');
-const authMiddleware = require('../middleware/auth');
-const adminMiddleware = require('../middleware/admin');
+const { protect, authorize } = require('../middleware/auth');
 
-const router = express.Router();
+const router = express.Router(protect);
 
-// Public routes
+router.post('/', authorize('user', 'admin'), spotController.createSpot);
 router.get('/', spotController.getSpots);
 router.get('/:id', spotController.getSpotById);
-router.get('/categories/list', spotController.getKategoriList);
-router.get('/locations/list', spotController.getLokasiList);
-
-// Admin routes
-router.use(authMiddleware);
-router.use(adminMiddleware);
-router.post('/', spotController.createSpot);
-router.put('/:id', spotController.updateSpot);
-router.delete('/:id', spotController.deleteSpot);
+router.put('/:id', authorize('admin'), spotController.updateSpot);
+router.delete('/:id', authorize('admin'), spotController.deleteSpot);
 
 module.exports = router;

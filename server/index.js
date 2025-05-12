@@ -1,10 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const reviewRoutes = require('./routes/review.route');
-const restaurantRoutes = require('./routes/restaurant.route');
-const spotRoutes = require('./routes/spot.route');
-const catalogRoutes = require('./routes/catalog.route');
 const { pool } = require('./config/pg.database');
 
 dotenv.config();
@@ -22,10 +18,11 @@ pool.connect()
   .catch((err) => console.error('PostgreSQL connection error:', err));
 
 // Routes
-app.use('/reviews', reviewRoutes);
-app.use('/restaurant', restaurantRoutes);
-app.use('/spots', spotRoutes);
-app.use('/catalogs', catalogRoutes); // Added catalog routes
+app.use('/auth', require('./routes/auth.route'));
+app.use('/reviews', require('./routes/review.route'));
+app.use('/restaurant', require('./routes/restaurant.route'));
+app.use('/spots', require('./routes/spot.route'));
+app.use('/catalogs', require('./routes/catalog.route')); 
 
 // Default route
 app.get('/', (req, res) => {

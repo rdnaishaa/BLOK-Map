@@ -1,12 +1,12 @@
-
 const db = require("../config/pg.database");
+const bcrypt = require('bcrypt');
 
 exports.registerUser = async (user) => {
-    const hashed_password = bcrypt.hashSync(user.hashed_password, 10);
-    const { username, email, role, first_name, last_name } = user;
+    const { username, email, password, role, first_name, last_name } = user;
     try {
+        const hashed_password = await bcrypt.hash(password, 10);
         const res = await db.query(
-            `INSERT INTO users (username, email, hashed_password, role, first_name, last_name)
+            `INSERT INTO users (username, email, password_hash, role, first_name, last_name)
             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
             [username, email, hashed_password, role, first_name, last_name]
         );
@@ -17,15 +17,19 @@ exports.registerUser = async (user) => {
     }
 }
 
-exports.loginUser = async (email, hashed_password) => {
+exports.loginUser = async (email, password) => {
     try {
         const res = await db.query(
-            "SELECT * FROM users WHERE email = $1 AND hashed_password = $2",
-            [email, hashed_password]
+            "SELECT * FROM users WHERE email = $1",
+            [email]
         );
 
         if (res.rows.length === 0) return null;
-        return res.rows[0];
+
+        const user = res.rows[0];
+        const isValidPassword = await bcrypt.compare(password, user.password_hash);
+        if (!isValidPassword) return null;
+        return user;
     } catch (error) {
         console.error("Error logging in user:", error);
         throw error;
@@ -43,6 +47,21 @@ exports.getUserById = async (id) => {
         return res.rows[0];
     } catch (error) {
         console.error("Error getting user by id:", error);
+        throw error;
+    }
+}
+
+exports.getUserByEmail = async (email) => {
+    try {
+        const res = await db.query(
+            "SELECT * FROM users WHERE email = $1",
+            [email]
+        );
+        if (res.rows.length === 0) return null;
+        return res.rows[0];
+    }
+    catch (error) {
+        console.error("Error getting user by email:", error);
         throw error;
     }
 }
