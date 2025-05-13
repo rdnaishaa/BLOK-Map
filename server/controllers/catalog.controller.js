@@ -2,57 +2,57 @@ const catalogModel = require("../models/catalog.model");
 const baseResponse = require("../utils/baseResponse.util");
 
 exports.getCatalogs = async (req, res) => {
-  const { kategori_id, rentangHarga } = req.query;
-
   try {
-    let query = {};
-
-    if (kategori_id) {
-      query.kategori_id = kategori_id;
-    }
-
-    if (rentangHarga) {
-      const [min, max] = rentangHarga.split('-').map(Number);
-      query.harga = { min, max };
-    }
+    const { kategoriRestaurant_id, lokasi, minHarga, maxHarga } = req.query;
+    const query = {
+      kategoriRestaurant_id,
+      lokasi,
+      minHarga: minHarga ? parseInt(minHarga) : undefined,
+      maxHarga: maxHarga ? parseInt(maxHarga) : undefined
+    };
 
     const catalogs = await catalogModel.getCatalogs(query);
-    return baseResponse(res, true, 200, "Catalogs fetched successfully", catalogs);
+    return baseResponse(res, true, 200, "Catalogs retrieved successfully", catalogs);
   } catch (error) {
-    console.error("Error fetching catalogs:", error);
-    return baseResponse(res, false, 500, "Error fetching catalogs", error.message);
+    console.error("Error getting catalogs:", error);
+    return baseResponse(res, false, 500, "Error retrieving catalogs", error.message);
   }
 };
 
 exports.getCatalogDetail = async (req, res) => {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
     const catalog = await catalogModel.getCatalogById(id);
 
     if (!catalog) {
       return baseResponse(res, false, 404, "Catalog not found", null);
     }
 
-    return baseResponse(res, true, 200, "Catalog detail fetched successfully", catalog);
+    return baseResponse(res, true, 200, "Catalog retrieved successfully", catalog);
   } catch (error) {
-    console.error("Error fetching catalog detail:", error);
-    return baseResponse(res, false, 500, "Error fetching catalog detail", error.message);
+    console.error("Error getting catalog:", error);
+    return baseResponse(res, false, 500, "Error retrieving catalog", error.message);
   }
 };
 
 exports.createCatalog = async (req, res) => {
-  const { namaKatalog, kategori_id, lokasi, places_id, harga, rating, deskripsiKatalog } = req.body;
-
   try {
+    const {
+      namaKatalog,
+      kategoriRestaurant_id,
+      lokasi,
+      harga,
+      deskripsiKatalog,
+      restaurant_id
+    } = req.body;
+
     const catalog = await catalogModel.createCatalog({
       namaKatalog,
-      kategori_id,
+      kategoriRestaurant_id,
       lokasi,
-      places_id,
       harga,
-      rating,
-      deskripsiKatalog
+      deskripsiKatalog,
+      restaurant_id
     });
 
     return baseResponse(res, true, 201, "Catalog created successfully", catalog);
@@ -63,10 +63,10 @@ exports.createCatalog = async (req, res) => {
 };
 
 exports.updateCatalog = async (req, res) => {
-  const { id } = req.params;
-  const catalogData = req.body;
-
   try {
+    const { id } = req.params;
+    const catalogData = req.body;
+
     const updatedCatalog = await catalogModel.updateCatalog(id, catalogData);
 
     if (!updatedCatalog) {
@@ -81,9 +81,8 @@ exports.updateCatalog = async (req, res) => {
 };
 
 exports.deleteCatalog = async (req, res) => {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
     const deletedCatalog = await catalogModel.deleteCatalog(id);
 
     if (!deletedCatalog) {
