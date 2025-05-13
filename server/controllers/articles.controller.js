@@ -3,9 +3,19 @@ const baseResponse = require("../utils/baseResponse.util");
 
 exports.createArticle = async (req, res) => {
   try {
-    const { judulArtikel, kontenArtikel, places_id } = req.body;
+    const { judulArtikel, kontenArtikel, restaurant_id, spot_id } = req.body;
     const image = req.file;
-    const articleData = { judulArtikel, kontenArtikel, places_id };
+    
+    if (!restaurant_id && !spot_id) {
+      return baseResponse(res, false, 400, "Either restaurant_id or spot_id must be provided", null);
+    }
+
+    const articleData = { 
+      judulArtikel, 
+      kontenArtikel, 
+      restaurant_id, 
+      spot_id 
+    };
 
     const newArticle = await articlesModel.createArticle(articleData, image);
     return baseResponse(res, true, 201, "Article created successfully", newArticle);
@@ -28,9 +38,15 @@ exports.getAllArticles = async (req, res) => {
 exports.updateArticle = async (req, res) => {
   try {
     const { id } = req.params;
-    const { judulArtikel, kontenArtikel, places_id } = req.body;
+    const { judulArtikel, kontenArtikel, restaurant_id, spot_id } = req.body;
     const image = req.file;
-    const articleData = { judulArtikel, kontenArtikel, places_id };
+    
+    const articleData = { 
+      judulArtikel, 
+      kontenArtikel, 
+      restaurant_id, 
+      spot_id 
+    };
 
     const updatedArticle = await articlesModel.updateArticle(id, articleData, image);
     if (!updatedArticle) {

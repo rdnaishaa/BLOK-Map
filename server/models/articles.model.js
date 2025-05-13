@@ -10,14 +10,15 @@ exports.createArticle = async (article, image) => {
 
     const res = await db.query(
       `INSERT INTO articles (
-        judulArtikel, kontenArtikel, places_id, image_url
-      ) VALUES ($1, $2, $3, $4) 
+        judulArtikel, kontenArtikel, image_url, restaurant_id, spot_id
+      ) VALUES ($1, $2, $3, $4, $5) 
       RETURNING *`,
       [
         article.judulArtikel,
         article.kontenArtikel,
-        article.places_id,
-        imageUrl
+        imageUrl,
+        article.restaurant_id || null,
+        article.spot_id || null
       ]
     );
     return res.rows[0];
@@ -27,28 +28,21 @@ exports.createArticle = async (article, image) => {
   }
 };
 
-exports.getAllArticles = async (query) => {
+exports.getAllArticles = async () => {
   try {
-    const res = await db.query("SELECT * FROM articles ORDER BY created_at DESC");
+    const res = await db.query(`
+      SELECT 
+        a.*,
+        r.namaRestaurant,
+        s.namaTempat
+      FROM articles a
+      LEFT JOIN restaurants r ON a.restaurant_id = r.id
+      LEFT JOIN spots s ON a.spot_id = s.id
+      ORDER BY a.created_at DESC
+    `);
     return res.rows;
   } catch (error) {
     console.error("Error getting all articles:", error);
-    throw error;
-  }
-};
-
-exports.getArticleByKategori = async (kategori) => {
-  try {
-    const res = await db.query(
-      `SELECT a.* FROM articles a
-       JOIN kategori k ON a.kategori_id = k.id
-       WHERE k.nama_kategori = $1
-       ORDER BY a.created_at DESC`,
-      [kategori]
-    );
-    return res.rows;
-  } catch (error) {
-    console.error("Error getting articles by category name:", error);
     throw error;
   }
 };
@@ -66,13 +60,17 @@ exports.updateArticle = async (id, articleData, image) => {
         judulArtikel = $1,
         kontenArtikel = $2,
         image_url = $3,
+        restaurant_id = $4,
+        spot_id = $5,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $4
+      WHERE id = $6
       RETURNING *`,
       [
         articleData.judulArtikel,
         articleData.kontenArtikel,
         imageUrl,
+        articleData.restaurant_id || null,
+        articleData.spot_id || null,
         id
       ]
     );

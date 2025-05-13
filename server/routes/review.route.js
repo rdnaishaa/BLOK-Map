@@ -4,9 +4,9 @@ const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router(protect);
 
-router.get('/:place_id', ReviewController.getReviews);
-router.post('/', authorize('user', 'admin'), ReviewController.createReview);
-router.put('/:id', authorize('user', 'admin'), ReviewController.updateReview);
-router.delete('/:id', authorize('user', 'admin'), ReviewController.deleteReview);
+router.get('/', ReviewController.getReviews);
+router.post('/', protect, authorize('user', 'admin'), ReviewController.createReview);
+router.put('/:id', protect, authorize('user', 'admin'), ReviewController.updateReview);
+router.delete('/:id', protect, authorize('user', 'admin'), ReviewController.deleteReview);
 
 module.exports = router;

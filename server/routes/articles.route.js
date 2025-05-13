@@ -6,8 +6,8 @@ const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/', articlesController.getAllArticles);
-router.post('/create', upload.single('image'), articlesController.createArticle);
-router.put('/update/:id', protect,authorize('admin'),upload.single('image'),articlesController.updateArticle);
-router.delete('/delete/:id', protect,authorize('admin'),articlesController.deleteArticle);
+router.post('/create', protect, authorize('admin'), upload.single('image'), articlesController.createArticle);
+router.put('/update/:id', protect, authorize('admin'), upload.single('image'), articlesController.updateArticle);
+router.delete('/delete/:id', protect, authorize('admin'), articlesController.deleteArticle);
 
 module.exports = router;

@@ -4,61 +4,126 @@ const baseResponse = require("../utils/baseResponse.util");
 const ReviewController = {
   async getReviews(req, res) {
     try {
-      const { places_id } = req.params; 
-      const reviews = await ReviewModel.getAllByPlace(places_id); 
-      return res.status(200).json(baseResponse(res, true, 200, "Reviews fetched successfully", reviews));
+      const { spot_id, resto_id } = req.query;
+      let reviews;
+
+      if (spot_id) {
+        reviews = await ReviewModel.getAllBySpot(spot_id);
+      } else if (resto_id) {
+        reviews = await ReviewModel.getAllByRestaurant(resto_id);
+      } else {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "Either spot_id or resto_id must be provided")
+        );
+      }
+
+      return res.status(200).json(
+        baseResponse(res, true, 200, "Reviews fetched successfully", reviews)
+      );
     } catch (error) {
-      return res.status(400).json(baseResponse(res, false, 400, error.message));
+      return res.status(400).json(
+        baseResponse(res, false, 400, error.message)
+      );
     }
   },
 
   async createReview(req, res) {
     try {
-      const { content, rating, places_id } = req.body;
-      const user_id = req.user.id; 
+      const { content, rating, spot_id, resto_id } = req.body;
+      const user_id = req.user.id;
 
-      if (rating < 1 || rating > 5) {
-        return res.status(400).json(baseResponse(res, false, 400, "Rating must be between 1 and 5"));
+      if (!spot_id && !resto_id) {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "Either spot_id or resto_id must be provided")
+        );
+      }
+
+      if (rating < 0 || rating > 5) {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "Rating must be between 0 and 5")
+        );
       }
 
       const result = await ReviewModel.create({
         user_id,
         content,
         rating,
-        places_id
+        spot_id,
+        resto_id
       });
 
-      return res.status(201).json(baseResponse(res, true, 201, "Review created successfully", result.rows[0]));
+      return res.status(201).json(
+        baseResponse(res, true, 201, "Review created successfully", result)
+      );
     } catch (error) {
-      return res.status(500).json(baseResponse(res, false, 500, error.message));
+      return res.status(500).json(
+        baseResponse(res, false, 500, error.message)
+      );
     }
   },
 
   async updateReview(req, res) {
     try {
       const { id } = req.params;
-      const { content, rating } = req.body; 
+      const { content, rating } = req.body;
 
-      if (rating < 1 || rating > 5) {
-        return res.status(400).json(baseResponse(res, false, 400, "Rating must be between 1 and 5"));
+      if (rating < 0 || rating > 5) {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "Rating must be between 0 and 5")
+        );
+      }
+
+      const review = await ReviewModel.getById(id);
+      if (!review) {
+        return res.status(404).json(
+          baseResponse(res, false, 404, "Review not found")
+        );
+      }
+
+      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json(
+          baseResponse(res, false, 403, "Not authorized to update this review")
+        );
       }
 
       const result = await ReviewModel.update(id, { content, rating });
-      return res.status(200).json(baseResponse(res, true, 200, "Review updated successfully", result.rows[0]));
+      return res.status(200).json(
+        baseResponse(res, true, 200, "Review updated successfully", result)
+      );
     } catch (error) {
-      return res.status(400).json(baseResponse(res, false, 400, error.message));
+      return res.status(400).json(
+        baseResponse(res, false, 400, error.message)
+      );
     }
   },
 
   async deleteReview(req, res) {
     try {
-      const { id } = req.params; 
-      await ReviewModel.delete(id); 
-      return res.status(200).json(baseResponse(res, true, 200, "Review deleted successfully", null));
+      const { id } = req.params;
+      
+      const review = await ReviewModel.getById(id);
+      if (!review) {
+        return res.status(404).json(
+          baseResponse(res, false, 404, "Review not found")
+        );
+      }
+
+      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json(
+          baseResponse(res, false, 403, "Not authorized to delete this review")
+        );
+      }
+
+      const result = await ReviewModel.delete(id);
+      return res.status(200).json(
+        baseResponse(res, true, 200, "Review deleted successfully", result)
+      );
     } catch (error) {
-      return res.status(400).json(baseResponse(res, false, 400, error.message));
+      return res.status(400).json(
+        baseResponse(res, false, 400, error.message)
+      );
     }
-  },
+  }
 };
 
 module.exports = ReviewController;
