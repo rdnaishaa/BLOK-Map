@@ -66,26 +66,42 @@ exports.getUserByEmail = async (email) => {
     }
 }
 
-exports.updateUser = async (id, user) => {
-    try {
-        const { username, email, hashed_password, role, first_name, last_name } = userData;
-        const res = await db.query(
-            `UPDATE users SET
-                username = $1,
-                email = $2,
-                hashed_password = $3,
-                role = $4,
-                first_name = $5,
-                last_name = $6,
-            WHERE id = $7 RETURNING *`,
-            [username, email, hashed_password, role, first_name, last_name, id]
-        );
-        return res.rows[0];
-    } catch (error) {
-        console.error("Error updating user:", error);
-        throw error;
+exports.updateUserFields = async (id, fields) => {
+  try {
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    // Hash password if it's being updated
+    if (fields.password) {
+      fields.password_hash = await bcrypt.hash(fields.password, 10);
+      delete fields.password; // Remove plain password from fields
     }
-}
+
+    // Dynamically build the query based on provided fields
+    for (const [key, value] of Object.entries(fields)) {
+      updateFields.push(`${key} = $${paramCount}`);
+      values.push(value);
+      paramCount++;
+    }
+
+    values.push(id); // Add the ID as the last parameter
+
+    const query = `
+      UPDATE users
+      SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${paramCount}
+      RETURNING id, username, email, role, first_name, last_name, created_at`;
+
+    const res = await db.query(query, values);
+
+    if (res.rows.length === 0) return null; // If no rows are updated, return null
+    return res.rows[0]; // Return the updated user
+  } catch (error) {
+    console.error("Error updating user fields:", error);
+    throw error;
+  }
+};
 
 exports.deleteUser = async (id) => {
     try {

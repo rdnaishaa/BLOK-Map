@@ -86,31 +86,35 @@ exports.getSpotById = async (id) => {
     }
 };
 
-exports.updateSpot = async (id, spotData) => {
-    try {
-        const res = await db.query(
-            `UPDATE spots SET
-                namaTempat = $1,
-                kategoriSpot_id = (SELECT id FROM kategori_spot WHERE kategori = $2),
-                lokasi = $3,
-                rating = $4,
-                price = $5,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = $6 RETURNING *`,
-            [
-                spotData.namaTempat,
-                spotData.kategori,
-                spotData.lokasi,
-                spotData.rating,
-                spotData.price,
-                id
-            ]
-        );
-        return res.rows[0];
-    } catch (error) {
-        console.error("Error updating spot:", error);
-        throw error;
+exports.updateSpotFields = async (id, fields) => {
+  try {
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    // Dynamically build the query based on provided fields
+    for (const [key, value] of Object.entries(fields)) {
+      updateFields.push(`${key} = $${paramCount}`);
+      values.push(value);
+      paramCount++;
     }
+
+    values.push(id); // Add the ID as the last parameter
+
+    const query = `
+      UPDATE spots
+      SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${paramCount}
+      RETURNING *`;
+
+    const res = await db.query(query, values);
+
+    if (res.rows.length === 0) return null; // If no rows are updated, return null
+    return res.rows[0]; // Return the updated spot
+  } catch (error) {
+    console.error("Error updating spot fields:", error);
+    throw error;
+  }
 };
 
 exports.deleteSpot = async (id) => {

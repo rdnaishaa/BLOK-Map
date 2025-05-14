@@ -88,33 +88,35 @@ exports.getRestaurantById = async (id) => {
     }
 };
 
-exports.updateRestaurant = async (id, restaurantData) => {
-    try {
-        const res = await db.query(
-            `UPDATE restaurants SET
-                namaRestaurant = $1,
-                kategoriRestaurant_id = (SELECT id FROM kategori_restaurant WHERE kategori = $2),
-                lokasi = $3,
-                rating = $4,
-                price = $5,
-                informasiRestaurant = $6,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = $7 RETURNING *`,
-            [
-                restaurantData.namaRestaurant,
-                restaurantData.kategori,
-                restaurantData.lokasi,
-                restaurantData.rating,
-                restaurantData.price,
-                restaurantData.informasiRestaurant,
-                id
-            ]
-        );
-        return res.rows[0];
-    } catch (error) {
-        console.error("Error updating restaurant:", error);
-        throw error;
+exports.updateRestaurantFields = async (id, fields) => {
+  try {
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    // Dynamically build the query based on provided fields
+    for (const [key, value] of Object.entries(fields)) {
+      updateFields.push(`${key} = $${paramCount}`);
+      values.push(value);
+      paramCount++;
     }
+
+    values.push(id); // Add the ID as the last parameter
+
+    const query = `
+      UPDATE restaurants
+      SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${paramCount}
+      RETURNING *`;
+
+    const res = await db.query(query, values);
+
+    if (res.rows.length === 0) return null; // If no rows are updated, return null
+    return res.rows[0]; // Return the updated restaurant
+  } catch (error) {
+    console.error("Error updating restaurant fields:", error);
+    throw error;
+  }
 };
 
 exports.deleteRestaurant = async (id) => {

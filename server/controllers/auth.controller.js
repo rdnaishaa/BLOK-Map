@@ -3,9 +3,22 @@ const baseResponse = require('../utils/baseResponse.util');
 const userRepository = require('../models/user.model');
 const jwt = require('jsonwebtoken');
 
+const validatePassword = (password) => {
+  const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+  return regex.test(password);
+}
+
 exports.register = async (req, res) => {
   try {
     const { username, email, password, role, first_name, last_name } = req.body;
+
+    if (!username || !email || !password) {
+      return baseResponse(res, false, 400, 'Please provide username, email, and password', null);
+    }
+
+    if (!validatePassword(password)) {
+      return baseResponse(res, false, 400, 'Password must be at least 6 characters long, include a number, and a special character', null);
+    }
 
     const existingUser = await userRepository.getUserByEmail(email);
     if (existingUser) {
@@ -46,13 +59,17 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return baseResponse(res, false, 400, 'Please provide email and password', null);
+    }
+
     const user = await userRepository.loginUser(email, password);
     if (!user) {
       return baseResponse(res, false, 401, 'Invalid email or password', null);
     }
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN || '1h'
+      expiresIn: process.env.JWT_EXPIRATION
     });
 
     const userData = {
@@ -70,32 +87,61 @@ exports.login = async (req, res) => {
     console.error('Error logging in user:', error);
     return baseResponse(res, false, 500, 'Internal server error', null);
   }
-}
+};
 
-exports.updateUser = async (req, res) => {
+exports.getMe = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { username, email, password, role, first_name, last_name } = req.body;
+    const user = await userRepository.getUserById(req.user.id);
 
-    const updatedUser = await userRepository.updateUser(id, {
-      username,
-      email,
-      password,
-      role,
-      first_name,
-      last_name
-    });
-
-    if (!updatedUser) {
-      return baseResponse(res, false, 404, 'User not found', null);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
     }
 
-    return baseResponse(res, true, 200, 'User updated successfully', updatedUser);
+    res.status(200).json({
+      success: true,
+      data: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        created_at: user.created_at
+      }
+    });
   } catch (error) {
-    console.error('Error updating user:', error);
-    return baseResponse(res, false, 500, 'Internal server error', null);
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
   }
-}
+};
+
+exports.updateUserFields = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fields = req.body; // Fields to update (e.g., { username: "newUsername", email: "newEmail@example.com", password: "newPassword" })
+
+    if (Object.keys(fields).length === 0) {
+      return baseResponse(res, false, 400, "No fields provided for update", null);
+    }
+
+    const updatedUser = await userRepository.updateUserFields(id, fields);
+
+    if (!updatedUser) {
+      return baseResponse(res, false, 404, "User not found", null);
+    }
+
+    return baseResponse(res, true, 200, "User updated successfully", updatedUser);
+  } catch (error) {
+    console.error("Error updating user fields:", error);
+    return baseResponse(res, false, 500, "Error updating user fields", error.message);
+  }
+};
 
 exports.deleteUser = async (req, res) => {
   try {
@@ -111,4 +157,4 @@ exports.deleteUser = async (req, res) => {
     console.error('Error deleting user:', error);
     return baseResponse(res, false, 500, 'Internal server error', null);
   }
-}
+};

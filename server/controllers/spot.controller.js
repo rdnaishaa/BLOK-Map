@@ -39,24 +39,26 @@ exports.getSpotById = async (req, res) => {
     }
 };
 
-exports.updateSpot = async (req, res) => {
+exports.updateSpotFields = async (req, res) => {
+  try {
     const { id } = req.params;
-    const { namaTempat, kategori, lokasi, rating, price } = req.body;
-    try {
-        const spot = await spotModel.updateSpot(id, {
-            namaTempat,
-            kategori,
-            lokasi,
-            rating,
-            price
-        });
-        if (!spot) {
-            return BaseResponse(res, false, 404, "Spot not found", null);
-        }
-        return BaseResponse(res, true, 200, "Spot updated successfully", spot);
-    } catch (error) {
-        return BaseResponse(res, false, 500, "Error updating spot", error.message);
+    const fields = req.body; 
+
+    if (Object.keys(fields).length === 0) {
+      return BaseResponse(res, false, 400, "No fields provided for update", null);
     }
+
+    const updatedSpot = await spotModel.updateSpotFields(id, fields);
+
+    if (!updatedSpot) {
+      return BaseResponse(res, false, 404, "Spot not found", null);
+    }
+
+    return BaseResponse(res, true, 200, "Spot updated successfully", updatedSpot);
+  } catch (error) {
+    console.error("Error updating spot fields:", error);
+    return BaseResponse(res, false, 500, "Error updating spot fields", error.message);
+  }
 };
 
 exports.deleteSpot = async (req, res) => {

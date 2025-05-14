@@ -62,17 +62,33 @@ const ReviewModel = {
     }
   },
 
-  async update(id, { content, rating }) {
-    const query = `
-      UPDATE reviews 
-      SET content = $1, rating = $2
-      WHERE id = $3 
-      RETURNING *
-    `;
+ async updateReviewFields(id, fields) {
     try {
-      const result = await pool.query(query, [content, rating, id]);
-      return result.rows[0];
+      const updateFields = [];
+      const values = [];
+      let paramCount = 1;
+
+      // Dynamically build the query based on provided fields
+      for (const [key, value] of Object.entries(fields)) {
+        updateFields.push(`${key} = $${paramCount}`);
+        values.push(value);
+        paramCount++;
+      }
+
+      values.push(id); // Add the ID as the last parameter
+
+      const query = `
+        UPDATE reviews
+        SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $${paramCount}
+        RETURNING *`;
+
+      const result = await pool.query(query, values);
+
+      if (result.rows.length === 0) return null; // If no rows are updated, return null
+      return result.rows[0]; // Return the updated review
     } catch (error) {
+      console.error("Error updating review fields:", error);
       throw new Error(error.message);
     }
   },

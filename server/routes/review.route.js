@@ -6,7 +6,7 @@ const router = express.Router(protect);
 
 router.get('/', ReviewController.getReviews);
 router.post('/', protect, authorize('user', 'admin'), ReviewController.createReview);
-router.put('/:id', protect, authorize('user', 'admin'), ReviewController.updateReview);
+router.patch('/:id', protect, authorize('user', 'admin'), ReviewController.updateReviewFields);
 router.delete('/:id', protect, authorize('user', 'admin'), ReviewController.deleteReview);
 
 module.exports = router;
