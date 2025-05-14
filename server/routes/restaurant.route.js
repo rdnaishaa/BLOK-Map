@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/', restaurantController.getRestaurants);
 router.get('/:id', restaurantController.getRestaurantById);
 router.post('/', protect, authorize('admin'), restaurantController.createRestaurant);
-router.put('/:id', protect, authorize('admin'), restaurantController.updateRestaurant);
+router.patch('/:id', protect, authorize('admin'), restaurantController.updateRestaurantFields);
 router.delete('/:id', protect, authorize('admin'), restaurantController.deleteRestaurant);
 
 module.exports = router;

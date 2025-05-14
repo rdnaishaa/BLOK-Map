@@ -54,26 +54,26 @@ exports.getRestaurantById = async (req, res) => {
     }
 };
 
-exports.updateRestaurant = async (req, res) => {
+exports.updateRestaurantFields = async (req, res) => {
+  try {
     const { id } = req.params;
-    const { namaRestaurant, kategori, lokasi, rating, price, informasiRestaurant } = req.body;
-    try {
-        const restaurant = await restaurantModel.updateRestaurant(id, {
-            namaRestaurant,
-            kategori,
-            lokasi,
-            rating,
-            price,
-            informasiRestaurant
-        });
-        if (!restaurant) {
-            return BaseResponse(res, false, 404, "Restaurant not found", null);
-        }
-        return BaseResponse(res, true, 200, "Restaurant updated successfully", restaurant);
-    } catch (error) {
-        console.error("Error updating restaurant:", error);
-        return BaseResponse(res, false, 500, "Error updating restaurant", error.message);
+    const fields = req.body; 
+
+    if (Object.keys(fields).length === 0) {
+      return BaseResponse(res, false, 400, "No fields provided for update", null);
     }
+
+    const updatedRestaurant = await restaurantModel.updateRestaurantFields(id, fields);
+
+    if (!updatedRestaurant) {
+      return BaseResponse(res, false, 404, "Restaurant not found", null);
+    }
+
+    return BaseResponse(res, true, 200, "Restaurant updated successfully", updatedRestaurant);
+  } catch (error) {
+    console.error("Error updating restaurant fields:", error);
+    return BaseResponse(res, false, 500, "Error updating restaurant fields", error.message);
+  }
 };
 
 exports.deleteRestaurant = async (req, res) => {

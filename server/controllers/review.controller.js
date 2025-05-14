@@ -62,14 +62,14 @@ const ReviewController = {
     }
   },
 
-  async updateReview(req, res) {
+  async updateReviewFields(req, res) {
     try {
       const { id } = req.params;
-      const { content, rating } = req.body;
+      const fields = req.body; // Fields to update (e.g., { content: "Updated content", rating: 4.5 })
 
-      if (rating < 0 || rating > 5) {
+      if (Object.keys(fields).length === 0) {
         return res.status(400).json(
-          baseResponse(res, false, 400, "Rating must be between 0 and 5")
+          baseResponse(res, false, 400, "No fields provided for update", null)
         );
       }
 
@@ -86,13 +86,21 @@ const ReviewController = {
         );
       }
 
-      const result = await ReviewModel.update(id, { content, rating });
+      const updatedReview = await ReviewModel.updateReviewFields(id, fields);
+
+      if (!updatedReview) {
+        return res.status(404).json(
+          baseResponse(res, false, 404, "Review not found", null)
+        );
+      }
+
       return res.status(200).json(
-        baseResponse(res, true, 200, "Review updated successfully", result)
+        baseResponse(res, true, 200, "Review updated successfully", updatedReview)
       );
     } catch (error) {
-      return res.status(400).json(
-        baseResponse(res, false, 400, error.message)
+      console.error("Error updating review fields:", error);
+      return res.status(500).json(
+        baseResponse(res, false, 500, "Error updating review fields", error.message)
       );
     }
   },

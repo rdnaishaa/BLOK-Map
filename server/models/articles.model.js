@@ -47,10 +47,11 @@ exports.getAllArticles = async () => {
   }
 };
 
-exports.updateArticle = async (id, articleData, image) => {
+exports.updateArticle = async (id, article, image) => {
   try {
-    let imageUrl = articleData.image_url;
+    let imageUrl = article.image_url;
     if (image) {
+      console.log("Image URL:", imageUrl);
       const uploadResponse = await db.cloudinary.uploader.upload(image.path);
       imageUrl = uploadResponse.secure_url;
     }
@@ -66,11 +67,11 @@ exports.updateArticle = async (id, articleData, image) => {
       WHERE id = $6
       RETURNING *`,
       [
-        articleData.judulArtikel,
-        articleData.kontenArtikel,
+        article.judulArtikel,
+        article.kontenArtikel,
         imageUrl,
-        articleData.restaurant_id || null,
-        articleData.spot_id || null,
+        article.restaurant_id || null,
+        article.spot_id || null,
         id
       ]
     );
@@ -79,6 +80,28 @@ exports.updateArticle = async (id, articleData, image) => {
     return res.rows[0];
   } catch (error) {
     console.error("Error updating article:", error);
+    throw error;
+  }
+};
+
+exports.updateImage = async (id, image) => {
+  try {
+    const uploadResponse = await db.cloudinary.uploader.upload(image.path);
+    const imageUrl = uploadResponse.secure_url;
+
+    const res = await db.query(
+      `UPDATE articles SET
+        image_url = $1,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING *`,
+      [imageUrl, id]
+    );
+
+    if (res.rows.length === 0) return null;
+    return res.rows[0];
+  } catch (error) {
+    console.error("Error updating image:", error);
     throw error;
   }
 };

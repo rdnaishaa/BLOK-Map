@@ -97,32 +97,32 @@ exports.getCatalogById = async (id) => {
   }
 };
 
-exports.updateCatalog = async (id, catalogData) => {
+exports.updateCatalogFields = async (id, fields) => {
   try {
-    const res = await db.query(
-      `UPDATE catalogs SET
-        namaKatalog = $1,
-        kategoriRestaurant_id = $2,
-        lokasi = $3,
-        harga = $4,
-        deskripsiKatalog = $5,
-        restaurant_id = $6,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = $7
-      RETURNING *`,
-      [
-        catalogData.namaKatalog,
-        catalogData.kategoriRestaurant_id,
-        catalogData.lokasi,
-        catalogData.harga,
-        catalogData.deskripsiKatalog,
-        catalogData.restaurant_id,
-        id
-      ]
-    );
-    return res.rows[0];
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    for (const [key, value] of Object.entries(fields)) {
+      updateFields.push(`${key} = $${paramCount}`);
+      values.push(value);
+      paramCount++;
+    }
+
+    values.push(id); // Add the ID as the last parameter
+
+    const query = `
+      UPDATE catalogs
+      SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${paramCount}
+      RETURNING *`;
+
+    const res = await db.query(query, values);
+
+    if (res.rows.length === 0) return null; // If no rows are updated, return null
+    return res.rows[0]; // Return the updated catalog
   } catch (error) {
-    console.error("Error updating catalog:", error);
+    console.error("Error updating catalog fields:", error);
     throw error;
   }
 };

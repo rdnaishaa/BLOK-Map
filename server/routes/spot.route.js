@@ -9,7 +9,7 @@ router.get('/:id', spotController.getSpotById);
 router.get('/categories/list', spotController.getKategoriList);
 router.get('/locations/list', spotController.getLokasiList);
 router.post('/', protect, authorize('admin'), spotController.createSpot);
-router.put('/:id', protect, authorize('admin'), spotController.updateSpot);
+router.patch('/:id', protect, authorize('admin'), spotController.updateSpotFields);
 router.delete('/:id', protect, authorize('admin'), spotController.deleteSpot);
 
 module.exports = router;

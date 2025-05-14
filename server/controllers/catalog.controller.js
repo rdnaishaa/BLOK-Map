@@ -62,12 +62,16 @@ exports.createCatalog = async (req, res) => {
   }
 };
 
-exports.updateCatalog = async (req, res) => {
+exports.updateCatalogFields = async (req, res) => {
   try {
     const { id } = req.params;
-    const catalogData = req.body;
+    const fields = req.body; // Fields to update (e.g., { lokasi: "New Location", harga: 50000 })
 
-    const updatedCatalog = await catalogModel.updateCatalog(id, catalogData);
+    if (Object.keys(fields).length === 0) {
+      return baseResponse(res, false, 400, "No fields provided for update", null);
+    }
+
+    const updatedCatalog = await catalogModel.updateCatalogFields(id, fields);
 
     if (!updatedCatalog) {
       return baseResponse(res, false, 404, "Catalog not found", null);
@@ -75,8 +79,8 @@ exports.updateCatalog = async (req, res) => {
 
     return baseResponse(res, true, 200, "Catalog updated successfully", updatedCatalog);
   } catch (error) {
-    console.error("Error updating catalog:", error);
-    return baseResponse(res, false, 500, "Error updating catalog", error.message);
+    console.error("Error updating catalog fields:", error);
+    return baseResponse(res, false, 500, "Error updating catalog fields", error.message);
   }
 };
 
