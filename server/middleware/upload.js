@@ -1,26 +1,35 @@
 const multer = require("multer");
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Folder untuk menyimpan file sementara
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname); // Format nama file
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  console.log("File received in multer:", file); // Log file yang diterima
-  if (!file.mimetype.startsWith("image/")) {
-    return cb(new Error("Only image files are allowed"), false);
-  }
-  cb(null, true);
-};
+const { cloudinary } = require("../config/pg.database");
+const storage = multer.memoryStorage(); 
 
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Batas ukuran file 5MB
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, 
 });
 
-module.exports = upload;
+const uploadImageToCloudinary = async (fileBuffer, publicId = null) => {
+    try {
+        const uploadResult = await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream(
+                {
+                    resource_type: "auto",
+                    public_id: publicId,
+                },
+                (error, result) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(result);
+                    }
+                }
+            ).end(fileBuffer);
+        });
+
+        return uploadResult.secure_url;
+    } catch (error) {
+        console.error("Error uploading image to Cloudinary:", error);
+        throw error;
+    }
+};
+
+module.exports = { upload, uploadImageToCloudinary };
