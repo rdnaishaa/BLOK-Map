@@ -47,39 +47,33 @@ exports.getAllArticles = async () => {
   }
 };
 
-exports.updateArticle = async (id, article, image) => {
+exports.updateArticleFields = async (id, fields) => {
   try {
-    let imageUrl = article.image_url;
-    if (image) {
-      console.log("Image URL:", imageUrl);
-      const uploadResponse = await db.cloudinary.uploader.upload(image.path);
-      imageUrl = uploadResponse.secure_url;
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    // Dynamically build the query based on provided fields
+    for (const [key, value] of Object.entries(fields)) {
+      updateFields.push(`${key} = $${paramCount}`);
+      values.push(value);
+      paramCount++;
     }
 
-    const res = await db.query(
-      `UPDATE articles SET
-        judulArtikel = $1,
-        kontenArtikel = $2,
-        image_url = $3,
-        restaurant_id = $4,
-        spot_id = $5,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = $6
-      RETURNING *`,
-      [
-        article.judulArtikel,
-        article.kontenArtikel,
-        imageUrl,
-        article.restaurant_id || null,
-        article.spot_id || null,
-        id
-      ]
-    );
+    values.push(id); 
 
-    if (res.rows.length === 0) return null;
-    return res.rows[0];
+    const query = `
+      UPDATE articles
+      SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${paramCount}
+      RETURNING *`;
+
+    const res = await db.query(query, values);
+
+    if (res.rows.length === 0) return null; 
+    return res.rows[0]; 
   } catch (error) {
-    console.error("Error updating article:", error);
+    console.error("Error updating article fields:", error);
     throw error;
   }
 };
