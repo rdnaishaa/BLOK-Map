@@ -1,36 +1,23 @@
-const db = require("../config/pgDatabase");
-
-const KATEGORI_CHOICES = [
-    'Atraksi',
-    'Tempat Nongkrong',
-    'Entertainment',
-    'Refleksi',
-    'Rohani',
-    'Family Friendly'
-];
-
-const LOKASI_CHOICES = [
-    'Blok-M Square',
-    'Plaza Blok-M',
-    'Melawai',
-    'Taman Literasi',
-    'Barito',
-    'Gulai Tikungan (Mahakam)',
-    'Senayan',
-    'Kebayoran Baru'
-];
+const db = require("../config/pg.database");
 
 exports.createSpot = async (spotData) => {
     try {
         const res = await db.query(
             `INSERT INTO spots (
-                namaHangout, kategori, lokasi, informasiHangout
-            ) VALUES ($1, $2, $3, $4) RETURNING *`,
+                namaTempat, kategoriSpot_id, lokasi, rating, price
+            ) VALUES (
+                $1,
+                (SELECT id FROM kategori_spot WHERE kategori = $2),
+                $3,
+                $4,
+                $5
+            ) RETURNING *`,
             [
-                spotData.namaHangout,
+                spotData.namaTempat,
                 spotData.kategori,
                 spotData.lokasi,
-                spotData.informasiHangout
+                spotData.rating,
+                spotData.price
             ]
         );
         return res.rows[0];
@@ -42,31 +29,37 @@ exports.createSpot = async (spotData) => {
 
 exports.getSpots = async ({ search, kategori, lokasi }) => {
     try {
-        let query = "SELECT * FROM spots";
+        let query = `
+            SELECT 
+                s.*,
+                ks.kategori as kategori_nama
+            FROM spots s
+            LEFT JOIN kategori_spot ks ON s.kategoriSpot_id = ks.id
+        `;
         const conditions = [];
         const params = [];
-        
+
         if (search) {
-            conditions.push(`(namaHangout ILIKE $${params.length + 1} OR informasiHangout ILIKE $${params.length + 1})`);
+            conditions.push(`s.namaTempat ILIKE $${params.length + 1}`);
             params.push(`%${search}%`);
         }
-        
+
         if (kategori) {
-            conditions.push(`kategori = $${params.length + 1}`);
+            conditions.push(`ks.kategori = $${params.length + 1}`);
             params.push(kategori);
         }
-        
+
         if (lokasi) {
-            conditions.push(`lokasi = $${params.length + 1}`);
+            conditions.push(`s.lokasi = $${params.length + 1}`);
             params.push(lokasi);
         }
-        
+
         if (conditions.length > 0) {
             query += " WHERE " + conditions.join(" AND ");
         }
-        
-        query += " ORDER BY namaHangout";
-        
+
+        query += " ORDER BY s.namaTempat";
+
         const res = await db.query(query, params);
         return res.rows;
     } catch (error) {
@@ -78,7 +71,12 @@ exports.getSpots = async ({ search, kategori, lokasi }) => {
 exports.getSpotById = async (id) => {
     try {
         const res = await db.query(
-            "SELECT * FROM spots WHERE id = $1",
+            `
+            SELECT s.*, ks.kategori AS kategori
+            FROM spots s
+            JOIN kategori_spot ks ON s.kategoriSpot_id = ks.id
+            WHERE s.id = $1
+            `,
             [id]
         );
         return res.rows[0];
@@ -88,29 +86,35 @@ exports.getSpotById = async (id) => {
     }
 };
 
-exports.updateSpot = async (id, spotData) => {
-    try {
-        const res = await db.query(
-            `UPDATE spots SET
-                namaHangout = $1,
-                kategori = $2,
-                lokasi = $3,
-                informasiHangout = $4,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = $5 RETURNING *`,
-            [
-                spotData.namaHangout,
-                spotData.kategori,
-                spotData.lokasi,
-                spotData.informasiHangout,
-                id
-            ]
-        );
-        return res.rows[0];
-    } catch (error) {
-        console.error("Error updating spot:", error);
-        throw error;
+exports.updateSpotFields = async (id, fields) => {
+  try {
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    // Dynamically build the query based on provided fields
+    for (const [key, value] of Object.entries(fields)) {
+      updateFields.push(`${key} = $${paramCount}`);
+      values.push(value);
+      paramCount++;
     }
+
+    values.push(id); // Add the ID as the last parameter
+
+    const query = `
+      UPDATE spots
+      SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${paramCount}
+      RETURNING *`;
+
+    const res = await db.query(query, values);
+
+    if (res.rows.length === 0) return null; // If no rows are updated, return null
+    return res.rows[0]; // Return the updated spot
+  } catch (error) {
+    console.error("Error updating spot fields:", error);
+    throw error;
+  }
 };
 
 exports.deleteSpot = async (id) => {
@@ -126,10 +130,24 @@ exports.deleteSpot = async (id) => {
     }
 };
 
-exports.getKategoriList = () => {
-    return KATEGORI_CHOICES;
+exports.getKategoriList = async () => {
+    try {
+        const res = await db.query("SELECT * FROM kategori_spot ORDER BY kategori ASC");
+        return res.rows;
+    } catch (error) {
+        console.error("Error getting kategori list:", error);
+        throw error;
+    }
 };
 
-exports.getLokasiList = () => {
-    return LOKASI_CHOICES;
+exports.getLokasiList = async () => {
+    try {
+        const res = await db.query(
+            `SELECT DISTINCT lokasi FROM spots ORDER BY lokasi ASC`
+        );
+        return res.rows.map(row => row.lokasi);
+    } catch (error) {
+        console.error("Error getting lokasi list:", error);
+        throw error;
+    }
 };

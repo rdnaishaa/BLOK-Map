@@ -1,36 +1,127 @@
-// server/models/review.model.js
 const pool = require('../config/pg.database');
 
 const ReviewModel = {
-  async getAll() {
-    const result = await pool.query('SELECT * FROM reviews ORDER BY created_at DESC');
-    return result.rows;
+  async getAllBySpot(spot_id) {
+    const query = `
+      SELECT 
+        r.*,
+        u.username,
+        s.namaTempat
+      FROM reviews r
+      LEFT JOIN users u ON r.user_id = u.id
+      LEFT JOIN spots s ON r.spot_id = s.id
+      WHERE r.spot_id = $1 
+      ORDER BY r.created_at DESC
+    `;
+    try {
+      const result = await pool.query(query, [spot_id]);
+      return result.rows;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   },
 
-  async getById(id) {
-    const result = await pool.query('SELECT * FROM reviews WHERE id = $1', [id]);
-    return result.rows[0];
+  async getAllByRestaurant(resto_id) {
+    const query = `
+      SELECT 
+        r.*,
+        u.username,
+        rest.namaRestaurant
+      FROM reviews r
+      LEFT JOIN users u ON r.user_id = u.id
+      LEFT JOIN restaurants rest ON r.resto_id = rest.id
+      WHERE r.resto_id = $1 
+      ORDER BY r.created_at DESC
+    `;
+    try {
+      const result = await pool.query(query, [resto_id]);
+      return result.rows;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+  
+  async create({ user_id, content, rating, spot_id, resto_id }) {
+    const query = `
+      INSERT INTO reviews (
+        user_id, content, rating, spot_id, resto_id
+      ) VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `;
+    try {
+      const result = await pool.query(query, [
+        user_id, 
+        content, 
+        rating, 
+        spot_id || null, 
+        resto_id || null
+      ]);
+      return result.rows[0];
+    } catch (error) {
+      throw new Error(error.message);
+    }
   },
 
-  async create({ user_id, type, item_id, rating, review_text }) {
-    const result = await pool.query(
-      `INSERT INTO reviews (user_id, type, item_id, rating, review_text)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [user_id, type, item_id, rating, review_text]
-    );
-    return result.rows[0];
-  },
+ async updateReviewFields(id, fields) {
+    try {
+      const updateFields = [];
+      const values = [];
+      let paramCount = 1;
 
-  async update(id, { rating, review_text }) {
-    const result = await pool.query(
-      `UPDATE reviews SET rating = $1, review_text = $2, updated_at = NOW() WHERE id = $3 RETURNING *`,
-      [rating, review_text, id]
-    );
-    return result.rows[0];
+      // Dynamically build the query based on provided fields
+      for (const [key, value] of Object.entries(fields)) {
+        updateFields.push(`${key} = $${paramCount}`);
+        values.push(value);
+        paramCount++;
+      }
+
+      values.push(id); // Add the ID as the last parameter
+
+      const query = `
+        UPDATE reviews
+        SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $${paramCount}
+        RETURNING *`;
+
+      const result = await pool.query(query, values);
+
+      if (result.rows.length === 0) return null; // If no rows are updated, return null
+      return result.rows[0]; // Return the updated review
+    } catch (error) {
+      console.error("Error updating review fields:", error);
+      throw new Error(error.message);
+    }
   },
 
   async delete(id) {
-    await pool.query('DELETE FROM reviews WHERE id = $1', [id]);
+    const query = 'DELETE FROM reviews WHERE id = $1 RETURNING *';
+    try {
+      const result = await pool.query(query, [id]);
+      return result.rows[0];
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  async getById(id) {
+    const query = `
+      SELECT 
+        r.*,
+        u.username,
+        s.namaTempat as spot_name,
+        rest.namaRestaurant as restaurant_name
+      FROM reviews r
+      LEFT JOIN users u ON r.user_id = u.id
+      LEFT JOIN spots s ON r.spot_id = s.id
+      LEFT JOIN restaurants rest ON r.resto_id = rest.id
+      WHERE r.id = $1
+    `;
+    try {
+      const result = await pool.query(query, [id]);
+      return result.rows[0];
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 };
 

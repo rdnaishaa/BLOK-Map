@@ -1,70 +1,137 @@
-// server/controllers/review.controller.js
-const ReviewModel = require('../models/review.model');
+const ReviewModel = require("../models/review.model");
+const baseResponse = require("../utils/baseResponse.util");
 
 const ReviewController = {
+  async getReviews(req, res) {
+    try {
+      const { spot_id, resto_id } = req.query;
+      let reviews;
+
+      if (spot_id) {
+        reviews = await ReviewModel.getAllBySpot(spot_id);
+      } else if (resto_id) {
+        reviews = await ReviewModel.getAllByRestaurant(resto_id);
+      } else {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "Either spot_id or resto_id must be provided")
+        );
+      }
+
+      return res.status(200).json(
+        baseResponse(res, true, 200, "Reviews fetched successfully", reviews)
+      );
+    } catch (error) {
+      return res.status(400).json(
+        baseResponse(res, false, 400, error.message)
+      );
+    }
+  },
+
   async createReview(req, res) {
     try {
-      const { user_id, place_id, rating, comment } = req.body;
-      const newReview = await ReviewModel.create({ user_id, place_id, rating, comment });
-      res.status(201).json({ success: true, payload: newReview });
+      const { content, rating, spot_id, resto_id } = req.body;
+      const user_id = req.user.id;
+
+      if (!spot_id && !resto_id) {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "Either spot_id or resto_id must be provided")
+        );
+      }
+
+      if (rating < 0 || rating > 5) {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "Rating must be between 0 and 5")
+        );
+      }
+
+      const result = await ReviewModel.create({
+        user_id,
+        content,
+        rating,
+        spot_id,
+        resto_id
+      });
+
+      return res.status(201).json(
+        baseResponse(res, true, 201, "Review created successfully", result)
+      );
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal membuat review.' });
+      return res.status(500).json(
+        baseResponse(res, false, 500, error.message)
+      );
     }
   },
 
-  async getAllReviews(req, res) {
-    try {
-      const reviews = await ReviewModel.findAll();
-      res.json({ success: true, payload: reviews });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal mengambil payload review.' });
-    }
-  },
-
-  async getReviewById(req, res) {
+  async updateReviewFields(req, res) {
     try {
       const { id } = req.params;
-      const review = await ReviewModel.findById(id);
+      const fields = req.body; // Fields to update (e.g., { content: "Updated content", rating: 4.5 })
+
+      if (Object.keys(fields).length === 0) {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "No fields provided for update", null)
+        );
+      }
+
+      const review = await ReviewModel.getById(id);
       if (!review) {
-        return res.status(404).json({ success: false, message: 'Review tidak ditemukan.' });
+        return res.status(404).json(
+          baseResponse(res, false, 404, "Review not found")
+        );
       }
-      res.json({ success: true, payload: review });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal mengambil review.' });
-    }
-  },
 
-  async updateReview(req, res) {
-    try {
-      const { id } = req.params;
-      const { rating, comment } = req.body;
-      const updated = await ReviewModel.update(id, { rating, comment });
-      if (!updated) {
-        return res.status(404).json({ success: false, message: 'Review tidak ditemukan.' });
+      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json(
+          baseResponse(res, false, 403, "Not authorized to update this review")
+        );
       }
-      res.json({ success: true, payload: updated });
+
+      const updatedReview = await ReviewModel.updateReviewFields(id, fields);
+
+      if (!updatedReview) {
+        return res.status(404).json(
+          baseResponse(res, false, 404, "Review not found", null)
+        );
+      }
+
+      return res.status(200).json(
+        baseResponse(res, true, 200, "Review updated successfully", updatedReview)
+      );
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal memperbarui review.' });
+      console.error("Error updating review fields:", error);
+      return res.status(500).json(
+        baseResponse(res, false, 500, "Error updating review fields", error.message)
+      );
     }
   },
 
   async deleteReview(req, res) {
     try {
       const { id } = req.params;
-      const deleted = await ReviewModel.delete(id);
-      if (!deleted) {
-        return res.status(404).json({ success: false, message: 'Review tidak ditemukan.' });
+      
+      const review = await ReviewModel.getById(id);
+      if (!review) {
+        return res.status(404).json(
+          baseResponse(res, false, 404, "Review not found")
+        );
       }
-      res.json({ success: true, message: 'Review berhasil dihapus.' });
+
+      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json(
+          baseResponse(res, false, 403, "Not authorized to delete this review")
+        );
+      }
+
+      const result = await ReviewModel.delete(id);
+      return res.status(200).json(
+        baseResponse(res, true, 200, "Review deleted successfully", result)
+      );
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Gagal menghapus review.' });
+      return res.status(400).json(
+        baseResponse(res, false, 400, error.message)
+      );
     }
-  },
+  }
 };
 
 module.exports = ReviewController;

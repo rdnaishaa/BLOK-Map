@@ -1,12 +1,12 @@
-
 const db = require("../config/pg.database");
+const bcrypt = require('bcrypt');
 
 exports.registerUser = async (user) => {
-    const hashed_password = bcrypt.hashSync(user.hashed_password, 10);
-    const { username, email, role, first_name, last_name } = user;
+    const { username, email, password, role, first_name, last_name } = user;
     try {
+        const hashed_password = await bcrypt.hash(password, 10);
         const res = await db.query(
-            `INSERT INTO users (username, email, hashed_password, role, first_name, last_name)
+            `INSERT INTO users (username, email, password_hash, role, first_name, last_name)
             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
             [username, email, hashed_password, role, first_name, last_name]
         );
@@ -17,15 +17,19 @@ exports.registerUser = async (user) => {
     }
 }
 
-exports.loginUser = async (email, hashed_password) => {
+exports.loginUser = async (email, password) => {
     try {
         const res = await db.query(
-            "SELECT * FROM users WHERE email = $1 AND hashed_password = $2",
-            [email, hashed_password]
+            "SELECT * FROM users WHERE email = $1",
+            [email]
         );
 
         if (res.rows.length === 0) return null;
-        return res.rows[0];
+
+        const user = res.rows[0];
+        const isValidPassword = await bcrypt.compare(password, user.password_hash);
+        if (!isValidPassword) return null;
+        return user;
     } catch (error) {
         console.error("Error logging in user:", error);
         throw error;
@@ -47,26 +51,57 @@ exports.getUserById = async (id) => {
     }
 }
 
-exports.updateUser = async (id, user) => {
+exports.getUserByEmail = async (email) => {
     try {
-        const { username, email, hashed_password, role, first_name, last_name } = userData;
         const res = await db.query(
-            `UPDATE users SET
-                username = $1,
-                email = $2,
-                hashed_password = $3,
-                role = $4,
-                first_name = $5,
-                last_name = $6,
-            WHERE id = $7 RETURNING *`,
-            [username, email, hashed_password, role, first_name, last_name, id]
+            "SELECT * FROM users WHERE email = $1",
+            [email]
         );
+        if (res.rows.length === 0) return null;
         return res.rows[0];
-    } catch (error) {
-        console.error("Error updating user:", error);
+    }
+    catch (error) {
+        console.error("Error getting user by email:", error);
         throw error;
     }
 }
+
+exports.updateUserFields = async (id, fields) => {
+  try {
+    const updateFields = [];
+    const values = [];
+    let paramCount = 1;
+
+    // Hash password if it's being updated
+    if (fields.password) {
+      fields.password_hash = await bcrypt.hash(fields.password, 10);
+      delete fields.password; // Remove plain password from fields
+    }
+
+    // Dynamically build the query based on provided fields
+    for (const [key, value] of Object.entries(fields)) {
+      updateFields.push(`${key} = $${paramCount}`);
+      values.push(value);
+      paramCount++;
+    }
+
+    values.push(id); // Add the ID as the last parameter
+
+    const query = `
+      UPDATE users
+      SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${paramCount}
+      RETURNING id, username, email, role, first_name, last_name, created_at`;
+
+    const res = await db.query(query, values);
+
+    if (res.rows.length === 0) return null; // If no rows are updated, return null
+    return res.rows[0]; // Return the updated user
+  } catch (error) {
+    console.error("Error updating user fields:", error);
+    throw error;
+  }
+};
 
 exports.deleteUser = async (id) => {
     try {

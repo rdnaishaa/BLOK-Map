@@ -1,18 +1,19 @@
 const spotModel = require("../models/spot.model");
-const baseResponse = require("../utils/baseResponse");
+const BaseResponse = require("../utils/baseResponse.util");
 
 exports.createSpot = async (req, res) => {
-    const { namaHangout, kategori, lokasi, informasiHangout } = req.body;
+    const { namaTempat, kategori, lokasi, rating, price } = req.body;
     try {
         const spot = await spotModel.createSpot({
-            namaHangout,
+            namaTempat,
             kategori,
             lokasi,
-            informasiHangout
+            rating,
+            price
         });
-        return baseResponse(res, true, 201, "Spot created", spot);
+        return BaseResponse(res, true, 201, "Spot created successfully", spot);
     } catch (error) {
-        return baseResponse(res, false, 500, "Error creating spot", error);
+        return BaseResponse(res, false, 500, "Error creating spot", error.message);
     }
 };
 
@@ -20,9 +21,9 @@ exports.getSpots = async (req, res) => {
     try {
         const { search, kategori, lokasi } = req.query;
         const spots = await spotModel.getSpots({ search, kategori, lokasi });
-        return baseResponse(res, true, 200, "Spots found", spots);
+        return BaseResponse(res, true, 200, "Spots retrieved successfully", spots);
     } catch (error) {
-        return baseResponse(res, false, 500, "Error retrieving spots", error);
+        return BaseResponse(res, false, 500, "Error retrieving spots", error.message);
     }
 };
 
@@ -30,59 +31,62 @@ exports.getSpotById = async (req, res) => {
     try {
         const spot = await spotModel.getSpotById(req.params.id);
         if (!spot) {
-            return baseResponse(res, false, 404, "Spot not found", null);
+            return BaseResponse(res, false, 404, "Spot not found", null);
         }
-        return baseResponse(res, true, 200, "Spot found", spot);
+        return BaseResponse(res, true, 200, "Spot retrieved successfully", spot);
     } catch (error) {
-        return baseResponse(res, false, 500, "Error retrieving spot", error);
+        return BaseResponse(res, false, 500, "Error retrieving spot", error.message);
     }
 };
 
-exports.updateSpot = async (req, res) => {
+exports.updateSpotFields = async (req, res) => {
+  try {
     const { id } = req.params;
-    const { namaHangout, kategori, lokasi, informasiHangout } = req.body;
-    try {
-        const spot = await spotModel.updateSpot(id, {
-            namaHangout,
-            kategori,
-            lokasi,
-            informasiHangout
-        });
-        if (!spot) {
-            return baseResponse(res, false, 404, "Spot not found", null);
-        }
-        return baseResponse(res, true, 200, "Spot updated", spot);
-    } catch (error) {
-        return baseResponse(res, false, 500, "Error updating spot", error);
+    const fields = req.body; 
+
+    if (Object.keys(fields).length === 0) {
+      return BaseResponse(res, false, 400, "No fields provided for update", null);
     }
+
+    const updatedSpot = await spotModel.updateSpotFields(id, fields);
+
+    if (!updatedSpot) {
+      return BaseResponse(res, false, 404, "Spot not found", null);
+    }
+
+    return BaseResponse(res, true, 200, "Spot updated successfully", updatedSpot);
+  } catch (error) {
+    console.error("Error updating spot fields:", error);
+    return BaseResponse(res, false, 500, "Error updating spot fields", error.message);
+  }
 };
 
 exports.deleteSpot = async (req, res) => {
     try {
         const spot = await spotModel.deleteSpot(req.params.id);
         if (!spot) {
-            return baseResponse(res, false, 404, "Spot not found", null);
+            return BaseResponse(res, false, 404, "Spot not found", null);
         }
-        return baseResponse(res, true, 200, "Spot deleted", spot);
+        return BaseResponse(res, true, 200, "Spot deleted successfully", spot);
     } catch (error) {
-        return baseResponse(res, false, 500, "Error deleting spot", error);
+        return BaseResponse(res, false, 500, "Error deleting spot", error.message);
     }
 };
 
 exports.getKategoriList = async (req, res) => {
     try {
-        const categories = spotModel.getKategoriList();
-        return baseResponse(res, true, 200, "Categories retrieved", categories);
+        const categories = await spotModel.getKategoriList();
+        return BaseResponse(res, true, 200, "Categories retrieved successfully", categories);
     } catch (error) {
-        return baseResponse(res, false, 500, "Error getting categories", error);
+        return BaseResponse(res, false, 500, "Error retrieving categories", error.message);
     }
 };
 
 exports.getLokasiList = async (req, res) => {
     try {
-        const locations = spotModel.getLokasiList();
-        return baseResponse(res, true, 200, "Locations retrieved", locations);
+        const locations = await spotModel.getLokasiList();
+        return BaseResponse(res, true, 200, "Locations retrieved successfully", locations);
     } catch (error) {
-        return baseResponse(res, false, 500, "Error getting locations", error);
+        return BaseResponse(res, false, 500, "Error retrieving locations", error.message);
     }
 };

@@ -12,7 +12,8 @@ const pool = new Pool({
 
 cloudinary.config({
   connectionString: process.env.CLOUDINARY_URL,
-});
+  }
+);
 
 const query = async (text, params) => {
   try {
@@ -23,16 +24,8 @@ const query = async (text, params) => {
   }
 };
 
-const storage = multer.diskStorage({
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage });
-
 module.exports = {
+  pool,
   query,
   cloudinary,
-  upload,
 };

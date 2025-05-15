@@ -1,14 +1,13 @@
 const express = require('express');
 const restaurantController = require('../controllers/restaurant.controller');
-const upload = require('../config/pg.database').upload;
-// const authMiddleware = require('../middleware/auth');
-// const adminMiddleware = require('../middleware/admin');
+const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/:id', restaurantController.getArticleById);
-router.post('/create', upload.single('image'), restaurantController.createArticle);
-router.put('/update/:id', upload.single('image'), restaurantController.updateArticle);
-router.delete('/delete/:id', restaurantController.deleteArticle);
+router.get('/', restaurantController.getRestaurants);
+router.get('/:id', restaurantController.getRestaurantById);
+router.post('/', protect, authorize('admin'), restaurantController.createRestaurant);
+router.patch('/:id', protect, authorize('admin'), restaurantController.updateRestaurantFields);
+router.delete('/:id', protect, authorize('admin'), restaurantController.deleteRestaurant);
 
 module.exports = router;
