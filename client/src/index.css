@@ -1,3 +1,152 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Special+Elite&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Island+Moments&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Base styles */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 font-inter;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-special-elite;
+  }
+}
+
+/* Custom components */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-primary-purple hover:bg-primary-purple/90 text-white;
+  }
+
+  .btn-secondary {
+    @apply bg-primary-gold hover:bg-primary-gold/90 text-white;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary-purple text-primary-purple hover:bg-primary-purple hover:text-white;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300;
+  }
+
+  .nav-link {
+    @apply text-gray-700 hover:text-primary-purple transition-colors duration-200;
+  }
+
+  .nav-link-active {
+    @apply text-primary-purple font-medium;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .gradient-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.7) 100%
+    );
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Typography */
+.font-covered {
+  font-family: "Covered By Your Grace", cursive;
+}
+
+.font-special-elite {
+  font-family: "Special Elite", cursive;
+}
+
+.font-inter {
+  font-family: "Inter", sans-serif;
+}
+
+.font-island {
+  font-family: 'Island Moments', cursive !important;
+}
+/* Hero section styles */
+.hero-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+/* Map styles */
+.map-container {
+  @apply w-full h-[60vh] rounded-lg overflow-hidden shadow-lg;
+}
+
+/* Restaurant and spot cards */
+.location-card {
+  @apply relative overflow-hidden rounded-lg;
+}
+
+.location-card-overlay {
+  @apply absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300;
+}
+
+.location-card:hover .location-card-overlay {
+  @apply bg-opacity-50;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply w-8 h-8 border-4 border-primary-gold border-t-transparent rounded-full animate-spin;
+}
