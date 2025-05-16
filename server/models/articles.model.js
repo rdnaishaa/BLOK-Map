@@ -1,13 +1,7 @@
 const db = require("../config/pg.database");
 
-exports.createArticle = async (article, image) => {
+exports.createArticle = async (article) => {
   try {
-    let imageUrl = null;
-    if (image) {
-      const uploadResponse = await db.cloudinary.uploader.upload(image.path);
-      imageUrl = uploadResponse.secure_url;
-    }
-
     const res = await db.query(
       `INSERT INTO articles (
         judulArtikel, kontenArtikel, image_url, restaurant_id, spot_id
@@ -16,7 +10,7 @@ exports.createArticle = async (article, image) => {
       [
         article.judulArtikel,
         article.kontenArtikel,
-        imageUrl,
+        article.image_url,
         article.restaurant_id || null,
         article.spot_id || null
       ]
