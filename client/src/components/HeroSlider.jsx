@@ -25,8 +25,8 @@ const HeroSlider = () => {
     ]
   }
 
-  return (
-    <div className="w-full mb-8 relative">
+ return (
+    <div className="w-full mb-8">
       <Slider {...settings}>
         <div>
           <img 
@@ -36,16 +36,16 @@ const HeroSlider = () => {
           />
         </div>
         <div>
-          <img
-            src={hero2}
-            alt="Hero 2"
+          <img 
+            src={hero2} 
+            alt="Hero 2" 
             className="w-full h-64 md:h-96 object-cover"
           />
         </div>
         <div>
-          <img
-            src={hero3}
-            alt="Hero 3"
+          <img 
+            src={hero3} 
+            alt="Hero 3" 
             className="w-full h-64 md:h-96 object-cover"
           />
         </div>

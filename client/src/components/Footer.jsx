@@ -1,20 +1,28 @@
 const Footer = () => {
   return (
-    <footer className="bg-primary-black text-white py-6">
+    <footer className="bg-[#3D1E0F] text-[#CCBA78] py-8">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <h2 className="text-xl font-special-elite">Blok-M(ap)</h2>
-            <p className="text-sm mt-2">Your guide to Blok M's best spots</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 className="text-xl font-bold mb-4">About Us</h3>
+            <p>Your guide to exploring Blok M area in Jakarta</p>
           </div>
-          <div className="flex space-x-4">
-            <a href="#" className="hover:text-primary-gold">Terms</a>
-            <a href="#" className="hover:text-primary-gold">Privacy</a>
-            <a href="#" className="hover:text-primary-gold">Contact</a>
+          <div>
+            <h3 className="text-xl font-bold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li><a href="/restaurants" className="hover:text-white transition-colors">Restaurants</a></li>
+              <li><a href="/spots" className="hover:text-white transition-colors">Spots</a></li>
+              <li><a href="/catalogs" className="hover:text-white transition-colors">Catalogs</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-xl font-bold mb-4">Contact</h3>
+            <p>Email: info@blokmap.com</p>
+            <p>Phone: (021) 123-4567</p>
           </div>
         </div>
-        <div className="mt-6 text-center text-sm">
-          <p>© {new Date().getFullYear()} Blok-M(ap). All rights reserved.</p>
+        <div className="mt-8 text-center">
+          <p>&copy; 2025 Blok-M(ap). All rights reserved.</p>
         </div>
       </div>
     </footer>

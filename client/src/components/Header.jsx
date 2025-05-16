@@ -1,18 +1,18 @@
-import { Link } from 'react-router-dom'
-import Navbar from './Navbar'
-import SearchBar from './SearchBar'
+import { Link } from "react-router-dom"
+import Navbar from "./Navbar"
 
 const Header = () => {
   return (
-    <header className="bg-primary-brown">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center">
-            <h1 className="text-white text-3xl font-normal font-special-elite">Blok-M(ap)</h1>
+    <header className="bg-[#3D1E0F] fixed w-full z-50">
+      <div className="container mx-auto">
+        <div className="flex items-center justify-between px-4">
+          <Link to="/">
+            <h1 className="text-2xl md:text-3xl font-normal text-[#FFFFFF] font-special-elite">
+              Blok-M(ap)
+            </h1>
           </Link>
           <Navbar />
         </div>
-        <SearchBar />
       </div>
     </header>
   )

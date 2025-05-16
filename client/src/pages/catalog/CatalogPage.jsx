@@ -10,6 +10,8 @@ const CatalogPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [locationFilter, setLocationFilter] = useState('')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
 
   useEffect(() => {
     const fetchCatalogs = async () => {
@@ -17,7 +19,9 @@ const CatalogPage = () => {
         const params = {
           search: searchTerm,
           kategoriRestaurant_id: categoryFilter,
-          lokasi: locationFilter
+          lokasi: locationFilter,
+          minHarga: minPrice,
+          maxHarga: maxPrice
         }
         const data = await getCatalogs(params)
         setCatalogs(data)
@@ -29,7 +33,7 @@ const CatalogPage = () => {
     }
 
     fetchCatalogs()
-  }, [searchTerm, categoryFilter, locationFilter])
+  }, [searchTerm, categoryFilter, locationFilter, minPrice, maxPrice])
 
   if (loading) return <LoadingSpinner />
 
@@ -38,12 +42,12 @@ const CatalogPage = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-special-elite text-white mb-6">Food & Drink</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="md:col-span-2">
             <label className="block text-white mb-2">Search</label>
             <input
               type="text"
-              placeholder="Search food or drinks..."
+              placeholder="Search food or drink..."
               className="w-full p-2 rounded"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -82,6 +86,26 @@ const CatalogPage = () => {
               <option value="Senayan">Senayan</option>
               <option value="Kebayoran Baru">Kebayoran Baru</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-white mb-2">Min Price</label>
+            <input
+              type="number"
+              placeholder="Min price"
+              className="w-full p-2 rounded"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-white mb-2">Max Price</label>
+            <input
+              type="number"
+              placeholder="Max price"
+              className="w-full p-2 rounded"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+            />
           </div>
         </div>
 

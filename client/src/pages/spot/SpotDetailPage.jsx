@@ -6,6 +6,7 @@ import MapEmbed from '../../components/MapEmbed'
 import ReviewCard from '../../components/ReviewCard'
 import ReviewForm from '../../components/ReviewForm'
 import LoadingSpinner from '../../components/LoadingSpinner'
+import RatingStars from '../../components/RatingStars'
 
 const SpotDetailPage = () => {
   const { id } = useParams()
@@ -45,29 +46,26 @@ const SpotDetailPage = () => {
             {spot.namaTempat}
           </h1>
           
+          <div className="flex items-center mb-4">
+            <RatingStars rating={spot.rating} />
+            <span className="ml-2 text-gray-600">
+              {spot.rating?.toFixed(1)} ({reviews.length} reviews)
+            </span>
+          </div>
+          
           <div className="mb-8">
             <ImageSlider images={articles.map(article => article.image_url)} />
           </div>
 
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-primary-black mb-4">About</h2>
-            <p className="text-gray-700">{spot.description || 'No description available'}</p>
+            <h2 className="text-xl font-semibold text-primary-black mb-4">Location & Hours</h2>
+            <p className="text-gray-700">{spot.lokasi}</p>
+            <p className="text-gray-700">Open daily, 5pm–11pm</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <div>
-              <h2 className="text-xl font-semibold text-primary-black mb-4">Location & Hours</h2>
-              <p className="text-gray-700 mb-2">{spot.lokasi}</p>
-              <p className="text-gray-700">Open daily, 5pm–11pm</p>
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-primary-black mb-4">Details</h2>
-              <div className="space-y-2">
-                <p><span className="font-medium">Category:</span> {spot.kategori}</p>
-                <p><span className="font-medium">Price Range:</span> {spot.price}</p>
-                <p><span className="font-medium">Rating:</span> {spot.rating?.toFixed(1) || 'Not rated'}</p>
-              </div>
-            </div>
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-primary-black mb-4">About</h2>
+            <p className="text-gray-700">A popular hangout spot in Blok M with great atmosphere.</p>
           </div>
 
           <div className="mb-8">
@@ -75,8 +73,30 @@ const SpotDetailPage = () => {
           </div>
 
           <div className="mb-8">
+            <h2 className="text-xl font-semibold text-primary-black mb-4">Features</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium">WiFi</h3>
+                <p className="text-gray-600">Free</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium">Parking</h3>
+                <p className="text-gray-600">Available</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium">Outdoor</h3>
+                <p className="text-gray-600">Seating</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium">Price Range</h3>
+                <p className="text-gray-600">{spot.price}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-8">
             <h2 className="text-xl font-semibold text-primary-black mb-4">Reviews</h2>
-            <ReviewForm spotId={spot.id} />
+            <ReviewForm spotId={id} />
             <div className="mt-6 space-y-4">
               {reviews.map(review => (
                 <ReviewCard key={review.id} review={review} />
