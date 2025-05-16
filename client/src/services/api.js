@@ -1,13 +1,17 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'https://blok-map.vercel.app'
+const API_URL = import.meta.env.PROD 
+  ? 'https://blok-map.vercel.app/api'
+  : 'http://localhost:3000'  
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Enable credentials for CORS
 })
+
 
 // Add a request interceptor to include the auth token
 api.interceptors.request.use(
@@ -22,6 +26,20 @@ api.interceptors.request.use(
     return Promise.reject(error)
   }
 )
+
+// Add response interceptor
+api.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      endpoint: error.config?.url
+    });
+    return Promise.reject(error);
+  }
+);
 
 // Articles
 export const getArticles = () => api.get('/articles')
@@ -53,7 +71,29 @@ export const getRestaurantArticles = (id) => api.get(`/articles?restaurant_id=${
 export const getRestaurantReviews = (id) => api.get(`/reviews?resto_id=${id}`)
 
 // Reviews
-export const getReviews = (params = {}) => api.get('/reviews', { params })
+export const getReviews = async (params = {}) => {
+  try {
+    // Convert exists params to proper query parameters
+    const queryParams = {}
+    if (params.resto_id === 'exists') {
+      queryParams.resto_id = 'not.is.null'
+    }
+    if (params.spot_id === 'exists') {
+      queryParams.spot_id = 'not.is.null'
+    }
+    
+    const response = await api.get('/reviews', { 
+      params: {
+        ...params,
+        ...queryParams
+      }
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error fetching reviews:', error)
+    return { data: [] } // Return empty array as fallback
+  }
+}
 export const createReview = (data) => api.post('/reviews', data)
 export const updateReview = (id, data) => api.patch(`/reviews/${id}`, data)
 export const deleteReview = (id) => api.delete(`/reviews/${id}`)

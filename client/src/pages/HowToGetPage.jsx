@@ -1,85 +1,73 @@
 const HowToGetPage = () => {
   const transportOptions = [
     {
+      id: 1,
       name: 'MRT',
-      icon: '/images/mrt.png',
-      description: 'Take MRT to Blok M Station, then walk 5 minutes'
+      image: '/images/mrt.png',
+      description: 'Take MRT to Blok M Station, then walk 5 minutes to your destination.',
+      time: 'Approx. 10 min from Blok M MRT'
     },
     {
+      id: 2,
       name: 'KRL',
-      icon: '/images/krl.png',
-      description: 'Take KRL to Sudirman Station, transfer to MRT'
+      image: '/images/krl.png',
+      description: 'Take KRL to Sudirman Station, then transfer to MRT to Blok M.',
+      time: 'Approx. 20 min from Sudirman Station'
     },
     {
+      id: 3,
       name: 'Bus',
-      icon: '/images/kendaraan.png',
-      description: 'Multiple TransJakarta routes serve Blok M'
+      image: '/images/kendaraan.png',
+      description: 'Take TransJakarta bus to Blok M Terminal, then walk to your destination.',
+      time: 'Approx. 15 min from Blok M Terminal'
     },
     {
+      id: 4,
       name: 'Car',
-      icon: '/images/kendaraan.png',
-      description: 'Parking available at Blok M Plaza and surrounding areas'
+      image: '/images/lrt.png',
+      description: 'Parking available at Blok M Plaza or Blok M Square.',
+      time: 'Varies depending on traffic'
     }
   ]
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-special-elite text-white mb-6">How to Get There</h1>
+      <h1 className="text-3xl font-special-elite text-white mb-8">How to Get to Blok M</h1>
       
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 className="text-2xl font-covered-by-your-grace text-primary-black mb-4">
-          Find the best route to Blok M from your location
+          Transportation Options
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {transportOptions.map((option, index) => (
-            <div key={index} className="flex items-start p-4 border border-gray-200 rounded-lg">
-              <img 
-                src={option.icon} 
-                alt={option.name} 
-                className="w-12 h-12 mr-4 object-contain"
-              />
-              <div>
-                <h3 className="text-lg font-semibold text-primary-black mb-1">
-                  {option.name}
-                </h3>
-                <p className="text-gray-600">
-                  {option.description}
-                </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {transportOptions.map(option => (
+            <div key={option.id} className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div className="flex justify-center mb-4">
+                <img 
+                  src={option.image} 
+                  alt={option.name} 
+                  className="h-16 w-16 object-contain"
+                />
               </div>
+              <h3 className="text-lg font-semibold text-center mb-2">{option.name}</h3>
+              <p className="text-gray-600 text-sm mb-2">{option.time}</p>
+              <p className="text-gray-700">{option.description}</p>
             </div>
           ))}
-        </div>
-        
-        <div className="h-96 rounded-lg overflow-hidden">
-          <img 
-            src="/images/blokm.png" 
-            alt="Blok M Area Map" 
-            className="w-full h-full object-cover"
-          />
         </div>
       </div>
       
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-xl font-semibold text-primary-black mb-4">Tips</h2>
-        <ul className="space-y-3">
-          <li className="flex items-start">
-            <span className="text-primary-gold mr-2">•</span>
-            <span>Arrive before 7pm to avoid crowds during peak hours</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-primary-gold mr-2">•</span>
-            <span>Bring cash as some vendors may not accept cards</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-primary-gold mr-2">•</span>
-            <span>Weekends tend to be more crowded than weekdays</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-primary-gold mr-2">•</span>
-            <span>Public transportation is recommended due to limited parking</span>
-          </li>
-        </ul>
+        <h2 className="text-2xl font-covered-by-your-grace text-primary-black mb-4">
+          Map of Blok M Area
+        </h2>
+        <div className="h-96 bg-gray-200 rounded-lg overflow-hidden">
+          <img 
+            src="/images/blokm.png" 
+            alt="Blok M Map" 
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
     </div>
   )

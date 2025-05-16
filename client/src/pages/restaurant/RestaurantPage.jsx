@@ -1,100 +1,141 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import RestaurantCard from '../../components/RestaurantCard'
+import { useParams } from 'react-router-dom'
+import { getRestaurantById, getRestaurantArticles, getRestaurantReviews } from '../../services/api'
+import ImageSlider from '../../components/ImageSlider'
+import MapEmbed from '../../components/MapEmbed'
+import ReviewCard from '../../components/ReviewCard'
+import ReviewForm from '../../components/ReviewForm'
 import LoadingSpinner from '../../components/LoadingSpinner'
-import { getRestaurants } from '../../services/api'
+import RatingStars from '../../components/RatingStars'
 
-const RestaurantPage = () => {
-  const [restaurants, setRestaurants] = useState([])
+const RestaurantDetailPage = () => {
+  const { id } = useParams()
+  const [restaurant, setRestaurant] = useState(null)
+  const [articles, setArticles] = useState([])
+  const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('')
-  const [locationFilter, setLocationFilter] = useState('')
 
   useEffect(() => {
-    const fetchRestaurants = async () => {
+    const fetchData = async () => {
       try {
-        const params = {
-          search: searchTerm,
-          kategori: categoryFilter,
-          lokasi: locationFilter
-        }
-        const data = await getRestaurants(params)
-        setRestaurants(data)
+        const [restaurantData, articlesData, reviewsData] = await Promise.all([
+          getRestaurantById(id),
+          getRestaurantArticles(id),
+          getRestaurantReviews(id)
+        ])
+        setRestaurant(restaurantData)
+        setArticles(articlesData)
+        setReviews(reviewsData)
       } catch (error) {
-        console.error('Error fetching restaurants:', error)
+        console.error('Error fetching restaurant details:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchRestaurants()
-  }, [searchTerm, categoryFilter, locationFilter])
+    fetchData()
+  }, [id])
 
   if (loading) return <LoadingSpinner />
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-special-elite text-white mb-6">Cafe & Restaurant</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div>
-            <label className="block text-white mb-2">Search</label>
-            <input
-              type="text"
-              placeholder="Search restaurants..."
-              className="w-full p-2 rounded"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="p-6">
+          <h1 className="text-3xl font-bold text-primary-black mb-2">
+            {restaurant.namaRestaurant}
+          </h1>
+          
+          <div className="flex items-center mb-4">
+            <RatingStars rating={restaurant.rating} />
+            <span className="ml-2 text-gray-600">{restaurant.rating?.toFixed(1)}</span>
           </div>
-          <div>
-            <label className="block text-white mb-2">Category</label>
-            <select
-              className="w-full p-2 rounded"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              <option value="">All Categories</option>
-              <option value="Sweetness Overload">Sweetness Overload</option>
-              <option value="Umami-rich">Umami-rich</option>
-              <option value="Fine Dining">Fine Dining</option>
-              <option value="Amigos">Amigos</option>
-              <option value="Sip and savor">Sip and savor</option>
-              <option value="Brew Coffee">Brew Coffee</option>
-            </select>
+          
+          <div className="mb-8">
+            <ImageSlider images={articles.map(article => article.image_url)} />
           </div>
-          <div>
-            <label className="block text-white mb-2">Location</label>
-            <select
-              className="w-full p-2 rounded"
-              value={locationFilter}
-              onChange={(e) => setLocationFilter(e.target.value)}
-            >
-              <option value="">All Locations</option>
-              <option value="Blok-M Square">Blok-M Square</option>
-              <option value="Plaza Blok-M">Plaza Blok-M</option>
-              <option value="Melawai">Melawai</option>
-              <option value="Taman Literasi">Taman Literasi</option>
-              <option value="Barito">Barito</option>
-              <option value="Gulai Tikungan (Mahakam)">Gulai Tikungan</option>
-              <option value="Senayan">Senayan</option>
-              <option value="Kebayoran Baru">Kebayoran Baru</option>
-            </select>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {restaurants.map(restaurant => (
-            <Link to={`/restaurants/${restaurant.id}`} key={restaurant.id}>
-              <RestaurantCard restaurant={restaurant} />
-            </Link>
-          ))}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-primary-black mb-4">Location & Hours</h2>
+            <p className="text-gray-700">{restaurant.lokasi}</p>
+            <p className="text-gray-700">Open daily, 5pm–11pm</p>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-primary-black mb-4">About</h2>
+            <p className="text-gray-700">{restaurant.informasiRestaurant}</p>
+          </div>
+
+          <div className="mb-8">
+            <MapEmbed location={restaurant.lokasi} />
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-primary-black mb-4">Menu Highlights</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Item
+                    </th>
+                    <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Quantity
+                    </th>
+                    <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Price
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="py-2 px-4 border-b border-gray-200">Chicken Satay</td>
+                    <td className="py-2 px-4 border-b border-gray-200">Peanut Sauce</td>
+                    <td className="py-2 px-4 border-b border-gray-200">10 skewers</td>
+                    <td className="py-2 px-4 border-b border-gray-200">IDR 30K</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-4 border-b border-gray-200">Beef Satay</td>
+                    <td className="py-2 px-4 border-b border-gray-200">Spicy Sambal</td>
+                    <td className="py-2 px-4 border-b border-gray-200">10 skewers</td>
+                    <td className="py-2 px-4 border-b border-gray-200">IDR 35K</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-4 border-b border-gray-200">Lontong Rice</td>
+                    <td className="py-2 px-4 border-b border-gray-200">Steamed Rice Cake</td>
+                    <td className="py-2 px-4 border-b border-gray-200"></td>
+                    <td className="py-2 px-4 border-b border-gray-200">IDR 8K</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-primary-black mb-4">Articles</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {articles.map(article => (
+                <ArticleCard key={article.id} article={article} />
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-primary-black mb-4">Reviews</h2>
+            <ReviewForm restaurantId={id} />
+            <div className="mt-6 space-y-4">
+              {reviews.map(review => (
+                <ReviewCard key={review.id} review={review} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-export default RestaurantPage
+export default RestaurantDetailPage

@@ -6,14 +6,14 @@ import LoadingSpinner from './LoadingSpinner'
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gray-50"> {/* Make sure this background color is set */}
+    <div className="min-h-screen flex flex-col bg-[#FFFFFF]">
       <Header />
-      <main className="container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-8">
         {children}
       </main>
       <Footer />
     </div>
-  );
-};
+  )
+}
 
 export default Layout

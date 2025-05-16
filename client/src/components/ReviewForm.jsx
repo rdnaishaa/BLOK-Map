@@ -26,18 +26,18 @@ const ReviewForm = ({ restaurantId, spotId }) => {
 
     try {
       setSubmitting(true)
+      setError('')
+      
       await createReview({
-        user_id: user.id,
-        rating,
         content,
+        rating,
         resto_id: restaurantId,
         spot_id: spotId
       })
-      // Reset form
-      setRating(0)
+
       setContent('')
-      setError('')
-      // TODO: Refresh reviews list
+      setRating(0)
+      // You might want to refresh reviews after submission
     } catch (err) {
       setError('Failed to submit review')
       console.error(err)
@@ -48,9 +48,9 @@ const ReviewForm = ({ restaurantId, spotId }) => {
 
   return (
     <form onSubmit={handleSubmit} className="mb-6">
-      <h3 className="text-lg font-medium text-primary-black mb-2">Add Your Review</h3>
+      <h3 className="text-lg font-medium text-primary-black mb-4">Add Your Review</h3>
       
-      {error && <div className="text-red-500 mb-2">{error}</div>}
+      {error && <div className="text-red-500 mb-4">{error}</div>}
       
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Rating</label>
@@ -64,32 +64,28 @@ const ReviewForm = ({ restaurantId, spotId }) => {
               onMouseEnter={() => setHoverRating(star)}
               onMouseLeave={() => setHoverRating(0)}
             >
-              {star <= (hoverRating || rating) ? (
-                <span className="text-yellow-400">★</span>
-              ) : (
-                <span className="text-gray-300">★</span>
-              )}
+              {star <= (hoverRating || rating) ? '★' : '☆'}
             </button>
           ))}
         </div>
       </div>
       
       <div className="mb-4">
-        <label htmlFor="content" className="block text-gray-700 mb-2">Review</label>
+        <label htmlFor="review" className="block text-gray-700 mb-2">Review</label>
         <textarea
-          id="content"
+          id="review"
           rows="4"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-gold"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          required
+          placeholder="Share your experience..."
         ></textarea>
       </div>
       
       <button
         type="submit"
         disabled={submitting}
-        className="px-4 py-2 bg-primary-gold text-white rounded-md hover:bg-primary-brown disabled:opacity-50"
+        className="px-4 py-2 bg-primary-gold text-white rounded-md hover:bg-primary-brown focus:outline-none focus:ring-2 focus:ring-primary-gold disabled:opacity-50"
       >
         {submitting ? 'Submitting...' : 'Submit Review'}
       </button>

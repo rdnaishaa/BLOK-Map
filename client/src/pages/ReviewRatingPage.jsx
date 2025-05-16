@@ -14,10 +14,11 @@ const ReviewRatingPage = () => {
         setLoading(true)
         let params = {}
         if (filter === 'restaurant') {
-          params = { resto_id: 'exists' }
+          params.resto_id = 'exists'
         } else if (filter === 'spot') {
-          params = { spot_id: 'exists' }
+          params.spot_id = 'exists'
         }
+        
         const data = await getReviews(params)
         setReviews(data)
       } catch (error) {
@@ -34,43 +35,41 @@ const ReviewRatingPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-special-elite text-white mb-6">Review & Rating</h1>
-      
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <div className="flex flex-wrap gap-4 mb-6">
-          <button
-            className={`px-4 py-2 rounded-md ${filter === 'all' ? 'bg-primary-gold text-white' : 'bg-gray-200'}`}
-            onClick={() => setFilter('all')}
-          >
-            All
-          </button>
-          <button
-            className={`px-4 py-2 rounded-md ${filter === 'restaurant' ? 'bg-primary-gold text-white' : 'bg-gray-200'}`}
-            onClick={() => setFilter('restaurant')}
-          >
-            Restaurant & Cafe
-          </button>
-          <button
-            className={`px-4 py-2 rounded-md ${filter === 'spot' ? 'bg-primary-gold text-white' : 'bg-gray-200'}`}
-            onClick={() => setFilter('spot')}
-          >
-            Spot Hangout
-          </button>
-        </div>
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h1 className="text-3xl font-special-elite text-primary-black mb-6">Review & Rating</h1>
         
-        <h2 className="text-2xl font-covered-by-your-grace text-primary-black mb-4">
-          Recent Reviews
-        </h2>
-        
-        {reviews.length === 0 ? (
-          <p className="text-gray-600">No reviews found</p>
-        ) : (
-          <div className="space-y-4">
-            {reviews.map(review => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
+        <div className="mb-8">
+          <div className="flex space-x-4 mb-6">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 rounded-md ${filter === 'all' ? 'bg-primary-gold text-white' : 'bg-gray-200 text-gray-700'}`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter('restaurant')}
+              className={`px-4 py-2 rounded-md ${filter === 'restaurant' ? 'bg-primary-gold text-white' : 'bg-gray-200 text-gray-700'}`}
+            >
+              Restaurant & Cafe
+            </button>
+            <button
+              onClick={() => setFilter('spot')}
+              className={`px-4 py-2 rounded-md ${filter === 'spot' ? 'bg-primary-gold text-white' : 'bg-gray-200 text-gray-700'}`}
+            >
+              Spot Hangout
+            </button>
           </div>
-        )}
+          
+          <div className="space-y-6">
+            {reviews.length > 0 ? (
+              reviews.map(review => (
+                <ReviewCard key={review.id} review={review} />
+              ))
+            ) : (
+              <p className="text-gray-600">No reviews found</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
