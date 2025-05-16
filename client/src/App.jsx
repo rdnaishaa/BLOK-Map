@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import {
   MapPinIcon,
   StarIcon,
@@ -18,7 +20,7 @@ import axios from 'axios';
 import './App.css';
 
 // Set base URL for API requests
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://blok-map.vercel.app';
 
 // Axios configuration with authorization header
 const authAxios = axios.create({
@@ -118,6 +120,8 @@ useEffect(() => {
                 <Route path="/spots/:id" element={<SpotDetail />} />
                 <Route path="/articles" element={<ArticlesPage />} />
                 <Route path="/articles/:id" element={<ArticleDetail />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 {/* Add more routes as needed */}
               </Routes>
             </main>
