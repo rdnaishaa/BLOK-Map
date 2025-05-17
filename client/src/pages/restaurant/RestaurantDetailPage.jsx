@@ -14,20 +14,28 @@ const RestaurantDetailPage = () => {
   const [articles, setArticles] = useState([])
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
-
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const [restaurantData, articlesData, reviewsData] = await Promise.all([
-          getRestaurantById(id),
+      if (!id) {
+        setLoading(false)
+        return
+      }
+    try {
+        const restaurantData = await getRestaurantById(id)
+        if (!restaurantData || !restaurantData.namaRestaurant) {
+          setRestaurant(null)
+          setLoading(false)
+          return
+        }
+        const [articlesData, reviewsData] = await Promise.all([
           getRestaurantArticles(id),
           getRestaurantReviews(id)
         ])
         setRestaurant(restaurantData)
-        setArticles(articlesData)
-        setReviews(reviewsData)
-      } catch (error) {
+        setArticles(articlesData || [])
+        setReviews(reviewsData || [])      } catch (error) {
         console.error('Error fetching restaurant details:', error)
+        setRestaurant(null)
       } finally {
         setLoading(false)
       }
@@ -37,6 +45,9 @@ const RestaurantDetailPage = () => {
   }, [id])
 
   if (loading) return <LoadingSpinner />
+  if (!restaurant || !restaurant.namaRestaurant) {
+    return <div className="text-center py-8">Restaurant not found</div>
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

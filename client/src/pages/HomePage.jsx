@@ -51,14 +51,21 @@ const HomePage = () => {
   const goToRestaurants = () => navigate('/restaurants')
   const goToSpots = () => navigate('/spots')
 
-  if (loading) return <LoadingSpinner />
+  if (loading) return (
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#3D1E0F]">
+      <LoadingSpinner />
+    </div>
+  )
 
   return (
-    <div className="bg-[#3D1E0F] text-white">
-      <HeroSlider />
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#3D1E0F] text-white">
+      {/* Hero section takes full width */}
+      <div className="w-full">
+        <HeroSlider />
+      </div>
       
       {/* Food & Drink Section */}
-      <section className="py-8 px-4 relative">
+      <section className="py-8 px-6 md:px-12 relative">
         <h2 
           onClick={goToFoodDrink}
           className="text-[#CCBA78] text-2xl font-['Special_Elite'] mb-6 cursor-pointer hover:text-white transition-colors"
@@ -68,27 +75,28 @@ const HomePage = () => {
         <div className="relative">
           <button 
             onClick={() => scroll(foodDrinkRef, 'left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/50 p-2 rounded-full"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
-            <svg className="w-6 h-6 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <div 
             ref={foodDrinkRef}
-            className="flex overflow-x-hidden scroll-smooth gap-4 px-4"
+            className="flex overflow-x-auto hide-scrollbar scroll-smooth gap-5 pb-2 pl-2 pr-2"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {catalogs.map(catalog => (
-              <div key={catalog.id} className="flex-none w-64">
+              <div key={catalog.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
                 <CatalogCard catalog={catalog} />
               </div>
             ))}
           </div>
           <button 
             onClick={() => scroll(foodDrinkRef, 'right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/50 p-2 rounded-full"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
-            <svg className="w-6 h-6 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -96,7 +104,7 @@ const HomePage = () => {
       </section>
 
       {/* Restaurant Section */}
-      <section className="py-8 px-4 relative">
+      <section className="py-8 px-6 md:px-12 relative">
         <h2 
           onClick={goToRestaurants}
           className="text-[#CCBA78] text-2xl font-['Special_Elite'] mb-6 cursor-pointer hover:text-white transition-colors"
@@ -106,27 +114,28 @@ const HomePage = () => {
         <div className="relative">
           <button 
             onClick={() => scroll(restaurantRef, 'left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/50 p-2 rounded-full"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
-            <svg className="w-6 h-6 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <div 
             ref={restaurantRef}
-            className="flex overflow-x-hidden scroll-smooth gap-4 px-4"
+            className="flex overflow-x-auto hide-scrollbar scroll-smooth gap-5 pb-2 pl-2 pr-2"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {restaurants.map(restaurant => (
-              <div key={restaurant.id} className="flex-none w-64">
+              <div key={restaurant.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
                 <RestaurantCard restaurant={restaurant} />
               </div>
             ))}
           </div>
           <button 
             onClick={() => scroll(restaurantRef, 'right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/50 p-2 rounded-full"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
-            <svg className="w-6 h-6 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -134,7 +143,7 @@ const HomePage = () => {
       </section>
 
       {/* Spots Section */}
-      <section className="py-8 px-4 relative">
+      <section className="py-8 px-6 md:px-12 relative">
         <h2 
           onClick={goToSpots}
           className="text-[#CCBA78] text-2xl font-['Special_Elite'] mb-6 cursor-pointer hover:text-white transition-colors"
@@ -144,27 +153,28 @@ const HomePage = () => {
         <div className="relative">
           <button 
             onClick={() => scroll(spotRef, 'left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/50 p-2 rounded-full"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
-            <svg className="w-6 h-6 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <div 
             ref={spotRef}
-            className="flex overflow-x-hidden scroll-smooth gap-4 px-4"
+            className="flex overflow-x-auto hide-scrollbar scroll-smooth gap-5 pb-2 pl-2 pr-2"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {spots.map(spot => (
-              <div key={spot.id} className="flex-none w-64">
+              <div key={spot.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
                 <SpotCard spot={spot} />
               </div>
             ))}
           </div>
           <button 
             onClick={() => scroll(spotRef, 'right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/50 p-2 rounded-full"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
-            <svg className="w-6 h-6 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
