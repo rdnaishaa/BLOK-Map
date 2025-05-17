@@ -1,14 +1,14 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 
 function Login() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
-    password: '',
-    role: 'user' // Default role
+    password: ''
   });
+  
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,62 +20,26 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add your authentication logic here
+    console.log('Login submitted:', formData);
+    // Here you would typically authenticate with your backend API
+    // For now, we'll just simulate a successful login
+    alert('Login successful!');
+    navigate('/'); // Redirect to homepage after successful login
   };
 
   return (
-    <div className="login-container" style={{ 
+    <div className="login-container bg-[#3D1E0F] text-white" style={{ 
       maxWidth: '500px', 
-      margin: '0 auto', 
+      margin: '2rem auto', 
       padding: '2rem',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-      borderRadius: '8px',
-      backgroundColor: '#fff'
+      boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+      borderRadius: '8px'
     }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Create Account</h1>
+      <h1 className="text-[#CCBA78] font-['Special_Elite']" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Sign In</h1>
       
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            First Name:
-          </label>
-          <input 
-            type="text" 
-            name="firstName" 
-            value={formData.firstName}
-            onChange={handleChange}
-            style={{ 
-              width: '100%', 
-              padding: '0.5rem',
-              borderRadius: '4px',
-              border: '1px solid #ccc'
-            }}
-            required
-          />
-        </div>
-        
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            Last Name:
-          </label>
-          <input 
-            type="text" 
-            name="lastName" 
-            value={formData.lastName}
-            onChange={handleChange}
-            style={{ 
-              width: '100%', 
-              padding: '0.5rem',
-              borderRadius: '4px',
-              border: '1px solid #ccc'
-            }}
-            required
-          />
-        </div>
-        
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+          <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
             Email:
           </label>
           <input 
@@ -83,18 +47,20 @@ function Login() {
             name="email" 
             value={formData.email}
             onChange={handleChange}
+            className="bg-[#2A1509] border-[#CCBA78]"
             style={{ 
               width: '100%', 
-              padding: '0.5rem',
+              padding: '0.75rem',
               borderRadius: '4px',
-              border: '1px solid #ccc'
+              border: '1px solid',
+              color: 'white'
             }}
             required
           />
         </div>
         
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
             Password:
           </label>
           <input 
@@ -102,53 +68,43 @@ function Login() {
             name="password" 
             value={formData.password}
             onChange={handleChange}
+            className="bg-[#2A1509] border-[#CCBA78]"
             style={{ 
               width: '100%', 
-              padding: '0.5rem',
+              padding: '0.75rem',
               borderRadius: '4px',
-              border: '1px solid #ccc'
+              border: '1px solid',
+              color: 'white'
             }}
             required
           />
         </div>
         
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            Role:
-          </label>
-          <select 
-            name="role" 
-            value={formData.role}
-            onChange={handleChange}
-            style={{ 
-              width: '100%', 
-              padding: '0.5rem',
-              borderRadius: '4px',
-              border: '1px solid #ccc'
-            }}
-          >
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-            <option value="moderator">Moderator</option>
-          </select>
-        </div>
-        
         <button 
           type="submit"
+          className="bg-[#CCBA78] hover:bg-[#D8C78E] transition-colors"
           style={{
             width: '100%',
             padding: '0.75rem',
-            backgroundColor: '#4a90e2',
-            color: 'white',
+            color: '#3D1E0F',
             border: 'none',
             borderRadius: '4px',
             fontSize: '1rem',
-            fontWeight: '500',
+            fontWeight: '700',
             cursor: 'pointer'
           }}
         >
-          Register
+          Sign In
         </button>
+        
+        <div className="text-center mt-4">
+          <p className="text-white">
+            Don't have an account?{' '} 
+            <Link to="/register" className="text-[#CCBA78] hover:text-white transition-colors">
+              Register
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   );

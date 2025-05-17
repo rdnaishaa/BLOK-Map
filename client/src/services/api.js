@@ -1,19 +1,14 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.PROD 
-  ? 'https://blok-map.vercel.app/api'
-  : 'http://localhost:3000'  
-
+const API_URL = 'https://blok-map.vercel.app/'  
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Enable credentials for CORS
+  withCredentials: true,
 })
 
-
-// Add a request interceptor to include the auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
@@ -22,12 +17,9 @@ api.interceptors.request.use(
     }
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
-// Add response interceptor
 api.interceptors.response.use(
   response => response,
   error => {
@@ -39,74 +31,170 @@ api.interceptors.response.use(
     });
     return Promise.reject(error);
   }
-);
+)
 
 // Articles
-export const getArticles = () => api.get('/articles')
-export const createArticle = (data) => api.post('/articles/create', data)
-export const updateArticle = (id, data) => api.patch(`/articles/update/${id}`, data)
-export const deleteArticle = (id) => api.delete(`/articles/delete/${id}`)
+export const getArticles = () => api.get('articles')
+export const createArticle = (data) => api.post('articles/create', data)
+export const updateArticle = (id, data) => api.patch(`articles/update/${id}`, data)
+export const deleteArticle = (id) => api.delete(`articles/delete/${id}`)
 
 // Auth
-export const registerUser = (data) => api.post('/auth/register', data)
-export const loginUser = (data) => api.post('/auth/login', data)
-export const getCurrentUser = () => api.get('/auth/me')
-export const updateUser = (id, data) => api.patch(`/auth/update/${id}`, data)
-export const deleteUser = (id) => api.delete(`/auth/delete/${id}`)
+export const registerUser = (data) => api.post('auth/register', data)
+export const loginUser = (data) => api.post('auth/login', data)
+export const getCurrentUser = () => api.get('auth/me')
+export const updateUser = (id, data) => api.patch(`auth/update/${id}`, data)
+export const deleteUser = (id) => api.delete(`auth/delete/${id}`)
 
 // Catalogs
-export const getCatalogs = (params = {}) => api.get('/catalogs', { params })
-export const getCatalogById = (id) => api.get(`/catalogs/${id}`)
-export const createCatalog = (data) => api.post('/catalogs', data)
-export const updateCatalog = (id, data) => api.patch(`/catalogs/${id}`, data)
-export const deleteCatalog = (id) => api.delete(`/catalogs/${id}`)
+export const getCatalogs = async (params = {}) => {
+  try {
+    // Clean and format params
+    const cleanParams = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value != null && value !== '')
+    )
+    if (cleanParams.maxHarga) {
+      cleanParams.maxHarga = parseInt(cleanParams.maxHarga)
+    }
+    if (cleanParams.minHarga) {
+      cleanParams.minHarga = parseInt(cleanParams.minHarga)
+    }
+    
+    const response = await api.get('catalogs', { 
+      params: cleanParams,
+      paramsSerializer: params => {
+        return Object.entries(params)
+          .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+          .join('&')
+      }
+    })
+    return Array.isArray(response.data) ? response.data : []
+  } catch (error) {
+    console.error('Error fetching catalogs:', error)
+    return []
+  }
+}
+export const getCatalogById = (id) => api.get(`catalogs/${id}`)
+export const createCatalog = (data) => api.post('catalogs', data)
+export const updateCatalog = (id, data) => api.patch(`catalogs/${id}`, data)
+export const deleteCatalog = (id) => api.delete(`catalogs/${id}`)
 
 // Restaurants
-export const getRestaurants = (params = {}) => api.get('/restaurant', { params })
-export const getRestaurantById = (id) => api.get(`/restaurant/${id}`)
-export const createRestaurant = (data) => api.post('/restaurant', data)
-export const updateRestaurant = (id, data) => api.patch(`/restaurant/${id}`, data)
-export const deleteRestaurant = (id) => api.delete(`/restaurant/${id}`)
-export const getRestaurantArticles = (id) => api.get(`/articles?restaurant_id=${id}`)
-export const getRestaurantReviews = (id) => api.get(`/reviews?resto_id=${id}`)
+export const getRestaurants = async (params = {}) => {
+  try {
+    const response = await api.get('restaurant', { params })
+    return Array.isArray(response.data) ? response.data : []
+  } catch (error) {
+    console.error('Error fetching restaurants:', error)
+    return []
+  }
+}
+
+export const getRestaurantById = async (id) => {
+  if (!id) return null
+  try {
+    const response = await api.get(`restaurant/${id}`)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching restaurant:', error)
+    return null
+  }
+}
+
+export const createRestaurant = (data) => api.post('restaurant', data)
+export const updateRestaurant = (id, data) => api.patch(`restaurant/${id}`, data)
+export const deleteRestaurant = (id) => api.delete(`restaurant/${id}`)
+
+export const getRestaurantArticles = async (id) => {
+  if (!id) return []
+  try {
+    const response = await api.get(`articles?restaurant_id=${id}`)
+    return Array.isArray(response.data) ? response.data : []
+  } catch (error) {
+    console.error('Error fetching restaurant articles:', error)
+    return []
+  }
+}
+
+export const getRestaurantReviews = async (id) => {
+  if (!id) return []
+  try {
+    const response = await api.get(`reviews?resto_id=${id}`)
+    return Array.isArray(response.data) ? response.data : []
+  } catch (error) {
+    console.error('Error fetching restaurant reviews:', error)
+    return []
+  }
+}
 
 // Reviews
 export const getReviews = async (params = {}) => {
   try {
-    // Convert exists params to proper query parameters
-    const queryParams = {}
-    if (params.resto_id === 'exists') {
-      queryParams.resto_id = 'not.is.null'
-    }
-    if (params.spot_id === 'exists') {
-      queryParams.spot_id = 'not.is.null'
-    }
+    const cleanParams = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value != null && value !== '')
+    )
     
-    const response = await api.get('/reviews', { 
-      params: {
-        ...params,
-        ...queryParams
+    const response = await api.get('reviews', { 
+      params: cleanParams,
+      paramsSerializer: params => {
+        return Object.entries(params)
+          .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+          .join('&')
       }
     })
-    return response.data
+    return Array.isArray(response.data) ? response.data : []
   } catch (error) {
     console.error('Error fetching reviews:', error)
-    return { data: [] } // Return empty array as fallback
+    return []
   }
 }
-export const createReview = (data) => api.post('/reviews', data)
-export const updateReview = (id, data) => api.patch(`/reviews/${id}`, data)
-export const deleteReview = (id) => api.delete(`/reviews/${id}`)
+export const createReview = (data) => api.post('reviews', data)
+export const updateReview = (id, data) => api.patch(`reviews/${id}`, data)
+export const deleteReview = (id) => api.delete(`reviews/${id}`)
 
-// Spots
-export const getSpots = (params = {}) => api.get('/spots', { params })
-export const getSpotById = (id) => api.get(`/spots/${id}`)
-export const createSpot = (data) => api.post('/spots', data)
-export const updateSpot = (id, data) => api.patch(`/spots/${id}`, data)
-export const deleteSpot = (id) => api.delete(`/spots/${id}`)
-export const getSpotArticles = (id) => api.get(`/articles?spot_id=${id}`)
-export const getSpotReviews = (id) => api.get(`/reviews?spot_id=${id}`)
-export const getSpotCategories = () => api.get('/spots/categories/list')
-export const getSpotLocations = () => api.get('/spots/locations/list')
+// Spots (tanpa /api)
+export const getSpots = async (params = {}) => {
+  try {
+    const cleanParams = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value != null && value !== '')
+    )
+    const response = await api.get('spots', { 
+      params: cleanParams,
+      paramsSerializer: params => {
+        return Object.entries(params)
+          .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+          .join('&')
+      }
+    })
+    return Array.isArray(response.data) ? response.data : []
+  } catch (error) {
+    console.error('Error fetching spots:', error)
+    return []
+  }
+}
+export const getSpotById = (id) => api.get(`spots/${id}`)
+export const createSpot = (data) => api.post('spots', data)
+export const updateSpot = (id, data) => api.patch(`spots/${id}`, data)
+export const deleteSpot = (id) => api.delete(`spots/${id}`)
+export const getSpotArticles = (id) => api.get(`articles?spot_id=${id}`)
+export const getSpotReviews = (id) => api.get(`reviews?spot_id=${id}`)
+export const getSpotCategories = async () => {
+  try {
+    const response = await api.get('spots/categories/list')
+    return Array.isArray(response.data) ? response.data : []
+  } catch (error) {
+    console.error('Error fetching spot categories:', error)
+    return []
+  }
+}
+export const getSpotLocations = async () => {
+  try {
+    const response = await api.get('spots/locations/list')
+    return Array.isArray(response.data) ? response.data : []
+  } catch (error) {
+    console.error('Error fetching spot locations:', error)
+    return []
+  }
+}
 
 export default api
