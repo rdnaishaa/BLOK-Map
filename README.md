@@ -79,4 +79,10 @@ Fitur autentikasi untuk memungkinkan pengguna `register` dan `login` dan memberi
 
 # Alur:
 
+# UML:
+![UML class](https://hackmd.io/_uploads/ByVvpf_Zgg.png)
+
+# ER Diagram:
+![UML Diagram](https://hackmd.io/_uploads/rye3lGuZgl.png)
+
 ---

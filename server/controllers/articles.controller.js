@@ -1,12 +1,12 @@
 const articlesModel = require("../models/articles.model");
 const baseResponse = require("../utils/baseResponse.util");
-const { cloudinary } = require("../config/pg.database");
+const { uploadImageToCloudinary } = require("../middleware/upload");
 
 exports.createArticle = async (req, res) => {
   try {
     const { judulArtikel, kontenArtikel, restaurant_id, spot_id } = req.body;
     const image = req.file;
-    
+
     if (!restaurant_id && !spot_id) {
       return baseResponse(res, false, 400, "Either restaurant_id or spot_id must be provided", null);
     }
@@ -14,29 +14,29 @@ exports.createArticle = async (req, res) => {
     let imageUrl = null;
     if (image) {
       try {
-        const uploadResponse = await cloudinary.uploader.upload(image.path);
-        imageUrl = uploadResponse.secure_url;
+        imageUrl = await uploadImageToCloudinary(image.buffer);
       } catch (uploadErr) {
         console.error("Error uploading image to Cloudinary:", uploadErr);
         return baseResponse(res, false, 500, "Image upload failed", uploadErr.message);
       }
     }
 
-    const articleData = { 
-      judulArtikel,   
-      kontenArtikel, 
-      restaurant_id, 
+    const articleData = {
+      judulArtikel,
+      kontenArtikel,
+      restaurant_id,
       spot_id,
-      image_url : imageUrl,
+      image_url: imageUrl,
     };
 
-    const newArticle = await articlesModel.createArticle(articleData, image);
+    const newArticle = await articlesModel.createArticle(articleData);
     return baseResponse(res, true, 201, "Article created successfully", newArticle);
   } catch (error) {
     console.error("Error creating article:", error);
     return baseResponse(res, false, 500, "Internal server error", error.message);
   }
 };
+
 
 exports.getAllArticles = async (req, res) => {
   try {
@@ -48,42 +48,25 @@ exports.getAllArticles = async (req, res) => {
   }
 };
 
-exports.updateArticle = async (req, res) => {
+exports.updateArticleFields = async (req, res) => {
   try {
     const { id } = req.params;
-    const { judulArtikel, kontenArtikel, restaurant_id, spot_id, image_url } = req.body;
-    const image = req.file;
-
-    let imageUrl = null;
-    if (image_url !== null) {
-      try {
-        const uploadResponse = await cloudinary.uploader.upload(image.path);
-        imageUrl = uploadResponse.secure_url;
-        console.log("Image URL:", imageUrl);
-      } catch (uploadErr) {
-        console.error("Error uploading image to Cloudinary:", uploadErr);
-        return baseResponse(res, false, 500, "Image upload failed", uploadErr.message);
-      }
-    }else{
-      imageUrl = image_url;
-    }
+    const fields = req.body; 
     
-    const articleData = { 
-      judulArtikel, 
-      kontenArtikel, 
-      restaurant_id, 
-      spot_id,
-      image_url : imageUrl,
-    };
+    if (Object.keys(fields).length === 0) {
+      return baseResponse(res, false, 400, "No fields provided for update", null);
+    }
 
-    const updatedArticle = await articlesModel.updateArticle(id, articleData, image);
+    const updatedArticle = await articlesModel.updateArticleFields(id, fields);
+
     if (!updatedArticle) {
       return baseResponse(res, false, 404, "Article not found", null);
     }
+
     return baseResponse(res, true, 200, "Article updated successfully", updatedArticle);
   } catch (error) {
-    console.error("Error updating article:", error);
-    return baseResponse(res, false, 500, "Internal server error", error.message);
+    console.error("Error updating article fields:", error);
+    return baseResponse(res, false, 500, "Error updating article fields", error.message);
   }
 };
 
@@ -91,7 +74,7 @@ exports.updateImage = async (req, res) => {
   try {
     const { id } = req.params;
     const image = req.file;
-    console.log("File received in controller:", req.file); // Log file yang diterima
+    console.log("File received in controller:", req.file); 
     console.log("Params received:", req.params);
 
     if (!image) {
