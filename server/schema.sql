@@ -94,8 +94,8 @@ CREATE TABLE spots (
 --- Tabel Catalog
 CREATE TABLE IF NOT EXISTS catalogs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    namaKatalog VARCHAR(100) NOT NULL,
-    kategoriRestaurant_id UUID REFERENCES kategori_restaurants(id),  
+    namaCatalog VARCHAR(100) NOT NULL,
+    kategoriRestaurant_id UUID REFERENCES kategori_restaurant(id),  
     lokasi VARCHAR(100) NOT NULL CHECK (lokasi IN (
         'Blok-M Square',
         'Plaza Blok-M',
@@ -106,9 +106,10 @@ CREATE TABLE IF NOT EXISTS catalogs (
         'Senayan',
         'Kebayoran Baru'
     )),
+    /*rating DECIMAL(3,2) CHECK (rating >= 0 AND rating <= 5),*/
     harga INTEGER NOT NULL,
-    deskripsiKatalog TEXT NOT NULL,
-    restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE, 
+    deskripsiCatalog TEXT NOT NULL,
+    restaurant_id UUID REFERENCES restaurant(id) ON DELETE CASCADE, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -149,6 +150,84 @@ VALUES
 ('Fudgybro', 'f3dc6d82-d92d-4eef-988f-14cd714ac48e', 'Melawai', 4.8, numrange(50000, 60000, '[]'), 'Jl. Melawai IV No.5 (sebelah Family Mart), Blok M, Jakarta Selatan'),
 ('Maiku Tiramisu', 'f3dc6d82-d92d-4eef-988f-14cd714ac48e', 'Melawai', 4.5, numrange(65000, 77000, '[]'), 'Jl. Melawai 6 No.19, Melawai, Jakarta Selatan'),
 ('London Layers', 'f3dc6d82-d92d-4eef-988f-14cd714ac48e', 'Blok-M Square', 4.6, numrange(45000, 90000, '[]'), 'Blok M Square, Jl. Melawai Raya, Jakarta Selatan');
+
+INSERT INTO catalogs (namaKatalog, kategoriRestaurant_id, lokasi, harga, deskripsiKatalog, restaurant_id)
+VALUES
+('Aoki Japanese Cuisine', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 280000, 'deskripsi aoki', 'aa541c70-af67-4e80-a50e-872f0f4fffa3'),
+('Aoki Japanese Cuisine', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 280000, 'deskripsi aoki', 'aa541c70-af67-4e80-a50e-872f0f4fffa3'),
+('Aoki Japanese Cuisine', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 280000, 'deskripsi aoki', 'aa541c70-af67-4e80-a50e-872f0f4fffa3'),
+('Aoki Japanese Cuisine', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 280000, 'deskripsi aoki', 'aa541c70-af67-4e80-a50e-872f0f4fffa3'),
+('Aoki Japanese Cuisine', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 280000, 'deskripsi aoki', 'aa541c70-af67-4e80-a50e-872f0f4fffa3'),
+
+('Le Gran Cafe', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 370000, 'Deskripsi le gran cafe', '4c5280c3-a987-4c45-b81c-0c6f19e46c17'),
+('Le Gran Cafe', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 370000, 'Deskripsi le gran cafe', '4c5280c3-a987-4c45-b81c-0c6f19e46c17'),
+('Le Gran Cafe', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 370000, 'Deskripsi le gran cafe', '4c5280c3-a987-4c45-b81c-0c6f19e46c17'),
+('Le Gran Cafe', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 370000, 'Deskripsi le gran cafe', '4c5280c3-a987-4c45-b81c-0c6f19e46c17'),
+('Le Gran Cafe', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Gulai Tikungan (Mahakam)', 370000, 'Deskripsi le gran cafe', '4c5280c3-a987-4c45-b81c-0c6f19e46c17'),
+
+('Sir Loin', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 242000, 'deskripsi sir loin', 'fb0121b2-28cb-44ea-8e33-8e2906cd5bea'),
+('Sir Loin', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 242000, 'deskripsi sir loin', 'fb0121b2-28cb-44ea-8e33-8e2906cd5bea'),
+('Sir Loin', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 242000, 'deskripsi sir loin', 'fb0121b2-28cb-44ea-8e33-8e2906cd5bea'),
+('Sir Loin', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 242000, 'deskripsi sir loin', 'fb0121b2-28cb-44ea-8e33-8e2906cd5bea'),
+('Sir Loin', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 242000, 'deskripsi sir loin', 'fb0121b2-28cb-44ea-8e33-8e2906cd5bea'),
+
+('Tokyo Skipjack', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 320000, 'deskripsi tokyo', 'cc140523-b742-43fa-9e90-df0866b4a627'),
+('Tokyo Skipjack', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 320000, 'deskripsi tokyo', 'cc140523-b742-43fa-9e90-df0866b4a627'),
+('Tokyo Skipjack', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 320000, 'deskripsi tokyo', 'cc140523-b742-43fa-9e90-df0866b4a627'),
+('Tokyo Skipjack', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 320000, 'deskripsi tokyo', 'cc140523-b742-43fa-9e90-df0866b4a627'),
+('Tokyo Skipjack', '06caa38d-0b7d-4622-b44f-9460df9431e2', 'Melawai', 320000, 'deskripsi tokyo', 'cc140523-b742-43fa-9e90-df0866b4a627'),
+
+
+
+
+('Roji Ramen', '24f9e381-e385-4901-af1f-8712aa043287', 'Melawai', 60000, 'deskripsi roji', '8c545cac-8019-4656-a522-03947bd75426'),
+
+('Born Ga', '24f9e381-e385-4901-af1f-8712aa043287', 'Melawai', 180000, 'deskripsi born ga', '3890d9e3-7b55-4c53-b394-91e012c50e64'),
+
+('Restaurant Sarang Oci', '24f9e381-e385-4901-af1f-8712aa043287', 'Melawai', 62000, 'deskripsi sarang oci', '497e691f-5f01-4294-8d42-8ed49a3bb8f6'),
+
+
+
+
+('Futago Ya', 'b1c80387-3f85-42bc-ad41-749d3bdb1400', 'Melawai', 85000, 'deskripsi futago', 'ff608bf0-31db-4dc6-a975-70a904cdd602'),
+
+('Yoiko Ramen 415', 'b1c80387-3f85-42bc-ad41-749d3bdb1400', 'Gulai Tikungan (Mahakam)', 120000, 'deskripsi yoiko ramen', '597895f9-d5cb-4e04-a998-226770efcc0a'),
+
+('Haka Dimsum Shop', 'b1c80387-3f85-42bc-ad41-749d3bdb1400', 'Melawai', 85000, 'deskripsi haka', '3310ed44-b609-47f1-a65b-d9951fca49ef'),
+
+
+
+
+('One Eight Pizza Joint', 'dd31b488-e1b8-4b6f-af1d-e7b77cfc753b', 'Melawai', 25000, 'deksripsi one eight', '1637db95-8ff7-4b62-b91d-f367a9704ef3'),
+
+('Iga Bakar Gempal', 'dd31b488-e1b8-4b6f-af1d-e7b77cfc753b', 'Melawai', 32000, 'deskripsi iga bakar gempal','62b98a55-e8d3-4bab-9859-e1301c2db63a'),
+
+('Oppa Dosirak', 'dd31b488-e1b8-4b6f-af1d-e7b77cfc753b', 'Plaza Blok-M', 44000, 'deskripsi oppa dosirak', 'cd7e4919-29a3-4aa8-9380-b95a2aff789e'),
+
+
+
+
+('Anomali Coffee', 'e44df26f-89fe-42f7-95fe-54dcf5a0110d', 'Melawai', 82000, 'deskripsi anomali', 'd0c7765f-f109-4f69-a9c4-14fde6c8255c'),
+
+('Kopi Tuku', 'e44df26f-89fe-42f7-95fe-54dcf5a0110d', 'Melawai', 42000, 'deskripsi kopi tuku', 'b9be96b3-aa8b-418a-af06-a953bb61682e'),
+
+('Djournal Coffee', 'e44df26f-89fe-42f7-95fe-54dcf5a0110d', 'Melawai', 45000, 'deskripsi djournal', '3ee8d1f9-02a1-4a29-bba4-a1f792b83b4f'),
+
+('Filosofi Kopi', 'e44df26f-89fe-42f7-95fe-54dcf5a0110d', 'Melawai', 72000, 'deskripsi filosofi', 'cb8c9d33-a6df-4599-80bf-d9e3b645c163'),
+
+
+
+
+('Mack''s Creamery', 'f3dc6d82-d92d-4eef-988f-14cd714ac48e', 'Melawai', 38000, 'deskripsi mack''s', 'ab3525a3-87bc-45c6-a758-12ed1074c093'),
+
+('Matchaman', 'f3dc6d82-d92d-4eef-988f-14cd714ac48e', 'Melawai', 42000, 'deskripsi matchaman', '3c2df3d5-d157-4400-8865-e3b159f7a695'),
+
+('Fudgybro', 'f3dc6d82-d92d-4eef-988f-14cd714ac48e', 'Melawai', 55000, 'deskripsi fudgybro', '4c1a0098-60d1-4414-8c3e-4bee79ff35dd'),
+
+('Maiku Tiramisu', 'f3dc6d82-d92d-4eef-988f-14cd714ac48e', 'Melawai', 68000, 'deskripsi maiku', '1e672b6c-07cf-485c-bb0e-4cce9dfe97df'),
+
+('London Layers', 'f3dc6d82-d92d-4eef-988f-14cd714ac48e', 'Blok-M Square', 62000, 'deskripsi london layers', 'ba594936-d07e-482e-bbc5-e722430715b9');
+
 
 INSERT INTO spots (namaTempat, kategoriSpot_id, lokasi, rating, price)
 VALUES
