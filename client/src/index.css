@@ -1,3 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Special+Elite&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Island+Moments&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply bg-[#FFFFFF];
+}
+
+/* Responsive containers */
+.container {
+  @apply px-4 mx-auto w-full;
+  @apply sm:max-w-[640px];
+  @apply md:max-w-[768px];
+  @apply lg:max-w-[1024px];
+  @apply xl:max-w-[1280px];
+}
+
+.font-special-elite {
+  font-family: "Special Elite", cursive;
+}
+
+.font-island-moments {
+  font-family: "Island Moments", cursive;
+}
+
+.font-covered-by-your-grace {
+  font-family: "Covered By Your Grace", cursive;
+}
+
+.font-inter {
+  font-family: "Inter", sans-serif;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

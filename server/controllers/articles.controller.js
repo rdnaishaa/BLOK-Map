@@ -14,7 +14,7 @@ exports.createArticle = async (req, res) => {
     let imageUrl = null;
     if (image) {
       try {
-        imageUrl = await uploadImageToCloudinary(image.buffer); 
+        imageUrl = await uploadImageToCloudinary(image.buffer);
       } catch (uploadErr) {
         console.error("Error uploading image to Cloudinary:", uploadErr);
         return baseResponse(res, false, 500, "Image upload failed", uploadErr.message);
@@ -29,13 +29,14 @@ exports.createArticle = async (req, res) => {
       image_url: imageUrl,
     };
 
-    const newArticle = await articlesModel.createArticle(articleData, image);
+    const newArticle = await articlesModel.createArticle(articleData);
     return baseResponse(res, true, 201, "Article created successfully", newArticle);
   } catch (error) {
     console.error("Error creating article:", error);
     return baseResponse(res, false, 500, "Internal server error", error.message);
   }
 };
+
 
 exports.getAllArticles = async (req, res) => {
   try {

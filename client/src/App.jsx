@@ -1,59 +1,43 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { useAuth } from './context/AuthContext'
-import Navbar from './components/common/Navbar'
-import Footer from './components/common/Footer'
-import Home from './pages/Home/Home'
-import Login from './pages/Login/Login'
-import Register from './pages/Register/Register'
-import Catalog from './pages/Catalog/Catalog'
-import CatalogDetail from './pages/CatalogDetail/CatalogDetail'
-import Restaurants from './pages/Restaurants/Restaurants'
-import RestaurantDetail from './pages/RestaurantDetail/RestaurantDetail'
-import SpotHangout from './pages/SpotHangout/SpotHangout'
-import SpotDetail from './pages/SpotDetail/SpotDetail'
-import HowToGet from './pages/HowToGet/HowToGet'
-import AdminDashboard from './pages/Admin/Dashboard'
-import AdminSpots from './pages/Admin/Spots'
-import AdminRestaurants from './pages/Admin/Restaurants'
-import AdminReviews from './pages/Admin/Reviews'
-import ProtectedRoute from './components/common/ProtectedRoute'
-import AdminRoute from './components/common/AdminRoute'
-import './App.css'
+import { lazy, Suspense } from 'react'
+import { AuthProvider } from './context/AuthContext'
+import Layout from './components/Layout'
+import LoadingSpinner from './components/LoadingSpinner'
+
+// Lazy-loaded pages
+const HomePage = lazy(() => import('./pages/HomePage'))
+const RestaurantPage = lazy(() => import('./pages/restaurant/RestaurantPage'))
+const RestaurantDetailPage = lazy(() => import('./pages/restaurant/RestaurantDetailPage'))
+const SpotPage = lazy(() => import('./pages/spot/SpotPage'))
+const SpotDetailPage = lazy(() => import('./pages/spot/SpotDetailPage'))
+const CatalogPage = lazy(() => import('./pages/catalog/CatalogPage'))
+const CatalogDetailPage = lazy(() => import('./pages/catalog/CatalogDetailPage'))
+const ReviewRatingPage = lazy(() => import('./pages/ReviewRatingPage'))
+const HowToGetPage = lazy(() => import('./pages/HowToGetPage'))
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
 
 function App() {
-  const { loading } = useAuth()
-
-  if (loading) {
-    return <div className="loading">Loading...</div>
-  }
-
-   return (
-    <Router>
-      <div className="app">
-        <Navbar />
-        <main className="main-content">
+  return (
+    <AuthProvider>
+      <Router>
+        <Suspense fallback={<LoadingSpinner />}>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/catalog" element={<Catalog />} />
-            <Route path="/catalog/:id" element={<CatalogDetail />} />
-            <Route path="/restaurants" element={<Restaurants />} />
-            <Route path="/restaurants/:id" element={<RestaurantDetail />} />
-            <Route path="/spots" element={<SpotHangout />} />
-            <Route path="/spots/:id" element={<SpotDetail />} />
-            <Route path="/how-to-get" element={<HowToGet />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-            <Route path="/admin/spots" element={<AdminRoute><AdminSpots /></AdminRoute>} />
-            <Route path="/admin/restaurants" element={<AdminRoute><AdminRestaurants /></AdminRoute>} />
-            <Route path="/admin/reviews" element={<AdminRoute><AdminReviews /></AdminRoute>} />
+            <Route path="/" element={<Layout><HomePage /></Layout>} />
+            <Route path="/restaurants" element={<Layout><RestaurantPage /></Layout>} />
+            <Route path="/restaurants/:id" element={<Layout><RestaurantDetailPage /></Layout>} />
+            <Route path="/spots" element={<Layout><SpotPage /></Layout>} />
+            <Route path="/spots/:id" element={<Layout><SpotDetailPage /></Layout>} />
+            <Route path="/catalogs" element={<Layout><CatalogPage /></Layout>} />
+            <Route path="/catalogs/:id" element={<Layout><CatalogDetailPage /></Layout>} />
+            <Route path="/reviews" element={<Layout><ReviewRatingPage /></Layout>} />
+            <Route path="/how-to-get" element={<Layout><HowToGetPage /></Layout>} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+        </Suspense>
+      </Router>
+    </AuthProvider>
   )
 }
 
