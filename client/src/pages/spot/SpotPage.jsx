@@ -34,7 +34,7 @@ const SpotPage = () => {
         
         // Extract unique categories from spots data - using kategori field
         // This fixes the issue of showing kategori for spot names
-        const uniqueCategories = [...new Set(spotsData.map(spot => spot.kategori))]
+        const uniqueCategories = [...new Set(spotsData.map(spot => spot.kategori_nama))]
           .filter(Boolean)
           .map(cat => ({ id: cat, name: cat })) // Changed kategori to name for clarity
         

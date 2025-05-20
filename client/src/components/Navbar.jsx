@@ -1,11 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [isFocused, setIsFocused] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false) // ← untuk status login
   const navigate = useNavigate()
+
+  useEffect(() => {
+    // Cek apakah token tersedia
+    const token = localStorage.getItem('token')
+    setIsLoggedIn(!!token)
+  }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -13,6 +19,12 @@ const Navbar = () => {
       navigate(`/search?q=${encodeURIComponent(searchTerm)}`)
       setSearchTerm('')
     }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    setIsLoggedIn(false)
+    navigate('/login', { state: { message: 'You have logged out successfully.' } })
   }
 
   return (
@@ -27,12 +39,27 @@ const Navbar = () => {
               <Link to="/catalogs" className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']">Catalogs</Link>
               <Link to="/reviews" className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']">Reviews</Link>
               <Link to="/how-to-get" className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']">How to Get</Link>
-              <Link to="/login" className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']">Login</Link>
+
+              {isLoggedIn ? (
+                <button 
+                  onClick={handleLogout}
+                  className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link 
+                  to="/login"
+                  className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']"
+                >
+                  Login
+                </Link>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar (tidak berubah) */}
         <div className="hidden md:block ml-6">
           <form onSubmit={handleSubmit} className="relative">
             <input
@@ -45,8 +72,6 @@ const Navbar = () => {
                 transition-all duration-300"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
             />
             <button 
               type="submit" 
@@ -72,7 +97,7 @@ const Navbar = () => {
           </form>
         </div>
 
-        {/* Mobile menu button */}
+        {/* Mobile menu toggle button */}
         <button 
           className="md:hidden text-[#CCBA78]"
           onClick={() => setIsOpen(!isOpen)}

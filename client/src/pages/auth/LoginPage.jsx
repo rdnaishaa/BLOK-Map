@@ -38,7 +38,7 @@ function Login() {
       const response = await loginUser(formData);
       
       // Store token in localStorage for future API requests
-      localStorage.setItem('token', response.payload.token);
+      localStorage.setItem('token', response.token);
       
       // Navigate to home page
       navigate('/');
