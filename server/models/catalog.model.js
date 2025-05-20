@@ -27,7 +27,8 @@ exports.createCatalog = async (catalog) => {
 exports.getCatalogs = async () => {
   try {
     const res = await db.query(
-      `SELECT 
+      `SELECT
+        c.id,
         c.namakatalog,
         c.lokasi,
         c.harga,
