@@ -6,7 +6,7 @@ import ReviewCard from '../../components/ReviewCard'
 import ReviewForm from '../../components/ReviewForm'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import RatingStars from '../../components/RatingStars'
-import ImageGallery from '../../components/ImageGallery'
+// import ImageGallery from '../../components/ImageGallery'
 import MapEmbed from '../../components/MapEmbed'
 
 const SpotDetailPage = () => {
