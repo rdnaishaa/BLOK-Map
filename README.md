@@ -92,10 +92,14 @@ Fitur autentikasi untuk memungkinkan pengguna `register` dan `login` dan memberi
 <details>
   <summary>Diagram dan Struktur</summary>
   <ul>
-    <li>
+   <li>
+     <h2> <strong>Flowchart</strong><br> <h2>
+      <img src="https://hackmd.io/_uploads/SJvwCaKZeg.png" alt="Flowchart">
+   </li>
+   <li>
      <h2> <strong>UML Diagram</strong><br> <h2>
       <img src="https://hackmd.io/_uploads/rye3lGuZgl.png" alt="UML Diagram">
-    </li>
+   </li>
     <li>
      <h2> <strong>ER Diagram</strong><br> <h2>
       <img src="https://hackmd.io/_uploads/Bk5zgiYWgx.png" alt="ER Diagram">
