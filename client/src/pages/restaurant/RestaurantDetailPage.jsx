@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import ReviewCard from '../components/ReviewCard'
-import { getReviews } from '../services/review_api' // Updated to use dedicated review_api
+import { getReviews } from '../services/review_api'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 const ReviewRatingPage = () => {
