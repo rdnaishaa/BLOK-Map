@@ -86,4 +86,41 @@ Fitur autentikasi untuk memungkinkan pengguna `register` dan `login` dan memberi
 # ER Diagram:
 ![image (3)](https://hackmd.io/_uploads/Bk5zgiYWgx.png)
 
+# Struktur
+BLOK-Map/
+├── client/                  
+│   ├── public/                
+│   ├── src/
+│   │   ├── assets/            
+│   │   │   ├── images/ 
+│   │   ├── components/       
+│   │   │   ├── common/ 
+│   │   ├── components/       
+│   │   ├── context/       
+│   │   ├── hooks/         
+│   │   ├── pages/            
+│   │   │   ├── auth/
+│   │   │   ├── catalog/
+│   │   │   ├── restaurant/
+│   │   │   ├── spot/
+│   │   ├── services/           
+│   │   ├── App.jsx            
+│   │   ├── main.jsx           
+│   ├── .env                 
+│   ├── index.html             
+│   ├── package.json           
+│   └── vite.config.js         
+│
+├── server/                   
+│   ├── config/                
+│   ├── controllers/           
+│   ├── models/                
+│   ├── routes/                
+│   ├── middleware/           
+│   ├── utils/                
+│   ├── .env                   
+│   ├── package.json           
+│   └── index.js             
+│
+└── README.md                 
 ---
