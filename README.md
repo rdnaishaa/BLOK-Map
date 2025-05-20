@@ -77,17 +77,23 @@ Fitur autentikasi untuk memungkinkan pengguna `register` dan `login` dan memberi
 | Dapat mengakses dashboard untuk mengelola data dan konten. | Dapat login untuk memberikan review dan mengakses fitur tambahan. |
 # DATASET
 
-# Alur:
 
-# UML:
-
-![UML Diagram](https://hackmd.io/_uploads/rye3lGuZgl.png)
-
-# ER Diagram:
-![image (3)](https://hackmd.io/_uploads/Bk5zgiYWgx.png)
-
-# Struktur
-```
+<!-- UML & ERD & Struktur -->
+# Flowchart, UML, ERD, dan Struktur Proyek
+<details>
+  <summary>Diagram dan Struktur</summary>
+  <ul>
+    <li>
+     <h2> <strong>UML Diagram</strong><br> <h2>
+      <img src="https://hackmd.io/_uploads/rye3lGuZgl.png" alt="UML Diagram">
+    </li>
+    <li>
+     <h2> <strong>ER Diagram</strong><br> <h2>
+      <img src="https://hackmd.io/_uploads/Bk5zgiYWgx.png" alt="ER Diagram">
+    </li>
+    <li>
+     <h2> <strong>Struktur Proyek</strong> <h2>
+      <pre><code>
 BLOK-Map/
 ├── client/                  
 │   ├── public/                
@@ -96,7 +102,6 @@ BLOK-Map/
 │   │   │   ├── images/ 
 │   │   ├── components/       
 │   │   │   ├── common/ 
-│   │   ├── components/       
 │   │   ├── context/       
 │   │   ├── hooks/         
 │   │   ├── pages/            
@@ -124,5 +129,7 @@ BLOK-Map/
 │   └── index.js             
 │
 └── README.md
-```           
----
+      </code></pre>
+    </li>
+  </ul>
+</details>
