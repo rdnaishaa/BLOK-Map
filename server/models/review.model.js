@@ -3,7 +3,9 @@ const pool = require('../config/pg.database');
 const ReviewModel = {
   async getAll() {
     const query = `
-      SELECT 
+      SELECT
+        r.id,
+        r.user_id,
         r.rating,
         r.content,
         r.created_at,
