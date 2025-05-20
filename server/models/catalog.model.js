@@ -28,52 +28,26 @@ exports.getCatalogs = async (query = {}) => {
   try {
     let sqlQuery = `
       SELECT 
-        c.*,
+        c.id,
+        c.namaKatalog,
+        c.kategoriRestaurant_id,
+        c.lokasi,
+        c.harga,
+        c.deskripsiKatalog,
+        c.restaurant_id,
+        c.image_url,
         kr.kategori as kategori_nama,
         r.namaRestaurant
       FROM catalogs c
       LEFT JOIN kategori_restaurant kr ON c.kategoriRestaurant_id = kr.id
       LEFT JOIN restaurants r ON c.restaurant_id = r.id
     `;
-
-    const conditions = [];
+    
     const values = [];
-    let paramCount = 1;
-
-    if (query.kategoriRestaurant_id) {
-      conditions.push(`c.kategoriRestaurant_id = $${paramCount}`);
-      values.push(query.kategoriRestaurant_id);
-      paramCount++;
-    }
-
-    if (query.lokasi) {
-      conditions.push(`c.lokasi = $${paramCount}`);
-      values.push(query.lokasi);
-      paramCount++;
-    }
-
-    if (query.minHarga) {
-      conditions.push(`c.harga >= $${paramCount}`);
-      values.push(query.minHarga);
-      paramCount++;
-    }
-
-    if (query.maxHarga) {
-      conditions.push(`c.harga <= $${paramCount}`);
-      values.push(query.maxHarga);
-      paramCount++;
-    }
-
-    if (conditions.length > 0) {
-      sqlQuery += ` WHERE ${conditions.join(' AND ')}`;
-    }
-
-    sqlQuery += ' ORDER BY c.created_at DESC';
-
     const res = await db.query(sqlQuery, values);
     return res.rows;
   } catch (error) {
-    console.error("Error fetching catalogs:", error);
+    console.error("Database error:", error);
     throw error;
   }
 };
