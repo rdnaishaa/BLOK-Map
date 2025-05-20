@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { getRestaurants } from '../../services/restaurant_api'
 import RestaurantCard from '../../components/RestaurantCard'
 import LoadingSpinner from '../../components/LoadingSpinner'
-// import SearchFilter from '../../components/SearchFilter'
 
 const RestaurantPage = () => {
   const [restaurants, setRestaurants] = useState([])
@@ -10,10 +9,10 @@ const RestaurantPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [filters, setFilters] = useState({
-    category: 'all',
-    priceRange: 'all'
-  })
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [locationFilter, setLocationFilter] = useState('')
+  const [categories, setCategories] = useState([])
+  const [locations, setLocations] = useState([])
 
   // Fetch restaurants from API
   useEffect(() => {
@@ -23,9 +22,20 @@ const RestaurantPage = () => {
         const response = await getRestaurants()
         
         // Handle payload structure
-        const data = response.payload || response.data || []
+        const data = response.payload
         setRestaurants(data)
         setFilteredRestaurants(data)
+
+        // Extract unique categories and locations
+        const uniqueCategories = [...new Set(data.map(restaurant => restaurant.kategori_nama))]
+          .filter(Boolean)
+          .map(cat => ({ id: cat, name: cat }))
+        
+        const uniqueLocations = [...new Set(data.map(restaurant => restaurant.lokasi))]
+          .filter(Boolean)
+
+        setCategories(uniqueCategories)
+        setLocations(uniqueLocations)
       } catch (err) {
         console.error('Error fetching restaurants:', err)
         setError('Failed to load restaurants. Please try again later.')
@@ -41,7 +51,6 @@ const RestaurantPage = () => {
   useEffect(() => {
     let result = restaurants
     
-    // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       result = result.filter(restaurant => 
@@ -50,49 +59,21 @@ const RestaurantPage = () => {
         restaurant.informasiRestaurant?.toLowerCase().includes(term)
       )
     }
-    
-    // Apply category filter
-    if (filters.category !== 'all') {
-      result = result.filter(restaurant => 
-        restaurant.kategori === filters.category
-      )
+
+    if (categoryFilter) {
+      result = result.filter(restaurant => restaurant.kategori === categoryFilter)
     }
-    
-    // Apply price filter
-    if (filters.priceRange !== 'all') {
-      // Logic based on your price range structure
-      switch(filters.priceRange) {
-        case 'low':
-          result = result.filter(restaurant => restaurant.priceRange === 'low' || restaurant.price_level === 1)
-          break
-        case 'medium':
-          result = result.filter(restaurant => restaurant.priceRange === 'medium' || restaurant.price_level === 2)
-          break
-        case 'high':
-          result = result.filter(restaurant => restaurant.priceRange === 'high' || restaurant.price_level === 3)
-          break
-        default:
-          break
-      }
+
+    if (locationFilter) {
+      result = result.filter(restaurant => restaurant.lokasi === locationFilter)
     }
     
     setFilteredRestaurants(result)
-  }, [searchTerm, filters, restaurants])
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value)
-  }
-
-  const handleFilterChange = (name, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
+  }, [searchTerm, categoryFilter, locationFilter, restaurants])
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center bg-[#3D1E0F]">
+      <div className="min-h-screen w-full flex justify-center items-center bg-[#3D1E0F]">
         <LoadingSpinner />
       </div>
     )
@@ -100,8 +81,8 @@ const RestaurantPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#3D1E0F] text-white p-6">
-        <div className="container mx-auto">
+      <div className="min-h-screen">
+        <div className="container w-full p-6">
           <div className="bg-red-600/20 border border-red-600 text-white p-4 rounded-md">
             <p>{error}</p>
             <button 
@@ -118,35 +99,75 @@ const RestaurantPage = () => {
 
   return (
     <div className="min-h-screen bg-[#3D1E0F]">
-      <div className="container mx-auto p-6">
-        <h1 className="font-['Special_Elite'] text-4xl text-[#CCBA78] mb-6">Restaurants & Cafes</h1>
-
-        {/* <SearchFilter 
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          categories={[
-            { value: 'all', label: 'All Categories' },
-            { value: 'restaurant', label: 'Restaurants' },
-            { value: 'cafe', label: 'Cafes' },
-            { value: 'bar', label: 'Bars' }
-          ]}
-          priceRanges={[
-            { value: 'all', label: 'All Prices' },
-            { value: 'low', label: '$' },
-            { value: 'medium', label: '$$' },
-            { value: 'high', label: '$$$' }
-          ]}
-        /> */}
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-['Special_Elite'] text-[#CCBA78] mb-6">Restaurants & Cafes</h1>
         
+        <div className="bg-[#2A1509]/70 rounded-lg p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div>
+              <label className="block text-[#CCBA78] mb-2">Search</label>
+              <input
+                type="text"
+                placeholder="Search restaurants..."
+                className="w-full p-2 rounded bg-[#2A1509] border border-[#CCBA78] text-white"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-[#CCBA78] mb-2">Category</label>
+              <select
+                className="w-full p-2 rounded bg-[#2A1509] border border-[#CCBA78] text-white"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="">All Categories</option>
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[#CCBA78] mb-2">Location</label>
+              <select
+                className="w-full p-2 rounded bg-[#2A1509] border border-[#CCBA78] text-white"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+              >
+                <option value="">All Locations</option>
+                {locations.map((location, index) => (
+                  <option key={index} value={location}>
+                    {location}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          <div className="flex justify-end">
+            <button 
+              onClick={() => {
+                setSearchTerm('')
+                setCategoryFilter('')
+                setLocationFilter('')
+              }}
+              className="px-4 py-2 bg-[#CCBA78] text-white rounded hover:bg-[#D8C78E]"
+            >
+              Reset Filters
+            </button>
+          </div>
+        </div>
+
         {filteredRestaurants.length === 0 ? (
           <div className="bg-white/10 rounded-lg p-8 text-center">
             <p className="text-white text-xl">No restaurants found matching your criteria.</p>
             <button 
               onClick={() => {
                 setSearchTerm('');
-                setFilters({ category: 'all', priceRange: 'all' });
+                setCategoryFilter('');
+                setLocationFilter('');
               }}
               className="mt-4 bg-[#CCBA78] text-white px-4 py-2 rounded hover:bg-[#D8C78E]"
             >
@@ -154,7 +175,7 @@ const RestaurantPage = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredRestaurants.map(restaurant => (
               <RestaurantCard key={restaurant.id} restaurant={restaurant} />
             ))}

@@ -1,18 +1,18 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import HeroSlider from '../components/HeroSlider'
-import CatalogCard from '../components/CatalogCard'
+import ReviewCard from '../components/ReviewCard'
 import RestaurantCard from '../components/RestaurantCard'
 import ArticleCard from '../components/ArticleCard'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 // Import from specific API services instead of generic API
-import { getCatalogs } from '../services/catalogs_api'
+import { getReviews } from '../services/review_api'
 import { getRestaurants } from '../services/restaurant_api'
 import { getArticles } from '../services/articles_api'
 
 const HomePage = () => {
-  const [catalogs, setCatalogs] = useState([])
+  const [reviews, setReviews] = useState([])
   const [restaurants, setRestaurants] = useState([])
   const [Articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
@@ -23,14 +23,14 @@ const HomePage = () => {
     const fetchData = async () => {
       try {
         // Use Promise.all to fetch data in parallel
-        const [catalogResponse, restaurantResponse, spotResponse] = await Promise.all([
-          getCatalogs(),
+        const [reviewResponse, restaurantResponse, spotResponse] = await Promise.all([
+          getReviews(),
           getRestaurants(),
           getArticles()
         ])
         
         // Extract data from responses and limit to 5 items each
-        setCatalogs((catalogResponse.payload || []).slice(0, 5))
+        setReviews((reviewResponse.payload || []).slice(0, 5))
         setRestaurants((restaurantResponse.payload || []).slice(0, 5))
         setArticles((spotResponse.payload || []).slice(0, 5))
       } catch (error) {
@@ -44,7 +44,7 @@ const HomePage = () => {
     fetchData()
   }, [])
 
-  const foodDrinkRef = useRef(null)
+  const reviewRef = useRef(null)
   const restaurantRef = useRef(null)
   const articleRef = useRef(null)
 
@@ -95,7 +95,7 @@ const HomePage = () => {
         </h2>
         <div className="relative">
           <button 
-            onClick={() => scroll(foodDrinkRef, 'left')}
+            onClick={() => scroll(reviewRef, 'left')}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
             <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,14 +103,14 @@ const HomePage = () => {
             </svg>
           </button>
           <div 
-            ref={foodDrinkRef}
+            ref={reviewRef}
             className="flex overflow-x-auto hide-scrollbar scroll-smooth gap-5 pb-2 pl-2 pr-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {catalogs.length > 0 ? (
-              catalogs.map(catalog => (
-                <div key={catalog.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
-                  <CatalogCard catalog={catalog} />
+            {reviews.length > 0 ? (
+              reviews.map(review => (
+                <div key={review.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
+                  <ReviewCard review={review} />
                 </div>
               ))
             ) : (
@@ -118,7 +118,7 @@ const HomePage = () => {
             )}
           </div>
           <button 
-            onClick={() => scroll(foodDrinkRef, 'right')}
+            onClick={() => scroll(reviewRef, 'right')}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
             <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
