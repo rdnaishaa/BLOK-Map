@@ -3,7 +3,7 @@ const CatalogCard = ({ catalog }) => {
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="h-48 bg-gray-200">
         <img 
-          src={`/images/resto${Math.floor(Math.random() * 3) + 1}.png`} 
+          src={catalog.image_url} 
           alt={catalog.namakatalog}
           className="w-full h-full object-cover"
         />
