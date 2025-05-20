@@ -4,15 +4,7 @@ const { uploadImageToCloudinary } = require("../middleware/upload");
 
 exports.getCatalogs = async (req, res) => {
   try {
-    const { kategoriRestaurant_id, lokasi, minHarga, maxHarga } = req.query;
-    const query = {
-      kategoriRestaurant_id,
-      lokasi,
-      minHarga: minHarga ? parseInt(minHarga) : undefined,
-      maxHarga: maxHarga ? parseInt(maxHarga) : undefined
-    };
-
-    const catalogs = await catalogModel.getCatalogs(query);
+    const catalogs = await catalogModel.getCatalogs();
     return baseResponse(res, true, 200, "Catalogs retrieved successfully", catalogs);
   } catch (error) {
     console.error("Error getting catalogs:", error);

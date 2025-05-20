@@ -24,27 +24,21 @@ exports.createCatalog = async (catalog) => {
   }
 };
 
-exports.getCatalogs = async (query = {}) => {
+exports.getCatalogs = async () => {
   try {
-    let sqlQuery = `
-      SELECT 
-        c.id,
-        c.namaKatalog,
-        c.kategoriRestaurant_id,
+    const res = await db.query(
+      `SELECT 
+        c.namakatalog,
         c.lokasi,
         c.harga,
-        c.deskripsiKatalog,
-        c.restaurant_id,
+        c.deskripsikatalog,
         c.image_url,
-        kr.kategori as kategori_nama,
-        r.namaRestaurant
+        kr.kategori AS kategori_nama,
+        r.namarestaurant
       FROM catalogs c
       LEFT JOIN kategori_restaurant kr ON c.kategoriRestaurant_id = kr.id
-      LEFT JOIN restaurants r ON c.restaurant_id = r.id
-    `;
-    
-    const values = [];
-    const res = await db.query(sqlQuery, values);
+      LEFT JOIN restaurants r ON c.restaurant_id = r.id`
+    );
     return res.rows;
   } catch (error) {
     console.error("Database error:", error);

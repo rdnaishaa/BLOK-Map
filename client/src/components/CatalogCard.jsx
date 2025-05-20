@@ -13,14 +13,14 @@ const CatalogCard = ({ catalog }) => {
           {catalog.namakatalog}
         </h3>
         <p className="text-gray-600 text-sm mb-2">
-          {catalog.kategori_nama || catalog.kategoriRestaurant_id}
+          {catalog.kategori_nama}
         </p>
         <div className="flex justify-between items-center">
           <span className="text-primary-gold font-medium">
             Rp {catalog.harga.toLocaleString()}
           </span>
           <span className="text-gray-500 text-sm">
-            {catalog.namaRestaurant || catalog.restaurant_id}
+            {catalog.namarestaurant}
           </span>
         </div>
       </div>

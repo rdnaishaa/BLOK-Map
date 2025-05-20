@@ -1,40 +1,22 @@
 const pool = require('../config/pg.database');
 
 const ReviewModel = {
-  async getAllBySpot(spot_id) {
+  async getAll() {
     const query = `
       SELECT 
-        r.*,
+        r.rating,
+        r.content,
+        r.created_at,
         u.username,
-        s.namaTempat
+        s.namatempat as spot_name,
+        rest.namarestaurant as restaurant_name
       FROM reviews r
       LEFT JOIN users u ON r.user_id = u.id
       LEFT JOIN spots s ON r.spot_id = s.id
-      WHERE r.spot_id = $1 
-      ORDER BY r.created_at DESC
-    `;
-    try {
-      const result = await pool.query(query, [spot_id]);
-      return result.rows;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  },
-
-  async getAllByRestaurant(resto_id) {
-    const query = `
-      SELECT 
-        r.*,
-        u.username,
-        rest.namaRestaurant
-      FROM reviews r
-      LEFT JOIN users u ON r.user_id = u.id
       LEFT JOIN restaurants rest ON r.resto_id = rest.id
-      WHERE r.resto_id = $1 
-      ORDER BY r.created_at DESC
     `;
     try {
-      const result = await pool.query(query, [resto_id]);
+      const result = await pool.query(query);
       return result.rows;
     } catch (error) {
       throw new Error(error.message);
