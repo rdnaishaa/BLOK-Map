@@ -1,5 +1,14 @@
-﻿# BLOK-M(ap) 🗺️
+<br />
+<div align="center">
+<h1 align="center">BLOK-M(ap) 🗺️</h1>
+  
+<p align="center">
+  <a href="https://www.canva.com/design/DAGn5VL7gs0/_iHK_Lsss0c7vNlYG_ViJw/edit"><strong>Our Presentation »</strong></a>
+  </p>
+</div>
 
+---
+ 
 # Anggota Kelompok 26
 - R. Aisha Syauqi Ramadhani - 2306250554
 - Nabiel Harits Utomo - 2306267044
