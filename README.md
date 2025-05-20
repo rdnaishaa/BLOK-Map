@@ -88,14 +88,18 @@ Fitur autentikasi untuk memungkinkan pengguna `register` dan `login` dan memberi
 
 
 <!-- UML & ERD & Struktur -->
-# Flowchart, UML, ERD, dan Struktur Proyek
+# Flowchart, UML, ERD, Struktur, dan Dokumentasi
 <details>
   <summary>Diagram dan Struktur</summary>
   <ul>
-    <li>
+   <li>
+     <h2> <strong>Flowchart</strong><br> <h2>
+      <img src="https://hackmd.io/_uploads/SJvwCaKZeg.png" alt="Flowchart">
+   </li>
+   <li>
      <h2> <strong>UML Diagram</strong><br> <h2>
       <img src="https://hackmd.io/_uploads/rye3lGuZgl.png" alt="UML Diagram">
-    </li>
+   </li>
     <li>
      <h2> <strong>ER Diagram</strong><br> <h2>
       <img src="https://hackmd.io/_uploads/Bk5zgiYWgx.png" alt="ER Diagram">
@@ -142,3 +146,18 @@ BLOK-Map/
     </li>
   </ul>
 </details>
+
+<details>
+  <summary>Progress Report</summary>
+  <ul>
+    <li>
+      <h2><strong>Progress Checking Aslab</strong></h2>
+      <img src="https://hackmd.io/_uploads/H140eAKWll.png" alt="Progchek Aslab">
+    </li>
+    <li>
+      <h2><strong>Dokumentasi</strong></h2>
+      <img src="https://hackmd.io/_uploads/rywXZCYblx.jpg" alt="Kerja Kelompok">
+    </li>
+  </ul>
+</details>
+

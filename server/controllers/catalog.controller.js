@@ -1,5 +1,6 @@
 const catalogModel = require("../models/catalog.model");
 const baseResponse = require("../utils/baseResponse.util");
+const { uploadImageToCloudinary } = require("../middleware/upload");
 
 exports.getCatalogs = async (req, res) => {
   try {
@@ -45,6 +46,17 @@ exports.createCatalog = async (req, res) => {
       deskripsiKatalog,
       restaurant_id
     } = req.body;
+    const image = req.file;
+
+    let imageUrl = null;
+    if (image) {
+        try {
+            imageUrl = await uploadImageToCloudinary(image.buffer);
+        } catch (uploadErr) {
+            console.error("Error uploading image to Cloudinary:", uploadErr);
+            return baseResponse(res, false, 500, "Image upload failed", uploadErr.message);
+        }
+    }
 
     const catalog = await catalogModel.createCatalog({
       namaKatalog,
@@ -52,7 +64,8 @@ exports.createCatalog = async (req, res) => {
       lokasi,
       harga,
       deskripsiKatalog,
-      restaurant_id
+      restaurant_id,
+      image_url: imageUrl
     });
 
     return baseResponse(res, true, 201, "Catalog created successfully", catalog);
