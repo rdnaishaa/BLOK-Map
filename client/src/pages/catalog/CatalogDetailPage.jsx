@@ -1,89 +1,151 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { getCatalogById, getRestaurantReviews } from '../../services/api'
+import { useParams, Link } from 'react-router-dom'
+import { getCatalogById } from '../../services/catalog_api'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import RatingStars from '../../components/RatingStars'
-import ReviewCard from '../../components/ReviewCard'
-import ReviewForm from '../../components/ReviewForm'
 
 const CatalogDetailPage = () => {
   const { id } = useParams()
   const [catalog, setCatalog] = useState(null)
-  const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
-
+  const [error, setError] = useState(null)
+  
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCatalog = async () => {
+      if (!id) {
+        setLoading(false)
+        return
+      }
+      
       try {
-        const [catalogData, reviewsData] = await Promise.all([
-          getCatalogById(id),
-          getRestaurantReviews(catalogData?.restaurant_id)
-        ])
-        setCatalog(catalogData)
-        setReviews(reviewsData)
-      } catch (error) {
-        console.error('Error fetching catalog details:', error)
+        const response = await getCatalogById(id)
+        
+        // Handle payload structure
+        const catalogData = response.payload || response.data || null
+        if (!catalogData) {
+          setError('Catalog item not found')
+        } else {
+          setCatalog(catalogData)
+        }
+      } catch (err) {
+        console.error('Error fetching catalog details:', err)
+        setError('Failed to load catalog details.')
       } finally {
         setLoading(false)
       }
     }
-
-    fetchData()
+    
+    fetchCatalog()
   }, [id])
 
-  if (loading) return <LoadingSpinner />
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-[#3D1E0F]">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (error || !catalog) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+          <p className="text-xl text-red-600 mb-4">{error || 'Catalog item not found'}</p>
+          <button 
+            onClick={() => window.history.back()} 
+            className="px-4 py-2 bg-[#CCBA78] text-white rounded hover:bg-[#D8C78E]"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="md:w-1/3">
-              <div className="h-64 bg-gray-200 rounded-lg overflow-hidden mb-4">
-                <img 
-                  src={`/images/resto${Math.floor(Math.random() * 3) + 1}.png`} 
-                  alt={catalog.namaKatalog}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold text-primary-black mb-2">Details</h2>
-                <div className="space-y-2">
-                  <p><span className="font-medium">Category:</span> {catalog.kategori_nama}</p>
-                  <p><span className="font-medium">Restaurant:</span> {catalog.namaRestaurant}</p>
-                  <p><span className="font-medium">Location:</span> {catalog.lokasi}</p>
-                  <p><span className="font-medium">Price:</span> Rp {catalog.harga.toLocaleString()}</p>
-                </div>
-              </div>
+        <div className="md:flex">
+          <div className="md:w-1/2">
+            <img 
+              src={catalog.image_url || '/placeholder-food.jpg'} 
+              alt={catalog.name} 
+              className="w-full h-full object-cover"
+              style={{ maxHeight: '500px' }}
+            />
+          </div>
+          <div className="p-6 md:w-1/2">
+            <div className="flex justify-between items-start">
+              <h1 className="text-3xl font-bold text-primary-black mb-2">
+                {catalog.name}
+              </h1>
+              <span className="bg-[#CCBA78] text-white px-3 py-1 rounded-full text-sm">
+                {catalog.category}
+              </span>
             </div>
             
-            <div className="md:w-2/3">
-              <h1 className="text-3xl font-bold text-primary-black mb-2">
-                {catalog.namaKatalog}
-              </h1>
-              
-              <div className="flex items-center mb-4">
-                <RatingStars rating={catalog.rating || 4.5} />
-                <span className="ml-2 text-gray-600">
-                  {catalog.rating?.toFixed(1) || '4.5'} ({reviews.length} reviews)
-                </span>
-              </div>
-              
+            <div className="flex items-center mb-4">
+              <RatingStars rating={catalog.rating || 0} />
+              <span className="ml-2 text-gray-600">
+                {(catalog.rating || 0).toFixed(1)} ({catalog.reviewCount || 0} reviews)
+              </span>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-2xl font-bold text-[#3D1E0F]">
+                {catalog.price ? `IDR ${catalog.price.toLocaleString()}` : 'Price unavailable'}
+              </p>
+            </div>
+            
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-primary-black mb-2">Description</h2>
+              <p className="text-gray-700">{catalog.description}</p>
+            </div>
+            
+            {catalog.ingredients && (
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-primary-black mb-2">Description</h2>
-                <p className="text-gray-700">{catalog.deskripsiKatalog}</p>
+                <h2 className="text-xl font-semibold text-primary-black mb-2">Ingredients</h2>
+                <ul className="list-disc list-inside text-gray-700">
+                  {catalog.ingredients.map((ingredient, index) => (
+                    <li key={index}>{ingredient}</li>
+                  ))}
+                </ul>
               </div>
-              
+            )}
+            
+            {catalog.restaurants && catalog.restaurants.length > 0 && (
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-primary-black mb-2">Reviews</h2>
-                <ReviewForm restaurantId={catalog.restaurant_id} />
-                <div className="mt-6 space-y-4">
-                  {reviews.map(review => (
-                    <ReviewCard key={review.id} review={review} />
+                <h2 className="text-xl font-semibold text-primary-black mb-2">Where to Find</h2>
+                <div className="space-y-2">
+                  {catalog.restaurants.map(restaurant => (
+                    <Link 
+                      key={restaurant.id} 
+                      to={`/restaurant/${restaurant.id}`}
+                      className="block p-3 border border-gray-200 rounded hover:bg-gray-50"
+                    >
+                      <div className="font-medium text-[#3D1E0F]">{restaurant.namaRestaurant}</div>
+                      <div className="text-sm text-gray-600">{restaurant.lokasi}</div>
+                    </Link>
                   ))}
                 </div>
               </div>
+            )}
+            
+            <div className="flex justify-between">
+              <button 
+                onClick={() => window.history.back()} 
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              >
+                Back
+              </button>
+              {catalog.restaurants?.[0]?.id && (
+                <Link 
+                  to={`/restaurant/${catalog.restaurants[0].id}`}
+                  className="px-4 py-2 bg-[#CCBA78] text-white rounded hover:bg-[#D8C78E]"
+                >
+                  View Restaurant
+                </Link>
+              )}
             </div>
           </div>
         </div>

@@ -1,140 +1,128 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { getRestaurantById, getRestaurantArticles, getRestaurantReviews } from '../../services/api'
-import ImageSlider from '../../components/ImageSlider'
-import MapEmbed from '../../components/MapEmbed'
-import ReviewCard from '../../components/ReviewCard'
-import ReviewForm from '../../components/ReviewForm'
-import LoadingSpinner from '../../components/LoadingSpinner'
-import RatingStars from '../../components/RatingStars'
+import { useState, useEffect } from 'react'
+import ReviewCard from '../components/ReviewCard'
+import { getReviews } from '../services/review_api' // Updated to use dedicated review_api
+import LoadingSpinner from '../components/LoadingSpinner'
 
-const RestaurantDetailPage = () => {
-  const { id } = useParams()
-  const [restaurant, setRestaurant] = useState(null)
-  const [articles, setArticles] = useState([])
+const ReviewRatingPage = () => {
   const [reviews, setReviews] = useState([])
+  const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
   useEffect(() => {
-    const fetchData = async () => {
-      if (!id) {
-        setLoading(false)
-        return
-      }
-    try {
-        const restaurantData = await getRestaurantById(id)
-        if (!restaurantData || !restaurantData.namaRestaurant) {
-          setRestaurant(null)
-          setLoading(false)
-          return
+    const fetchReviews = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // Set up parameters based on filter
+        let params = {}
+        if (filter === 'restaurant') {
+          params.resto_id = 'exists'
+        } else if (filter === 'spot') {
+          params.spot_id = 'exists'
         }
-        const [articlesData, reviewsData] = await Promise.all([
-          getRestaurantArticles(id),
-          getRestaurantReviews(id)
-        ])
-        setRestaurant(restaurantData)
-        setArticles(articlesData || [])
-        setReviews(reviewsData || [])      } catch (error) {
-        console.error('Error fetching restaurant details:', error)
-        setRestaurant(null)
+        
+        // Call the reviews API
+        const response = await getReviews(params)
+        
+        // Handle the payload structure
+        if (response.payload) {
+          setReviews(response.payload)
+        } else {
+          // Fallback in case the structure is different
+          setReviews(response.data || [])
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error)
+        setError('Failed to load reviews. Please try again later.')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchData()
-  }, [id])
+    fetchReviews()
+  }, [filter])
 
-  if (loading) return <LoadingSpinner />
-  if (!restaurant || !restaurant.namaRestaurant) {
-    return <div className="text-center py-8">Restaurant not found</div>
-  }
+  if (loading) return (
+    <div className="h-screen flex justify-center items-center bg-[#3D1E0F]">
+      <LoadingSpinner />
+    </div>
+  )
+
+  if (error) return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="text-red-600 p-4 rounded-md bg-red-50 mb-4">
+          {error}
+        </div>
+        <button 
+          onClick={() => fetchReviews()}
+          className="px-4 py-2 bg-[#CCBA78] text-white rounded-md hover:bg-[#D8C78E]"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="p-6">
-          <h1 className="text-3xl font-bold text-primary-black mb-2">
-            {restaurant.namaRestaurant}
-          </h1>
-          
-          <div className="flex items-center mb-4">
-            <RatingStars rating={restaurant.rating} />
-            <span className="ml-2 text-gray-600">
-              {restaurant.rating?.toFixed(1)} ({reviews.length} reviews)
-            </span>
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h1 className="text-3xl font-['Special_Elite'] text-[#3D1E0F] mb-6">Review & Rating</h1>
+        
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 rounded-md ${
+                filter === 'all' 
+                  ? 'bg-[#CCBA78] text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter('restaurant')}
+              className={`px-4 py-2 rounded-md ${
+                filter === 'restaurant' 
+                  ? 'bg-[#CCBA78] text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Restaurant & Cafe
+            </button>
+            <button
+              onClick={() => setFilter('spot')}
+              className={`px-4 py-2 rounded-md ${
+                filter === 'spot' 
+                  ? 'bg-[#CCBA78] text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Spot Hangout
+            </button>
           </div>
           
-          <div className="mb-8">
-            <ImageSlider images={articles.map(article => article.image_url)} />
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-primary-black mb-4">Location & Hours</h2>
-            <p className="text-gray-700">{restaurant.lokasi}</p>
-            <p className="text-gray-700">Open daily, 5pm–11pm</p>
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-primary-black mb-4">About</h2>
-            <p className="text-gray-700">{restaurant.informasiRestaurant}</p>
-          </div>
-
-          <div className="mb-8">
-            <MapEmbed location={restaurant.lokasi} />
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-primary-black mb-4">Menu Highlights</h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Item
-                    </th>
-                    <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Quantity
-                    </th>
-                    <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Price
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="py-2 px-4 border-b border-gray-200">Chicken Satay</td>
-                    <td className="py-2 px-4 border-b border-gray-200">Peanut Sauce</td>
-                    <td className="py-2 px-4 border-b border-gray-200">10 skewers</td>
-                    <td className="py-2 px-4 border-b border-gray-200">IDR 30K</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 px-4 border-b border-gray-200">Beef Satay</td>
-                    <td className="py-2 px-4 border-b border-gray-200">Spicy Sambal</td>
-                    <td className="py-2 px-4 border-b border-gray-200">10 skewers</td>
-                    <td className="py-2 px-4 border-b border-gray-200">IDR 35K</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 px-4 border-b border-gray-200">Lontong Rice</td>
-                    <td className="py-2 px-4 border-b border-gray-200">Steamed Rice Cake</td>
-                    <td className="py-2 px-4 border-b border-gray-200"></td>
-                    <td className="py-2 px-4 border-b border-gray-200">IDR 8K</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-primary-black mb-4">Reviews</h2>
-            <ReviewForm restaurantId={id} />
-            <div className="mt-6 space-y-4">
-              {reviews.map(review => (
+          <div className="space-y-6">
+            {reviews.length > 0 ? (
+              reviews.map(review => (
                 <ReviewCard key={review.id} review={review} />
-              ))}
-            </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600">No reviews found for this category.</p>
+                {filter !== 'all' && (
+                  <button 
+                    onClick={() => setFilter('all')}
+                    className="mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                  >
+                    View All Reviews
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -142,4 +130,4 @@ const RestaurantDetailPage = () => {
   )
 }
 
-export default RestaurantDetailPage
+export default ReviewRatingPage

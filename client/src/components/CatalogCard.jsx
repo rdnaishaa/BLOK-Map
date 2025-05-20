@@ -4,13 +4,13 @@ const CatalogCard = ({ catalog }) => {
       <div className="h-48 bg-gray-200">
         <img 
           src={`/images/resto${Math.floor(Math.random() * 3) + 1}.png`} 
-          alt={catalog.namaKatalog}
+          alt={catalog.namakatalog}
           className="w-full h-full object-cover"
         />
       </div>
       <div className="p-4">
         <h3 className="text-xl font-semibold text-primary-black mb-1">
-          {catalog.namaKatalog}
+          {catalog.namakatalog}
         </h3>
         <p className="text-gray-600 text-sm mb-2">
           {catalog.kategori_nama || catalog.kategoriRestaurant_id}

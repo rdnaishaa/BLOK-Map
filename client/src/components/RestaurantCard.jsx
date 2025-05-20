@@ -4,13 +4,13 @@ const RestaurantCard = ({ restaurant }) => {
       <div className="h-48 bg-gray-200">
         <img 
           src={`/images/resto${Math.floor(Math.random() * 3) + 1}.png`} 
-          alt={restaurant.namaRestaurant}
+          alt={restaurant.namarestaurant}
           className="w-full h-full object-cover"
         />
       </div>
       <div className="p-4">
         <h3 className="text-xl font-semibold text-primary-black mb-1">
-          {restaurant.namaRestaurant}
+          {restaurant.namarestaurant}
         </h3>
         <p className="text-gray-600 text-sm mb-2">
           {restaurant.kategori_nama || restaurant.kategori}

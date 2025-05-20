@@ -1,120 +1,129 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { getCatalogs } from '../../services/catalogs_api'
 import CatalogCard from '../../components/CatalogCard'
 import LoadingSpinner from '../../components/LoadingSpinner'
-import { getCatalogs } from '../../services/api'
 
 const CatalogPage = () => {
   const [catalogs, setCatalogs] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('')
-  const [locationFilter, setLocationFilter] = useState('')
-  const [minPrice, setMinPrice] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
-
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  
   useEffect(() => {
     const fetchCatalogs = async () => {
       try {
-        const params = {
-          search: searchTerm,
-          kategoriRestaurant_id: categoryFilter,
-          lokasi: locationFilter,
-          minHarga: minPrice,
-          maxHarga: maxPrice
-        }
-        const data = await getCatalogs(params)
+        setLoading(true)
+        const response = await getCatalogs()
+        
+        // Handle payload structure
+        const data = response.payload || response.data || []
         setCatalogs(data)
-      } catch (error) {
-        console.error('Error fetching catalogs:', error)
+      } catch (err) {
+        console.error('Error fetching catalogs:', err)
+        setError('Failed to load catalogs. Please try again later.')
       } finally {
         setLoading(false)
       }
     }
-
+    
     fetchCatalogs()
-  }, [searchTerm, categoryFilter, locationFilter, minPrice, maxPrice])
+  }, [])
+  
+  // Get unique categories from catalogs
+  const categories = ['all', ...new Set(catalogs.map(catalog => catalog.category))]
+  
+  // Filtered catalogs based on search and category
+  const filteredCatalogs = catalogs.filter(catalog => {
+    // Check search term
+    const matchesSearch = !searchTerm || 
+      catalog.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      catalog.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    // Check category filter
+    const matchesCategory = categoryFilter === 'all' || catalog.category === categoryFilter
+    
+    return matchesSearch && matchesCategory
+  })
 
-  if (loading) return <LoadingSpinner />
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-[#3D1E0F]">
+        <LoadingSpinner />
+      </div>
+    )
+  }
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-special-elite text-white mb-6">Food & Drink</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="md:col-span-2">
-            <label className="block text-white mb-2">Search</label>
-            <input
-              type="text"
-              placeholder="Search food or drink..."
-              className="w-full p-2 rounded"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-white mb-2">Category</label>
-            <select
-              className="w-full p-2 rounded"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#3D1E0F] text-white p-6">
+        <div className="container mx-auto">
+          <div className="bg-red-600/20 border border-red-600 text-white p-4 rounded-md">
+            <p>{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-4 bg-white text-red-600 px-4 py-2 rounded-md hover:bg-gray-100"
             >
-              <option value="">All Categories</option>
-              <option value="Sweetness Overload">Sweetness Overload</option>
-              <option value="Umami-rich">Umami-rich</option>
-              <option value="Fine Dining">Fine Dining</option>
-              <option value="Amigos">Amigos</option>
-              <option value="Sip and savor">Sip and savor</option>
-              <option value="Brew Coffee">Brew Coffee</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-white mb-2">Location</label>
-            <select
-              className="w-full p-2 rounded"
-              value={locationFilter}
-              onChange={(e) => setLocationFilter(e.target.value)}
-            >
-              <option value="">All Locations</option>
-              <option value="Blok-M Square">Blok-M Square</option>
-              <option value="Plaza Blok-M">Plaza Blok-M</option>
-              <option value="Melawai">Melawai</option>
-              <option value="Taman Literasi">Taman Literasi</option>
-              <option value="Barito">Barito</option>
-              <option value="Gulai Tikungan (Mahakam)">Gulai Tikungan</option>
-              <option value="Senayan">Senayan</option>
-              <option value="Kebayoran Baru">Kebayoran Baru</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-white mb-2">Min Price</label>
-            <input
-              type="number"
-              placeholder="Min price"
-              className="w-full p-2 rounded"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-white mb-2">Max Price</label>
-            <input
-              type="number"
-              placeholder="Max price"
-              className="w-full p-2 rounded"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-            />
+              Retry
+            </button>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {catalogs.map(catalog => (
-            <Link to={`/catalogs/${catalog.id}`} key={catalog.id}>
-              <CatalogCard catalog={catalog} />
-            </Link>
-          ))}
+      </div>
+    )
+  }
+  
+  return (
+    <div className="min-h-screen bg-[#3D1E0F] text-white">
+      <div className="container mx-auto p-6">
+        <h1 className="font-['Special_Elite'] text-4xl text-[#CCBA78] mb-6">Food & Drink Catalog</h1>
+        
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-grow">
+              <input
+                type="text"
+                placeholder="Search food & drinks..."
+                className="w-full p-2 rounded bg-[#2A1509] border border-[#CCBA78] text-white"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <select
+                className="p-2 rounded bg-[#2A1509] border border-[#CCBA78] text-white"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                {categories.map(category => (
+                  <option key={category} value={category}>
+                    {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          {filteredCatalogs.length === 0 ? (
+            <div className="bg-white/10 rounded-lg p-8 text-center">
+              <p className="text-xl">No items found matching your criteria.</p>
+              <button 
+                onClick={() => {
+                  setSearchTerm('');
+                  setCategoryFilter('all');
+                }}
+                className="mt-4 bg-[#CCBA78] text-white px-4 py-2 rounded hover:bg-[#D8C78E]"
+              >
+                Clear Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredCatalogs.map(catalog => (
+                <CatalogCard key={catalog.id} catalog={catalog} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

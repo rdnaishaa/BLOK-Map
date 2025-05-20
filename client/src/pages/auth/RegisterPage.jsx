@@ -1,15 +1,18 @@
-// src/pages/Register.jsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { registerUser } from '../../services/auth_api';
 
 function Register() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    username: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
-    role: 'user' // Default role
+    // No need to expose role selection - all users register as 'user' by default
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
 
@@ -21,13 +24,32 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Registration submitted:', formData);
-    // Here you would typically send the data to your backend API
-    // For now, we'll just simulate a successful registration
-    alert('Registration successful!');
-    navigate('/login'); // Redirect to login page after successful registration
+    setError('');
+    setLoading(true);
+    
+    try {
+      // Send registration data to backend using auth_api
+      await registerUser({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        role: 'user' // Default role is always 'user'
+      });
+      
+      // On successful registration, redirect to login page
+      navigate('/login', { 
+        state: { message: 'Registration successful! You can now log in.' } 
+      });
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,15 +62,21 @@ function Register() {
     }}>
       <h1 className="text-[#CCBA78] font-['Special_Elite']" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Register</h1>
       
+      {error && (
+        <div className="bg-red-700 text-white p-3 mb-4 rounded text-center">
+          {error}
+        </div>
+      )}
+      
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1rem' }}>
           <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            First Name:
+            Username:
           </label>
           <input 
             type="text" 
-            name="firstName" 
-            value={formData.firstName}
+            name="username" 
+            value={formData.username}
             onChange={handleChange}
             className="bg-[#2A1509] border-[#CCBA78]"
             style={{ 
@@ -59,6 +87,29 @@ function Register() {
               color: 'white'
             }}
             required
+            disabled={loading}
+          />
+        </div>
+        
+        <div style={{ marginBottom: '1rem' }}>
+          <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+            First Name:
+          </label>
+          <input 
+            type="text" 
+            name="first_name" 
+            value={formData.first_name}
+            onChange={handleChange}
+            className="bg-[#2A1509] border-[#CCBA78]"
+            style={{ 
+              width: '100%', 
+              padding: '0.75rem',
+              borderRadius: '4px',
+              border: '1px solid',
+              color: 'white'
+            }}
+            required
+            disabled={loading}
           />
         </div>
         
@@ -68,8 +119,8 @@ function Register() {
           </label>
           <input 
             type="text" 
-            name="lastName" 
-            value={formData.lastName}
+            name="last_name" 
+            value={formData.last_name}
             onChange={handleChange}
             className="bg-[#2A1509] border-[#CCBA78]"
             style={{ 
@@ -80,6 +131,7 @@ function Register() {
               color: 'white'
             }}
             required
+            disabled={loading}
           />
         </div>
         
@@ -101,10 +153,11 @@ function Register() {
               color: 'white'
             }}
             required
+            disabled={loading}
           />
         </div>
         
-        <div style={{ marginBottom: '1rem' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
           <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
             Password:
           </label>
@@ -122,30 +175,11 @@ function Register() {
               color: 'white'
             }}
             required
+            disabled={loading}
           />
-        </div>
-        
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            Role:
-          </label>
-          <select 
-            name="role" 
-            value={formData.role}
-            onChange={handleChange}
-            className="bg-[#2A1509] border-[#CCBA78]"
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              borderRadius: '4px',
-              border: '1px solid',
-              color: 'white'
-            }}
-          >
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-            <option value="moderator">Moderator</option>
-          </select>
+          <div className="mt-1 text-xs text-gray-300">
+            Password must be at least 6 characters long, include a number, and a special character.
+          </div>
         </div>
         
         <button 
@@ -159,10 +193,12 @@ function Register() {
             borderRadius: '4px',
             fontSize: '1rem',
             fontWeight: '700',
-            cursor: 'pointer'
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.7 : 1
           }}
+          disabled={loading}
         >
-          Register
+          {loading ? 'Registering...' : 'Register'}
         </button>
         
         <div className="text-center mt-4">

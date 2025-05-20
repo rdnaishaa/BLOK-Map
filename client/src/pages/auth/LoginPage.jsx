@@ -1,14 +1,25 @@
-// src/pages/Login.jsx
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { loginUser } from '../../services/auth_api';
 
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check for any messages passed through navigation state
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccess(location.state.message);
+    }
+  }, [location]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,13 +29,25 @@ function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login submitted:', formData);
-    // Here you would typically authenticate with your backend API
-    // For now, we'll just simulate a successful login
-    alert('Login successful!');
-    navigate('/'); // Redirect to homepage after successful login
+    setError('');
+    setLoading(true);
+    
+    try {
+      const response = await loginUser(formData);
+      
+      // Store token in localStorage for future API requests
+      localStorage.setItem('token', response.payload.token);
+      
+      // Navigate to home page
+      navigate('/');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,6 +59,18 @@ function Login() {
       borderRadius: '8px'
     }}>
       <h1 className="text-[#CCBA78] font-['Special_Elite']" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Sign In</h1>
+      
+      {error && (
+        <div className="bg-red-700 text-white p-3 mb-4 rounded text-center">
+          {error}
+        </div>
+      )}
+      
+      {success && (
+        <div className="bg-green-700 text-white p-3 mb-4 rounded text-center">
+          {success}
+        </div>
+      )}
       
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1rem' }}>
@@ -56,6 +91,7 @@ function Login() {
               color: 'white'
             }}
             required
+            disabled={loading}
           />
         </div>
         
@@ -77,6 +113,7 @@ function Login() {
               color: 'white'
             }}
             required
+            disabled={loading}
           />
         </div>
         
@@ -91,10 +128,12 @@ function Login() {
             borderRadius: '4px',
             fontSize: '1rem',
             fontWeight: '700',
-            cursor: 'pointer'
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.7 : 1
           }}
+          disabled={loading}
         >
-          Sign In
+          {loading ? 'Signing in...' : 'Sign In'}
         </button>
         
         <div className="text-center mt-4">
