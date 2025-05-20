@@ -21,7 +21,7 @@ const RatingStars = ({ rating }) => {
         {stars}
       </div>
       <span className="text-gray-600 text-sm">
-        {rating.toFixed(1)}
+        {Number(rating).toFixed(1)}
       </span>
     </div>
   )

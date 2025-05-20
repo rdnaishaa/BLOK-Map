@@ -110,7 +110,16 @@ const HomePage = () => {
             {reviews.length > 0 ? (
               reviews.map(review => (
                 <div key={review.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
-                  <ReviewCard review={review} />
+                  <ReviewCard review={{
+                      ...review,
+                      // Provide the correct property names that ReviewCard expects
+                      username: review.username,
+                      rating: review.rating,
+                      content: review.content,
+                      createdAt: review.created_at,
+                      locationName: review.spot_name || review.restaurant_name || 'Unknown location'
+                    }} 
+                  />
                 </div>
               ))
             ) : (
