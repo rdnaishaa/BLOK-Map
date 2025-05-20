@@ -33,7 +33,12 @@ exports.getRestaurants = async ({ search, kategori, lokasi }) => {
     try {
         let query = `
             SELECT 
-                r.*,
+                r.id,
+                r.namaRestaurant,
+                r.lokasi,
+                r.rating,
+                r.price,
+                r.informasiRestaurant,
                 kr.kategori as kategori_nama
             FROM restaurants r
             LEFT JOIN kategori_restaurant kr ON r.kategoriRestaurant_id = kr.id

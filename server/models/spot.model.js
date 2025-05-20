@@ -30,11 +30,15 @@ exports.createSpot = async (spotData) => {
 exports.getSpots = async ({ search, kategori, lokasi }) => {
     try {
         let query = `
-            SELECT 
-                s.*,
-                ks.kategori as kategori_nama
-            FROM spots s
-            LEFT JOIN kategori_spot ks ON s.kategoriSpot_id = ks.id
+        SELECT 
+            s.id,
+            s.namaTempat,
+            s.lokasi,
+            s.rating,
+            s.price,
+            ks.kategori as kategori_nama
+        FROM spots s
+        LEFT JOIN kategori_spot ks ON s.kategoriSpot_id = ks.id
         `;
         const conditions = [];
         const params = [];
