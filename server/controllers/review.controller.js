@@ -4,25 +4,14 @@ const baseResponse = require("../utils/baseResponse.util");
 const ReviewController = {
   async getReviews(req, res) {
     try {
-      const { spot_id, resto_id } = req.query;
-      let reviews;
-
-      if (spot_id) {
-        reviews = await ReviewModel.getAllBySpot(spot_id);
-      } else if (resto_id) {
-        reviews = await ReviewModel.getAllByRestaurant(resto_id);
-      } else {
-        return res.status(400).json(
-          baseResponse(res, false, 400, "Either spot_id or resto_id must be provided")
-        );
-      }
-
+      const reviews = await ReviewModel.getAll();
       return res.status(200).json(
-        baseResponse(res, true, 200, "Reviews fetched successfully", reviews)
+        baseResponse(res, true, 200, "Reviews retrieved successfully", reviews)
       );
     } catch (error) {
-      return res.status(400).json(
-        baseResponse(res, false, 400, error.message)
+      console.error("Error getting reviews:", error);
+      return res.status(500).json(
+        baseResponse(res, false, 500, "Error retrieving reviews", error.message)
       );
     }
   },
