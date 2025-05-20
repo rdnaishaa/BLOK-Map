@@ -6,16 +6,16 @@ const ArticleCard = ({ article }) => {
       <div className="h-48 bg-gray-200">
         <img 
           src={article.image_url || `/images/resto${Math.floor(Math.random() * 3) + 1}.png`} 
-          alt={article.judulArtikel}
+          alt={article.judulartikel}
           className="w-full h-full object-cover"
         />
       </div>
       <div className="p-4">
         <h3 className="text-xl font-semibold text-primary-black mb-2">
-          {article.judulArtikel}
+          {article.judulartikel}
         </h3>
         <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-          {article.kontenArtikel}
+          {article.kontenartikel}
         </p>
         <Link 
           to={article.restaurant_id ? `/restaurants/${article.restaurant_id}` : `/spots/${article.spot_id}`}

@@ -4,13 +4,13 @@ const SpotCard = ({ spot }) => {
       <div className="h-48 bg-gray-200">
         <img 
           src={`/images/spot${Math.floor(Math.random() * 3) + 1}.png`} 
-          alt={spot.namaTempat}
+          alt={spot.namatempat}
           className="w-full h-full object-cover"
         />
       </div>
       <div className="p-4">
         <h3 className="text-xl font-semibold text-primary-black mb-1">
-          {spot.namaTempat}
+          {spot.namatempat}
         </h3>
         <p className="text-gray-600 text-sm mb-2">
           {spot.kategori_nama || spot.kategori}
