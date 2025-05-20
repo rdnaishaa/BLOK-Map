@@ -39,8 +39,5 @@ function App() {
       </Router>
     </AuthProvider>
   )
-<<<<<<< HEAD
 }
-=======
->>>>>>> cb52b1ae345687f1e37bb6e874684c6dd5f6046a
 
