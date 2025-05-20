@@ -31,7 +31,7 @@ const CatalogPage = () => {
   }, [])
   
   // Get unique categories from catalogs
-  const categories = ['all', ...new Set(catalogs.map(catalog => catalog.category))]
+  const categories = ['all', ...new Set(catalogs.map(catalog => catalog.kategori_nama))]
   
   // Filtered catalogs based on search and category
   const filteredCatalogs = catalogs.filter(catalog => {
