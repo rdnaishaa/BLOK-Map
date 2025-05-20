@@ -4,8 +4,8 @@ exports.createCatalog = async (catalog) => {
   try {
     const res = await db.query(
       `INSERT INTO catalogs (
-        namaKatalog, kategoriRestaurant_id, lokasi, harga, deskripsiKatalog, restaurant_id
-      ) VALUES ($1, $2, $3, $4, $5, $6) 
+        namaKatalog, kategoriRestaurant_id, lokasi, harga, deskripsiKatalog, restaurant_id, image_url
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
       RETURNING *`,
       [
         catalog.namaKatalog,
@@ -13,7 +13,8 @@ exports.createCatalog = async (catalog) => {
         catalog.lokasi,
         catalog.harga,
         catalog.deskripsiKatalog,
-        catalog.restaurant_id
+        catalog.restaurant_id,
+        catalog.image_url || null
       ]
     );
     return res.rows[0];

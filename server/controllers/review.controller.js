@@ -29,8 +29,7 @@ const ReviewController = {
 
   async createReview(req, res) {
     try {
-      const { content, rating, spot_id, resto_id } = req.body;
-      const user_id = req.user.id;
+      const { content, rating, spot_id, resto_id, user_id } = req.body;
 
       if (!spot_id && !resto_id) {
         return res.status(400).json(
