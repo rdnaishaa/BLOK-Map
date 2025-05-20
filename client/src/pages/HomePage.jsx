@@ -3,18 +3,18 @@ import { Link, useNavigate } from 'react-router-dom'
 import HeroSlider from '../components/HeroSlider'
 import CatalogCard from '../components/CatalogCard'
 import RestaurantCard from '../components/RestaurantCard'
-import SpotCard from '../components/SpotCard'
+import ArticleCard from '../components/ArticleCard'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 // Import from specific API services instead of generic API
 import { getCatalogs } from '../services/catalogs_api'
 import { getRestaurants } from '../services/restaurant_api'
-import { getSpots } from '../services/spot_api'
+import { getArticles } from '../services/articles_api'
 
 const HomePage = () => {
   const [catalogs, setCatalogs] = useState([])
   const [restaurants, setRestaurants] = useState([])
-  const [spots, setSpots] = useState([])
+  const [Articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
@@ -26,13 +26,13 @@ const HomePage = () => {
         const [catalogResponse, restaurantResponse, spotResponse] = await Promise.all([
           getCatalogs(),
           getRestaurants(),
-          getSpots()
+          getArticles()
         ])
         
         // Extract data from responses and limit to 5 items each
         setCatalogs((catalogResponse.payload || []).slice(0, 5))
         setRestaurants((restaurantResponse.payload || []).slice(0, 5))
-        setSpots((spotResponse.payload || []).slice(0, 5))
+        setArticles((spotResponse.payload || []).slice(0, 5))
       } catch (error) {
         console.error('Error fetching home page data:', error)
         setError('Failed to load content. Please try again later.')
@@ -46,7 +46,7 @@ const HomePage = () => {
 
   const foodDrinkRef = useRef(null)
   const restaurantRef = useRef(null)
-  const spotRef = useRef(null)
+  const articleRef = useRef(null)
 
   const scroll = (ref, direction) => {
     if (ref.current) {
@@ -58,7 +58,7 @@ const HomePage = () => {
   // Section navigation handlers
   const goToFoodDrink = () => navigate('/food-drink')
   const goToRestaurants = () => navigate('/restaurants')
-  const goToSpots = () => navigate('/spots')
+  const goToArticles = () => navigate('/Articles')
 
   if (loading) return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#3D1E0F]">
@@ -171,17 +171,17 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Spots Section */}
+      {/* Articles Section */}
       <section className="py-8 px-6 md:px-12 relative">
         <h2 
-          onClick={goToSpots}
+          onClick={goToArticles}
           className="text-[#CCBA78] text-2xl font-['Special_Elite'] mb-6 cursor-pointer hover:text-white transition-colors"
         >
           Yapping Time
         </h2>
         <div className="relative">
           <button 
-            onClick={() => scroll(spotRef, 'left')}
+            onClick={() => scroll(articleRef, 'left')}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
             <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,22 +189,22 @@ const HomePage = () => {
             </svg>
           </button>
           <div 
-            ref={spotRef}
+            ref={articleRef}
             className="flex overflow-x-auto hide-scrollbar scroll-smooth gap-5 pb-2 pl-2 pr-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {spots.length > 0 ? (
-              spots.map(spot => (
-                <div key={spot.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
-                  <SpotCard spot={spot} />
+            {Articles.length > 0 ? (
+              Articles.map(article => (
+                <div key={article.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
+                  <ArticleCard article={article} />
                 </div>
               ))
             ) : (
-              <p className="text-gray-400 italic px-4">No spots available</p>
+              <p className="text-gray-400 italic px-4">No articles available</p>
             )}
           </div>
           <button 
-            onClick={() => scroll(spotRef, 'right')}
+            onClick={() => scroll(articleRef, 'right')}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
             <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
