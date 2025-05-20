@@ -3,7 +3,7 @@
 <h1 align="center">BLOK-M(ap) 🗺️</h1>
   
 <p align="center">
-  <a href="[https://www.canva.com/design/DAGn5VL7gs0/_iHK_Lsss0c7vNlYG_ViJw/edit]"><strong>Our Presentation »</strong></a>
+  <a href="https://www.canva.com/design/DAGn5VL7gs0/WCeMzw40VdA8Er6HnYQEHw/view?utm_content=DAGn5VL7gs0&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h58f4067425"><strong>Our Presentation »</strong></a>
   </p>
 </div>
 
