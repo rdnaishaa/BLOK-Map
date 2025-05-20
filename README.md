@@ -88,7 +88,7 @@ Fitur autentikasi untuk memungkinkan pengguna `register` dan `login` dan memberi
 
 
 <!-- UML & ERD & Struktur -->
-# Flowchart, UML, ERD, dan Struktur Proyek
+# Flowchart, UML, ERD, Struktur, dan Dokumentasi
 <details>
   <summary>Diagram dan Struktur</summary>
   <ul>
