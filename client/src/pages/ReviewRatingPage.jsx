@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import ReviewCard from '../components/ReviewCard'
-import { getReviews } from '../services/review_api' // Updated to use dedicated review_api
+import { getReviews } from '../services/review_api'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 const ReviewRatingPage = () => {
@@ -57,7 +57,7 @@ const ReviewRatingPage = () => {
           {error}
         </div>
         <button 
-          onClick={() => fetchReviews()}
+          onClick={() => setReviews()}
           className="px-4 py-2 bg-[#CCBA78] text-white rounded-md hover:bg-[#D8C78E]"
         >
           Try Again

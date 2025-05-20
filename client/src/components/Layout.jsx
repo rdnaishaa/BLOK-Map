@@ -1,14 +1,11 @@
-import { Suspense } from 'react'
-import { Outlet } from 'react-router-dom'
-import Header from './Header'
 import Footer from './Footer'
-import LoadingSpinner from './LoadingSpinner'
+import Header from './Header'
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFFFFF]">
+    <div className="min-h-screen w-full flex flex-col bg-[#3D1E0F] text-white">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-2 py-8">
         {children}
       </main>
       <Footer />

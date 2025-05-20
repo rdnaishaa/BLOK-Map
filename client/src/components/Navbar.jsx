@@ -4,7 +4,7 @@ import { useState } from 'react'
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [isFocused, setIsFocused] = useState(false)
+  const [, setIsFocused] = useState(false)
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
