@@ -32,7 +32,6 @@ exports.getAllArticles = async () => {
       FROM articles a
       LEFT JOIN restaurants r ON a.restaurant_id = r.id
       LEFT JOIN spots s ON a.spot_id = s.id
-      ORDER BY a.created_at DESC
     `);
     return res.rows;
   } catch (error) {
