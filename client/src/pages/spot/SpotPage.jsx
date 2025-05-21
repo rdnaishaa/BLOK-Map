@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { getSpots, getKategoriList, getLokasiList } from '../../services/spot_api'
 import SpotCard from '../../components/SpotCard'
 import LoadingSpinner from '../../components/LoadingSpinner'
-import { getSpots, getKategoriList, getLokasiList } from '../../services/spot_api'
 
 const SpotPage = () => {
   const [spots, setSpots] = useState([])
@@ -17,35 +16,44 @@ const SpotPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
-        const spotsResponse = await getSpots();
-        console.log('Spots data received:', spotsResponse); // Tambahkan ini untuk debugging
+        setLoading(true)
+        setError(null)
         
-        if (spotsResponse?.payload) {
-          setSpots(spotsResponse.payload);
+        // Fetch spots first
+        const spotsResponse = await getSpots()
+        console.log('Spots response:', spotsResponse)
+        
+        if (spotsResponse.success && spotsResponse.payload) {
+          setSpots(spotsResponse.payload)
+        } else {
+          throw new Error('Failed to load spots')
         }
+
         // Then fetch categories and locations
         const [categoriesRes, locationsRes] = await Promise.all([
           getKategoriList(),
           getLokasiList()
-        ]);
+        ])
+
+        console.log('Categories:', categoriesRes)
+        console.log('Locations:', locationsRes)
 
         if (categoriesRes?.payload) {
-          setCategories(categoriesRes.payload);
+          setCategories(categoriesRes.payload)
         }
         if (locationsRes?.payload) {
-          setLocations(locationsRes.payload);
+          setLocations(locationsRes.payload)
         }
 
       } catch (error) {
-        console.error('Error:', error);
-        setError('Failed to load spots');
+        console.error('Fetch error:', error)
+        setError(error.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchData();
+    fetchData()
   }, [])
 
   if (loading) {
