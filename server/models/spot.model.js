@@ -32,10 +32,10 @@ exports.getSpots = async ({ search, kategori, lokasi }) => {
         let query = `
         SELECT 
             s.id,
-            s.namaTempat,
+            s.namaTempat,    // Pastikan nama field sesuai dengan database
             s.lokasi,
             s.rating,
-            s.price,
+            s.image_url,     // Tambahkan field image_url jika ada
             ks.kategori as kategori_nama
         FROM spots s
         LEFT JOIN kategori_spot ks ON s.kategoriSpot_id = ks.id

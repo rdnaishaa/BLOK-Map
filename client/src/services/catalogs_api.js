@@ -13,6 +13,7 @@ export const getCatalogs = async (params = {}) => {
 export const getCatalogsDetail = async (id) => {
   try {
     const response = await api.get(`/catalogs/${id}`)
+    console.log('Catalog detail response:', response) // For debugging
     return response.data
   } catch (error) {
     console.error(`Error fetching catalog ${id}:`, error)
