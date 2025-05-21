@@ -18,22 +18,22 @@ exports.createSpot = async (req, res) => {
 };
 
 exports.getSpots = async (req, res) => {
-    try {
-        const { search, kategori, lokasi } = req.query;
-        const spots = await spotModel.getSpots({ search, kategori, lokasi });
-        return res.json({
-            success: true,
-            message: "Spots retrieved successfully",
-            payload: spots
-        });
-    } catch (error) {
-        console.error("Error getting spots:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Error retrieving spots",
-            error: error.message
-        });
-    }
+  try {
+    const spots = await spotModel.getSpots(req.query);
+
+    return res.json({
+      success: true,
+      message: "Spots retrieved successfully",
+      payload: spots
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error retrieving spots",
+      error: error.message
+    });
+  }
 };
 
 exports.getSpotById = async (req, res) => {
