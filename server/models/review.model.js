@@ -106,7 +106,58 @@ const ReviewModel = {
     } catch (error) {
       throw new Error(error.message);
     }
-  }
+  },
+
+  async getByRestaurantId(restaurantId) {
+    const query = `
+      SELECT 
+        r.id,
+        r.user_id,
+        r.rating,
+        r.content,
+        r.created_at,
+        u.username,
+        rest.namarestaurant as restaurant_name
+      FROM reviews r
+      LEFT JOIN users u ON r.user_id = u.id
+      LEFT JOIN restaurants rest ON r.resto_id = rest.id
+      WHERE r.resto_id = $1
+      ORDER BY r.created_at DESC
+    `;
+    try {
+      const result = await pool.query(query, [restaurantId]);
+      return result.rows;
+    } catch (error) {
+      console.error("Error fetching reviews by restaurant id:", error);
+      throw new Error(error.message);
+    }
+  },
+
+  async getBySpotId(spotId) {
+    const query = `
+      SELECT 
+        r.id,
+        r.user_id,
+        r.rating,
+        r.content,
+        r.created_at,
+        u.username,
+        s.namatempat as spot_name
+      FROM reviews r
+      LEFT JOIN users u ON r.user_id = u.id
+      LEFT JOIN spots s ON r.spot_id = s.id
+      WHERE r.spot_id = $1
+      ORDER BY r.created_at DESC
+    `;
+    try {
+      const result = await pool.query(query, [spotId]);
+      return result.rows;
+    } catch (error) {
+      console.error("Error fetching reviews by spot id:", error);
+      throw new Error(error.message);
+    }
+  },
+
 };
 
 module.exports = ReviewModel;

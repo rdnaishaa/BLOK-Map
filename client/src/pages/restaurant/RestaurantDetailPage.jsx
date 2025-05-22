@@ -32,11 +32,7 @@ const RestaurantDetailPage = () => {
         }
 
         setArticle(articleResponse.payload)
-        console.log('Article data:', {
-          id: articleResponse.payload.id,
-          restaurant_id: articleResponse.payload.restaurant_id,
-          // Log other relevant fields
-        })
+        console.log('Reviews Response:', reviewsResponse)
         
         // Get reviews specific to this restaurant
         const restaurantReviews = reviewsResponse.payload?.filter(review => review.restaurant_id === id) || []
