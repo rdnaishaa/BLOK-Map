@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getSpotArticleById } from '../../services/articles_api'
-import { getReviews } from '../../services/review_api'
+import { getReviewsBySpotId } from '../../services/review_api'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import RatingStars from '../../components/RatingStars'
 import MapEmbed from '../../components/MapEmbed'
@@ -19,11 +19,8 @@ const SpotDetailPage = () => {
         setLoading(true)
         setError(null)
 
-        // Fetch article and reviews
-        const [articleResponse, reviewsResponse] = await Promise.all([
-          getSpotArticleById(id),
-          getReviews({ spot_id: id })
-        ])
+        // First fetch article
+        const articleResponse = await getSpotArticleById(id)
 
         if (!articleResponse.success) {
           throw new Error(articleResponse.message || 'Failed to fetch article details')
@@ -31,9 +28,14 @@ const SpotDetailPage = () => {
 
         setArticle(articleResponse.payload)
         
-        // Get reviews specific to this spot
-        const spotReviews = reviewsResponse.payload?.filter(review => review.spot_id === id) || []
-        setReviews(spotReviews)
+        // Get reviews using the article id since it represents the spot
+        const reviewsResponse = await getReviewsBySpotId(articleResponse.payload.spot_id)
+
+        if (reviewsResponse.success) {
+          setReviews(reviewsResponse.payload)
+        } else {
+          console.error('Failed to fetch reviews:', reviewsResponse.message)
+        }
 
       } catch (error) {
         console.error('Error fetching data:', error)

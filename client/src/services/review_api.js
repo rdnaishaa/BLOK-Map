@@ -13,11 +13,22 @@ export const getReviews = async (params = {}) => {
   }
 }
 
+export const getReviewsByRestaurantId = async (restaurantId) => {
+  try {
+    const response = await api.get(`/reviews/restaurant/${restaurantId}`);
+    if (!response.data) {
+      throw new Error('No reviews data received');
+    }
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching reviews for restaurant ${restaurantId}:`, error);
+    throw error;
+  }
+}
+
 export const getReviewsBySpotId = async (spotId) => {
   try {
-    const response = await api.get('/reviews', { 
-      params: { spot_id: spotId }
-    });
+    const response = await api.get(`/reviews/spot/${spotId}`);
     if (!response.data) {
       throw new Error('No reviews data received');
     }

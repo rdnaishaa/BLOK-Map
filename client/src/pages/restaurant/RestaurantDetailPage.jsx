@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { getRestaurantArticleById } from '../../services/articles_api'
-import { getReviews } from '../../services/review_api'
+import { getReviewsByRestaurantId } from '../../services/review_api'
 import { getCatalogsByRestaurantId } from '../../services/catalogs_api'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import RatingStars from '../../components/RatingStars'
@@ -21,33 +21,33 @@ const RestaurantDetailPage = () => {
         setLoading(true)
         setError(null)
 
-        // First fetch article and reviews
-        const [articleResponse, reviewsResponse] = await Promise.all([
-          getRestaurantArticleById(id),
-          getReviews({ restaurant_id: id })
-        ])
+        // First fetch article
+        const articleResponse = await getRestaurantArticleById(id)
 
         if (!articleResponse.success) {
           throw new Error(articleResponse.message || 'Failed to fetch article details')
         }
 
         setArticle(articleResponse.payload)
-        console.log('Reviews Response:', reviewsResponse)
-        
-        // Get reviews specific to this restaurant
-        const restaurantReviews = reviewsResponse.payload?.filter(review => review.restaurant_id === id) || []
-        setReviews(restaurantReviews)
+
+        // Get reviews specific to this restaurant using the dedicated function
+        if (articleResponse.payload.restaurant_id) {
+          const reviewsResponse = await getReviewsByRestaurantId(articleResponse.payload.restaurant_id)
+          if (reviewsResponse.success) {
+            setReviews(reviewsResponse.payload)
+          } else {
+            console.error('Failed to fetch reviews:', reviewsResponse.message)
+          }
+        } else {
+          console.warn('No restaurant_id found in article:', articleResponse.payload)
+        }
 
         // Now fetch catalogs using the restaurant_id from the article
         if (articleResponse.payload.restaurant_id) {
-          console.log('Fetching catalogs with restaurant_id:', articleResponse.payload.restaurant_id) // Add this log
           const catalogsResponse = await getCatalogsByRestaurantId(articleResponse.payload.restaurant_id)
-          console.log('Catalogs Response:', catalogsResponse) // Add this log
           if (catalogsResponse.success) {
             setCatalogs(catalogsResponse.payload)
           }
-        } else {
-          console.log('No restaurant_id found in article:', articleResponse.payload) // Add this log
         }
 
       } catch (error) {
