@@ -10,6 +10,46 @@ export const getArticles = async () => {
   }
 }
 
+export const getRestaurantArticles = async () => {
+  try {
+    const response = await api.get('/articles/restaurants')
+    return response.data
+  } catch (error) {
+    console.error('Error fetching restaurant articles:', error)
+    throw error
+  }
+}
+
+export const getSpotArticles = async () => {
+  try {
+    const response = await api.get('/articles/spots')
+    return response.data
+  } catch (error) {
+    console.error('Error fetching spot articles:', error)
+    throw error
+  }
+}
+
+export const getRestaurantArticleById = async (id) => {
+  try {
+    const response = await api.get(`/articles/restaurants/${id}`)
+    return response.data
+  } catch (error) {
+    console.error(`Error fetching restaurant article ${id}:`, error)
+    throw error
+  }
+}
+
+export const getSpotArticleById = async (id) => {
+  try {
+    const response = await api.get(`/articles/spots/${id}`)
+    return response.data
+  } catch (error) {
+    console.error(`Error fetching spot article ${id}:`, error)
+    throw error
+  }
+}
+
 export const createArticle = async (data) => {
   try {
     // Use FormData to handle file uploads

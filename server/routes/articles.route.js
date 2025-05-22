@@ -6,6 +6,10 @@ const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/', articlesController.getAllArticles);
+router.get('/restaurants', articlesController.getAllRestaurantsArticles);
+router.get('/spots', articlesController.getAllSpotsArticles);
+router.get('/restaurnts/:id', articlesController.getRestaurantArticleById);
+router.get('/spots/:id', articlesController.getSpotArticleById);
 router.post('/create', protect, authorize('admin'), upload.single('image'), articlesController.createArticle);
 router.put('/update/:id/image', protect, authorize('admin'), upload.single('image'), articlesController.updateImage);
 router.patch('/update/:id', protect, authorize('admin'), articlesController.updateArticleFields);

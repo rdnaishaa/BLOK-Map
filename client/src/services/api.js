@@ -36,6 +36,7 @@ api.interceptors.response.use(
 export default api
 
 export const getRestaurants = async (params = {}) => {
+  // eslint-disable-next-line no-useless-catch
   try {
     const response = await api.get('/restaurants', { params })
     return response.data
@@ -45,6 +46,7 @@ export const getRestaurants = async (params = {}) => {
 }
 
 export const getRestaurantById = async (id) => {
+  // eslint-disable-next-line no-useless-catch
   try {
     const response = await api.get(`/restaurants/${id}`)
     return response.data

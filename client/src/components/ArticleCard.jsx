@@ -5,7 +5,7 @@ const ArticleCard = ({ article }) => {
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="h-48 bg-gray-200">
         <img 
-          src={article.image_url || `/images/resto${Math.floor(Math.random() * 3) + 1}.png`} 
+          src={article.image_url} 
           alt={article.judulartikel}
           className="w-full h-full object-cover"
         />

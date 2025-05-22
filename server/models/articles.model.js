@@ -40,6 +40,101 @@ exports.getAllArticles = async () => {
   }
 };
 
+exports.getRestaurantArticleById = async (id) => {
+  try {
+    const res = await db.query(
+      `SELECT 
+        a.id,
+        a.judulArtikel,
+        a.kontenArtikel,
+        a.image_url,
+        r.namaRestaurant,
+        r.lokasi,
+        r.rating,
+        r.price,
+        r.informasirestaurant
+      FROM articles a
+      LEFT JOIN restaurants r ON a.restaurant_id = r.id
+      WHERE a.id = $1`,
+      [id]
+    );
+    return res.rows[0];
+  } catch (error) {
+    console.error("Error getting article by ID:", error);
+    throw error;
+  }
+}
+
+exports.getSpotArticleById = async (id) => {
+  try {
+    const res = await db.query(
+      `SELECT 
+        a.id,
+        a.judulArtikel,
+        a.kontenArtikel,
+        a.image_url,
+        s.namatempat,
+        s.lokasi,
+        s.rating,
+        s.price
+      FROM articles a
+      LEFT JOIN spots s ON a.spot_id = s.id
+      WHERE a.id = $1`,
+      [id]
+    );
+    return res.rows[0];
+  } catch (error) {
+    console.error("Error getting article by ID:", error);
+    throw error;
+  }
+}
+
+exports.getAllRestaurantsArticles = async () => {
+  try {
+    const res = await db.query(`
+      SELECT 
+        a.id,
+        a.judulArtikel,
+        a.kontenArtikel,
+        a.image_url,
+        r.namarestaurant,
+        r.lokasi,
+        kr.kategori
+      FROM articles a
+      INNER JOIN restaurants r ON a.restaurant_id = r.id
+      LEFT JOIN kategori_restaurant kr ON r.kategorirestaurant_id = kr.id
+      WHERE a.restaurant_id IS NOT NULL
+    `);
+    return res.rows;
+  } catch (error) {
+    console.error("Error getting all restaurant articles:", error);
+    throw error;
+  }
+}
+
+exports.getAllSpotsArticles = async () => {
+  try {
+    const res = await db.query(`
+      SELECT 
+        a.id,
+        a.judulArtikel,
+        a.kontenArtikel,
+        a.image_url,
+        s.namatempat,
+        s.lokasi,
+        ks.kategori
+      FROM articles a
+      INNER JOIN spots s ON a.spot_id = s.id
+      LEFT JOIN kategori_spot ks ON s.kategorispot_id = ks.id
+      WHERE a.spot_id IS NOT NULL
+    `);
+    return res.rows;
+  } catch (error) {
+    console.error("Error getting all spot articles:", error);
+    throw error;
+  }
+}
+
 exports.updateArticleFields = async (id, fields) => {
   try {
     const updateFields = [];
