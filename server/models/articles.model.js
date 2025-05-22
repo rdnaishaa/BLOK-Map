@@ -74,6 +74,7 @@ exports.getSpotArticleById = async (id) => {
         a.judulartikel,
         a.kontenartikel,
         a.image_url,
+        a.spot_id,
         s.namatempat,
         s.lokasi,
         s.rating,
