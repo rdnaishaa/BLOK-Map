@@ -29,3 +29,13 @@ export const getLokasiList = async () => {
     throw error;
   }
 }
+
+export const getSpotById = async (id) => {
+  try {
+    const response = await api.get(`/spots/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching spot:', error);
+    throw error;
+  }
+}
