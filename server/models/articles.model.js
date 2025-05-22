@@ -45,8 +45,8 @@ exports.getRestaurantArticleById = async (id) => {
     const res = await db.query(
       `SELECT 
         a.id,
-        a.judulArtikel,
-        a.kontenArtikel,
+        a.judulartikel,
+        a.kontenartikel,
         a.image_url,
         r.namaRestaurant,
         r.lokasi,
@@ -70,8 +70,8 @@ exports.getSpotArticleById = async (id) => {
     const res = await db.query(
       `SELECT 
         a.id,
-        a.judulArtikel,
-        a.kontenArtikel,
+        a.judulartikel,
+        a.kontenartikel,
         a.image_url,
         s.namatempat,
         s.lokasi,
@@ -97,6 +97,7 @@ exports.getAllRestaurantsArticles = async () => {
         a.judulArtikel,
         a.kontenArtikel,
         a.image_url,
+        a.restaurant_id,
         r.namarestaurant,
         r.lokasi,
         kr.kategori
@@ -120,6 +121,7 @@ exports.getAllSpotsArticles = async () => {
         a.judulArtikel,
         a.kontenArtikel,
         a.image_url,
+        a.spot_id,
         s.namatempat,
         s.lokasi,
         ks.kategori

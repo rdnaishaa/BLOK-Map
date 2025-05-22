@@ -1,6 +1,16 @@
 import { Link } from 'react-router-dom'
 
 const ArticleCard = ({ article }) => {
+  const getArticlePath = () => {
+    if (article.restaurant_id) {
+      return `/articles/restaurants/${article.id}`
+    }
+    if (article.spot_id) {
+      return `/articles/spots/${article.id}`
+    }
+    return '#' // Fallback if neither exists
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="h-48 bg-gray-200">
@@ -18,7 +28,7 @@ const ArticleCard = ({ article }) => {
           {article.kontenartikel}
         </p>
         <Link 
-          to={article.restaurant_id ? `/restaurants/${article.restaurant_id}` : `/spots/${article.spot_id}`}
+          to={getArticlePath()}
           className="text-primary-gold hover:text-primary-brown font-medium"
         >
           Read more →
