@@ -28,29 +28,44 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="relative px-4 py-2">
+    <nav className="relative px-4 py-2 bg-[#3D1E0F]/80 shadow-lg backdrop-blur-md z-50">
       <div className="flex items-center justify-between">
         {/* Navigation Links */}
         <div className="flex-1">
-          <div className={`${isOpen ? 'block' : 'hidden'} md:block`}>
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <Link to="/restaurants" className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']">Restaurants</Link>
-              <Link to="/spots" className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']">Spots</Link>
-              <Link to="/catalogs" className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']">Catalogs</Link>
-              <Link to="/reviews" className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']">Reviews</Link>
-              <Link to="/how-to-get" className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']">How to Get</Link>
+          <div className={`${isOpen ? 'block' : 'hidden'} md:block transition-all duration-300`}>
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+              <Link to="/restaurants" className="text-[#CCBA78] text-2xl md:text-3xl font-['Island_Moments'] relative group hover:text-white transition-colors">
+                Restaurants
+                <span className="block h-0.5 bg-[#CCBA78] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded-full absolute left-0 -bottom-1 w-full"></span>
+              </Link>
+              <Link to="/spots" className="text-[#CCBA78] text-2xl md:text-3xl font-['Island_Moments'] relative group hover:text-white transition-colors">
+                Spots
+                <span className="block h-0.5 bg-[#CCBA78] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded-full absolute left-0 -bottom-1 w-full"></span>
+              </Link>
+              <Link to="/catalogs" className="text-[#CCBA78] text-2xl md:text-3xl font-['Island_Moments'] relative group hover:text-white transition-colors">
+                Catalogs
+                <span className="block h-0.5 bg-[#CCBA78] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded-full absolute left-0 -bottom-1 w-full"></span>
+              </Link>
+              <Link to="/reviews" className="text-[#CCBA78] text-2xl md:text-3xl font-['Island_Moments'] relative group hover:text-white transition-colors">
+                Reviews
+                <span className="block h-0.5 bg-[#CCBA78] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded-full absolute left-0 -bottom-1 w-full"></span>
+              </Link>
+              <Link to="/how-to-get" className="text-[#CCBA78] text-2xl md:text-3xl font-['Island_Moments'] relative group hover:text-white transition-colors">
+                How to Get
+                <span className="block h-0.5 bg-[#CCBA78] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded-full absolute left-0 -bottom-1 w-full"></span>
+              </Link>
 
               {isLoggedIn ? (
                 <button 
                   onClick={handleLogout}
-                  className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']"
+                  className="text-[#CCBA78] text-2xl md:text-3xl font-['Island_Moments'] hover:text-white transition-colors"
                 >
                   Logout
                 </button>
               ) : (
                 <Link 
                   to="/login"
-                  className="text-[#CCBA78] text-3xl hover:text-white transition-colors font-['Island_Moments']"
+                  className="text-[#CCBA78] text-2xl md:text-3xl font-['Island_Moments'] hover:text-white transition-colors"
                 >
                   Login
                 </Link>

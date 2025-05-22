@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import mrtImg from '../assets/images/mrt.jpg'
 import krlImg from '../assets/images/krl.jpg'
 import lrtImg from '../assets/images/lrt.jpg'
@@ -11,6 +11,12 @@ import kendaraanMapImg from '../assets/images/mapKendaraan.jpg'
 const HowToGetPage = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [activeOption, setActiveOption] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   const transportOptions = [
     {
@@ -77,8 +83,19 @@ const HowToGetPage = () => {
     setSelectedImage(null)
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#3D1E0F]">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#CCBA78] mb-6"></div>
+          <p className="text-[#CCBA78] text-lg font-semibold">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #2C1107, #3D1E0F)' }}>
+    <div className="min-h-screen bg-[#3D1E0F]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12 text-center">
           <h1 className="text-5xl font-bold text-white mb-2">
