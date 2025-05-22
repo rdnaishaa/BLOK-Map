@@ -48,13 +48,14 @@ exports.getRestaurantArticleById = async (id) => {
         a.judulartikel,
         a.kontenartikel,
         a.image_url,
+        a.restaurant_id,
         r.namaRestaurant,
         r.lokasi,
         r.rating,
         r.price,
         r.informasirestaurant
       FROM articles a
-      LEFT JOIN restaurants r ON a.restaurant_id = r.id
+      INNER JOIN restaurants r ON a.restaurant_id = r.id
       WHERE a.id = $1`,
       [id]
     );

@@ -21,6 +21,16 @@ export const getCatalogsDetail = async (id) => {
   }
 }
 
+export const getCatalogsByRestaurantId = async (restaurantId) => {
+  try {
+    const response = await api.get(`/catalogs/restaurant/${restaurantId}`)
+    return response.data
+  } catch (error) {
+    console.error(`Error fetching catalogs for restaurant ${restaurantId}:`, error)
+    throw error
+  }
+}
+
 export const createCatalog = async (catalogData) => {
   try {
     const response = await api.post('/catalogs', catalogData)

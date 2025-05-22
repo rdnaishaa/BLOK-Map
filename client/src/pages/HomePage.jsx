@@ -2,18 +2,17 @@ import { useEffect, useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import HeroSlider from '../components/HeroSlider'
 import ReviewCard from '../components/ReviewCard'
-import RestaurantCard from '../components/RestaurantCard'
 import ArticleCard from '../components/ArticleCard'
+import CatalogCard from '../components/CatalogCard'
 import LoadingSpinner from '../components/LoadingSpinner'
 
-// Import from specific API services instead of generic API
 import { getReviews } from '../services/review_api'
-import { getRestaurants } from '../services/restaurant_api'
+import { getCatalogs } from '../services/catalogs_api'
 import { getArticles } from '../services/articles_api'
 
 const HomePage = () => {
   const [reviews, setReviews] = useState([])
-  const [restaurants, setRestaurants] = useState([])
+  const [catalogs, setCatalogs] = useState([])
   const [Articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -22,16 +21,14 @@ const HomePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Use Promise.all to fetch data in parallel
-        const [reviewResponse, restaurantResponse, spotResponse] = await Promise.all([
+        const [reviewResponse, catalogResponse, spotResponse] = await Promise.all([
           getReviews(),
-          getRestaurants(),
+          getCatalogs(),
           getArticles()
         ])
         
-        // Extract data from responses and limit to 5 items each
         setReviews((reviewResponse.payload || []).slice(0, 5))
-        setRestaurants((restaurantResponse.payload || []).slice(0, 5))
+        setCatalogs((catalogResponse.payload || []).slice(0, 5))
         setArticles((spotResponse.payload || []).slice(0, 5))
       } catch (error) {
         console.error('Error fetching home page data:', error)
@@ -45,7 +42,7 @@ const HomePage = () => {
   }, [])
 
   const reviewRef = useRef(null)
-  const restaurantRef = useRef(null)
+  const catalogRef = useRef(null)
   const articleRef = useRef(null)
 
   const scroll = (ref, direction) => {
@@ -55,9 +52,8 @@ const HomePage = () => {
     }
   }
 
-  // Section navigation handlers
   const goToFoodDrink = () => navigate('/food-drink')
-  const goToRestaurants = () => navigate('/restaurants')
+  const goToCatalogs = () => navigate('/catalogs')
   const goToArticles = () => navigate('/Articles')
 
   if (loading) return (
@@ -80,7 +76,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#3D1E0F] text-white">
-      {/* Hero section takes full width */}
       <div className="w-full">
         <HeroSlider />
       </div>
@@ -111,8 +106,6 @@ const HomePage = () => {
               reviews.map(review => (
                 <div key={review.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
                   <ReviewCard review={{
-                      ...review,
-                      // Provide the correct property names that ReviewCard expects
                       username: review.username,
                       rating: review.rating,
                       content: review.content,
@@ -137,17 +130,17 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Restaurant Section */}
+      {/* Catalogs Section */}
       <section className="py-8 px-6 md:px-12 relative">
         <h2 
-          onClick={goToRestaurants}
+          onClick={goToCatalogs}
           className="text-[#CCBA78] text-2xl font-['Special_Elite'] mb-6 cursor-pointer hover:text-white transition-colors"
         >
-          Craving For
+          Menu Catalogs
         </h2>
         <div className="relative">
           <button 
-            onClick={() => scroll(restaurantRef, 'left')}
+            onClick={() => scroll(catalogRef, 'left')}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
             <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,22 +148,24 @@ const HomePage = () => {
             </svg>
           </button>
           <div 
-            ref={restaurantRef}
+            ref={catalogRef}
             className="flex overflow-x-auto hide-scrollbar scroll-smooth gap-5 pb-2 pl-2 pr-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {restaurants.length > 0 ? (
-              restaurants.map(restaurant => (
-                <div key={restaurant.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
-                  <RestaurantCard restaurant={restaurant} />
+            {catalogs.length > 0 ? (
+              catalogs.map(catalog => (
+                <div key={catalog.id} className="flex-none w-64 transform transition-transform hover:scale-[1.02]">
+                  <CatalogCard 
+                    catalog={catalog}
+                  />
                 </div>
               ))
             ) : (
-              <p className="text-gray-400 italic px-4">No restaurants available</p>
+              <p className="text-gray-400 italic px-4">No catalogs available</p>
             )}
           </div>
           <button 
-            onClick={() => scroll(restaurantRef, 'right')}
+            onClick={() => scroll(catalogRef, 'right')}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#3D1E0F]/80 hover:bg-[#3D1E0F]/95 p-3 rounded-full shadow-md"
           >
             <svg className="w-5 h-5 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

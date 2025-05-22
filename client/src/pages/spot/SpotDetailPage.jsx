@@ -77,7 +77,7 @@ const SpotDetailPage = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Article Title */}
         <h1 className="text-4xl font-['Special_Elite'] text-[#CCBA78] mb-6">
-          {article.judulArtikel}
+          {article.judulartikel}
         </h1>
 
         {/* Spot Details Card */}
@@ -85,12 +85,12 @@ const SpotDetailPage = () => {
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-xl font-semibold text-[#CCBA78]">
-                {article.spot?.namatempat}
+                {article.namatempat}
               </h2>
               <div className="flex items-center mt-2">
-                <RatingStars rating={parseFloat(article.spot?.rating) || 0} />
+                <RatingStars rating={parseFloat(article.rating) || 0} />
                 <span className="ml-2 text-[#CCBA78]">
-                  {article.spot?.rating ? `${parseFloat(article.spot.rating).toFixed(1)}` : 'No rating'}
+                  {article.rating ? `${parseFloat(article.rating).toFixed(1)}` : 'No rating'}
                 </span>
               </div>
             </div>
@@ -98,7 +98,7 @@ const SpotDetailPage = () => {
         </div>
 
         {/* Main Image */}
-        <div className="h-96 rounded-lg overflow-hidden mb-8">
+        <div className="h-96 rounded-lg mb-8">
           <img 
             src={article.image_url || '/images/spot-default.jpg'} 
             alt={article.judulartikel}
@@ -126,7 +126,7 @@ const SpotDetailPage = () => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-[#CCBA78]">{article.spot?.lokasi}</p>
+              <p className="text-[#CCBA78]">{article.lokasi}</p>
               {article.spot?.jam_operasional && (
                 <p className="text-[#CCBA78]/70">{article.spot.jam_operasional}</p>
               )}
@@ -135,7 +135,7 @@ const SpotDetailPage = () => {
 
           {/* Map and Directions */}
           <div className="mt-4">
-            <MapEmbed location={article.spot?.lokasi} />
+            <MapEmbed location={article.lokasi} />
             <a 
               href={`https://maps.google.com/?q=${encodeURIComponent(article.spot?.lokasi || '')}`}
               target="_blank"

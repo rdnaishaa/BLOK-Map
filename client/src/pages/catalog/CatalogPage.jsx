@@ -31,7 +31,7 @@ const CatalogPage = () => {
   }, [])
   
   // Get unique categories from catalogs
-  const categories = ['all', ...new Set(catalogs.map(catalog => catalog.kategori_nama))]
+  const categories = [...new Set(catalogs.map(catalog => catalog.kategori_nama))]
   
   // Filtered catalogs based on search and category
   const filteredCatalogs = catalogs.filter(catalog => {
@@ -41,7 +41,7 @@ const CatalogPage = () => {
       catalog.description?.toLowerCase().includes(searchTerm.toLowerCase())
     
     // Check category filter
-    const matchesCategory = categoryFilter === 'all' || catalog.category === categoryFilter
+    const matchesCategory = categoryFilter === 'all' || catalog.kategori_nama === categoryFilter
     
     return matchesSearch && matchesCategory
   })
@@ -95,10 +95,10 @@ const CatalogPage = () => {
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
               >
-                <option value="">All Categories</option>
+                <option value="all">All Categories</option>
                 {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
+                  <option key={category} value={category}>
+                    {category}
                   </option>
                 ))}
               </select>

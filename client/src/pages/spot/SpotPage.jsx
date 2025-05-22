@@ -21,6 +21,7 @@ const SpotPage = () => {
         setLoading(true)
         setError(null)
         const response = await getSpotArticles()
+        console.log('Spot articles response:', response)
         
         // Handle payload structure
         const data = response.payload
@@ -189,7 +190,7 @@ const SpotPage = () => {
                   image_url: article.image_url,
                   judulartikel: article.judulartikel,
                   kontenartikel: article.kontenartikel,
-                  spot_id: article.spot?.id,
+                  spot_id: article.spot_id,
                 }}
               />
             ))}

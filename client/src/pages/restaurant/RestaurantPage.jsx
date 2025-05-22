@@ -185,7 +185,7 @@ const RestaurantPage = () => {
                   image_url: article.image_url,
                   judulartikel: article.judulartikel,
                   kontenartikel: article.kontenartikel,
-                  restaurant_id: article.restaurant?.id,
+                  restaurant_id: article.restaurant_id,
                 }}
               />
             ))}

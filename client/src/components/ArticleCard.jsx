@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 const ArticleCard = ({ article }) => {
   const getArticlePath = () => {
     if (article.restaurant_id) {
-      return `/articles/restaurants/${article.id}`
+      return `/restaurants/${article.id}`
     }
     if (article.spot_id) {
-      return `/articles/spots/${article.id}`
+      return `/spots/${article.id}`
     }
     return '#' // Fallback if neither exists
   }

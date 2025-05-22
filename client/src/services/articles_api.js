@@ -32,7 +32,7 @@ export const getSpotArticles = async () => {
 
 export const getRestaurantArticleById = async (id) => {
   try {
-    const response = await api.get(`/articles/restaurants/${id}`)
+    const response = await api.get(`/articles/restaurant/${id}`)
     return response.data
   } catch (error) {
     console.error(`Error fetching restaurant article ${id}:`, error)
@@ -42,7 +42,7 @@ export const getRestaurantArticleById = async (id) => {
 
 export const getSpotArticleById = async (id) => {
   try {
-    const response = await api.get(`/articles/spots/${id}`)
+    const response = await api.get(`/articles/spot/${id}`)
     return response.data
   } catch (error) {
     console.error(`Error fetching spot article ${id}:`, error)
