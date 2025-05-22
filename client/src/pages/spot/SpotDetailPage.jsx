@@ -13,6 +13,12 @@ const SpotDetailPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const calculateAverageRating = (reviews) => {
+    if (!reviews || reviews.length === 0) return 0;
+    const sum = reviews.reduce((acc, review) => acc + parseFloat(review.rating || 0), 0);
+    return (sum / reviews.length).toFixed(1);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -90,9 +96,11 @@ const SpotDetailPage = () => {
                 {article.namatempat}
               </h2>
               <div className="flex items-center mt-2">
-                <RatingStars rating={parseFloat(article.rating) || 0} />
+                <RatingStars rating={parseFloat(calculateAverageRating(reviews))} />
                 <span className="ml-2 text-[#CCBA78]">
-                  {article.rating ? `${parseFloat(article.rating).toFixed(1)}` : 'No rating'}
+                  {reviews.length > 0 
+                    ? `${calculateAverageRating(reviews)} (${reviews.length} reviews)`
+                    : '0 reviews'}
                 </span>
               </div>
             </div>
