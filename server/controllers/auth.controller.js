@@ -102,6 +102,21 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.logout = async (req, res) => {
+  try {
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
+    return baseResponse(res, true, 200, 'User logged out successfully', null);
+  } catch (error) {
+    console.error('Error logging out user:', error);
+    return baseResponse(res, false, 500, 'Internal server error', null);
+  }
+}
+
 exports.getMe = async (req, res) => {
   try {
     const user = await userRepository.getUserById(req.user.id);
