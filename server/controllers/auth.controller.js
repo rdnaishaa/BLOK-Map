@@ -48,6 +48,12 @@ exports.register = async (req, res) => {
       token
     };
 
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
     return baseResponse(res, true, 201, 'User registered successfully', userData);
   } catch (error) {
     console.error('Error registering user:', error);
@@ -81,6 +87,13 @@ exports.login = async (req, res) => {
       last_name: user.last_name,
       token
     };
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
 
     return baseResponse(res, true, 200, 'User logged in successfully', userData);
   } catch (error) {

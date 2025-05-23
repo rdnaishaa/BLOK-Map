@@ -9,6 +9,8 @@ const ReviewModel = {
         r.rating,
         r.content,
         r.created_at,
+        r.spot_id,
+        r.resto_id,
         u.username,
         s.namatempat as spot_name,
         rest.namarestaurant as restaurant_name

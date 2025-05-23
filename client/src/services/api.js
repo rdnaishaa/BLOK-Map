@@ -1,12 +1,12 @@
 import axios from 'axios'
 
-const API_URL = 'https://blok-map.vercel.app'
+const API_URL = 'http://localhost:3000'
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json'
   },
-  withCredentials: false 
+  withCredentials: true
 })
 
 api.interceptors.request.use(
@@ -34,73 +34,3 @@ api.interceptors.response.use(
 )
 
 export default api
-
-export const getRestaurants = async (params = {}) => {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    const response = await api.get('/restaurants', { params })
-    return response.data
-  } catch (error) {
-    throw error
-  }
-}
-
-export const getRestaurantById = async (id) => {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    const response = await api.get(`/restaurants/${id}`)
-    return response.data
-  } catch (error) {
-    throw error
-  }
-}
-
-export const getSpotById = async (id) => {
-  try {
-    const response = await api.get(`/spots/${id}`)
-    return response.data
-  } catch (error) {
-    console.error(`Error fetching spot ${id}:`, error)
-    throw error
-  }
-}
-
-export const getSpotArticles = async (spotId) => {
-  try {
-    const response = await api.get(`/articles/spot/${spotId}`)
-    return response.data
-  } catch (error) {
-    console.error('Error fetching spot articles:', error)
-    throw error
-  }
-}
-
-export const getSpots = async (params = {}) => {
-  try {
-    const response = await api.get('/spots', { params })
-    return response.data
-  } catch (error) {
-    console.error('Error fetching spots:', error)
-    throw error
-  }
-}
-
-export const getKategoriList = async () => {
-  try {
-    const response = await api.get('/spots/categories/list')
-    return response.data
-  } catch (error) {
-    console.error('Error fetching categories:', error)
-    throw error
-  }
-}
-
-export const getLokasiList = async () => {
-  try {
-    const response = await api.get('/spots/locations/list')
-    return response.data
-  } catch (error) {
-    console.error('Error fetching locations:', error)
-    throw error
-  }
-}
