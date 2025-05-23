@@ -10,6 +10,12 @@ const ReviewRatingPage = () => {
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
 
+  const [totalCounts, setTotalCounts] = useState({
+    all: 0,
+    restaurant: 0,
+    spot: 0
+  })
+
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -17,22 +23,25 @@ const ReviewRatingPage = () => {
         setError(null)
         
         // Set up parameters based on filter
-        let params = {}
-        if (filter === 'restaurant') {
-          params.resto_id = 'exists'
-        } else if (filter === 'spot') {
-          params.spot_id = 'exists'
-        }
-        
-        // Call the reviews API
-        const response = await getReviews(params)
-        
-        // Handle the payload structure
+        const response = await getReviews()
         if (response.payload) {
-          setReviews(response.payload)
-        } else {
-          // Fallback in case the structure is different
-          setReviews(response.data || [])
+          const allReviews = response.payload
+
+          setTotalCounts({
+            all: allReviews.length,
+            restaurant: allReviews.filter(r => r.resto_id !== null && r.spot_id === null).length,
+            spot: allReviews.filter(r => r.spot_id !== null && r.resto_id === null).length
+          })
+          
+          // Filter reviews based on selected filter
+          let filteredResults = allReviews
+          if (filter === 'restaurant') {
+            filteredResults = allReviews.filter(review => review.resto_id !== null && review.spot_id === null)
+          } else if (filter === 'spot') {
+            filteredResults = allReviews.filter(review => review.spot_id !== null && review.resto_id === null)
+          }
+          
+          setReviews(filteredResults)
         }
       } catch (error) {
         console.error('Error fetching reviews:', error)
@@ -132,9 +141,9 @@ const ReviewRatingPage = () => {
               <h3 className="text-xl font-semibold text-[#3D1E0F] mb-4">Filter Reviews</h3>
               <div className="flex flex-wrap gap-3">
                 {[
-                  { key: 'all', label: 'All Reviews', icon: '🌟', count: reviews.length },
-                  { key: 'restaurant', label: 'Restaurant & Cafe', icon: '🍽️', count: reviews.filter(r => r.resto_id).length },
-                  { key: 'spot', label: 'Spot Hangout', icon: '📍', count: reviews.filter(r => r.spot_id).length }
+                  { key: 'all', label: 'All Reviews', icon: '🌟', count: totalCounts.all },
+                  { key: 'restaurant', label: 'Restaurant & Cafe', icon: '🍽️', count: totalCounts.restaurant },
+                  { key: 'spot', label: 'Spot Hangout', icon: '📍', count: totalCounts.spot }
                 ].map(({ key, label, icon, count }) => (
                   <button
                     key={key}

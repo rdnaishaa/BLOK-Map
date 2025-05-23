@@ -4,8 +4,10 @@ import { getRestaurantArticleById } from '../../services/articles_api'
 import { getReviewsByRestaurantId } from '../../services/review_api'
 import { getCatalogsByRestaurantId } from '../../services/catalogs_api'
 import LoadingSpinner from '../../components/LoadingSpinner'
-import RatingStars from '../../components/RatingStars'
 import MapEmbed from '../../components/MapEmbed'
+import ReviewForm from '../../components/ReviewForm'
+import { useAuth } from '../../hooks/useAuth'
+
 
 const RestaurantDetailPage = () => {
   const { id } = useParams()
@@ -14,6 +16,11 @@ const RestaurantDetailPage = () => {
   const [catalogs, setCatalogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const { isLogin } = useAuth()
+
+  const handleReviewAdded = (newReview) => {
+    setReviews(prevReviews => [...prevReviews, newReview])
+  }
 
   const calculateAverageRating = (reviews) => {
     if (!reviews || reviews.length === 0) return 0;
@@ -210,30 +217,58 @@ const RestaurantDetailPage = () => {
 
         {/* Reviews Section */}
         <div className="bg-[#2A1509]/70 rounded-lg p-6">
-          <h2 className="text-xl font-medium text-[#CCBA78] mb-4">Reviews</h2>
-          <div className="space-y-4">
-            {reviews.map((review, index) => (
-              <div key={review.id || index} className="flex items-start p-4 bg-[#3D1E0F] rounded-lg">
-                <div className="flex-shrink-0">
-                  <div className="w-11 h-11 bg-[#CCBA78]/20 rounded-full"></div>
-                </div>
-                <div className="ml-3">
-                  <div className="flex items-center">
-                    <p className="text-[#CCBA78]">{review.username}</p>
-                    <RatingStars rating={review.rating} className="ml-2" />
-                  </div>
-                  <p className="text-[#CCBA78]/70 mt-1">{review.content}</p>
-                </div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-medium text-[#CCBA78]">Reviews</h2>
+            {reviews.length > 0 && (
+              <div className="bg-[#CCBA78]/10 px-4 py-2 rounded-full">
+                <span className="text-[#CCBA78] font-medium">{reviews.length} total</span>
               </div>
-            ))}
-            {reviews.length === 0 && (
-              <p className="text-center text-[#CCBA78]/70">No reviews yet</p>
             )}
           </div>
-        </div>
+
+          {isLogin ? (
+            <ReviewForm 
+              restaurantId={article.restaurant_id}
+              spotId={null}
+              onReviewAdded={handleReviewAdded}
+            />
+          ) : (
+            <div className="text-center py-6 bg-[#3D1E0F]/50 rounded-lg mb-6">
+              <p className="text-[#CCBA78] mb-4">Please log in to leave a review</p>
+              <Link
+                to="/login"
+                className="inline-block px-6 py-2 bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] rounded-xl font-semibold hover:from-[#D8C78E] hover:to-[#CCBA78] transition-all duration-300"
+              >
+                Log In
+              </Link>
+            </div>
+          )}
+          
+          <div className="bg-[#2A1509]/70 rounded-lg p-6">
+            <h2 className="text-xl font-medium text-[#CCBA78] mb-4">Reviews</h2>
+            <div className="space-y-4">
+              {reviews.map((review, index) => (
+                <div key={review.id || index} className="flex items-start p-4 bg-[#3D1E0F] rounded-lg">
+                  <div className="flex-shrink-0">
+                    <div className="w-11 h-11 bg-[#CCBA78]/20 rounded-full"></div>
+                  </div>
+                  <div className="ml-3">
+                    <div className="flex items-center">
+                      <p className="text-[#CCBA78]">{review.username}</p>
+                      <RatingStars rating={review.rating} className="ml-2" />
+                    </div>
+                    <p className="text-[#CCBA78]/70 mt-1">{review.content}</p>
+                  </div>
+                </div>
+              ))}
+              {reviews.length === 0 && (
+                <p className="text-center text-[#CCBA78]/70">No reviews yet</p>
+              )}
+            </div>
+          </div>
       </div>
     </div>
+  </div>
   )
 }
-
 export default RestaurantDetailPage

@@ -1,24 +1,30 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { getSpotArticleById } from '../../services/articles_api'
-import { getReviewsBySpotId } from '../../services/review_api'
+import { getReviewsBySpotId, createReview } from '../../services/review_api'
+import { useAuth } from '../../hooks/useAuth'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import RatingStars from '../../components/RatingStars'
 import MapEmbed from '../../components/MapEmbed'
 
 const SpotDetailPage = () => {
+  const navigate = useNavigate()
   const { id } = useParams()
   const [article, setArticle] = useState(null)
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [rating, setRating] = useState(5)
+  const [reviewContent, setReviewContent] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { user, isLogin } = useAuth()
 
   const calculateAverageRating = (reviews) => {
-    if (!reviews || reviews.length === 0) return 0;
-    const sum = reviews.reduce((acc, review) => acc + parseFloat(review.rating || 0), 0);
-    return (sum / reviews.length).toFixed(1);
-  };
+    if (!reviews || reviews.length === 0) return 0
+    const sum = reviews.reduce((acc, review) => acc + parseFloat(review.rating || 0), 0)
+    return (sum / reviews.length).toFixed(1)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,18 +32,14 @@ const SpotDetailPage = () => {
         setLoading(true)
         setError(null)
 
-        // First fetch article
         const articleResponse = await getSpotArticleById(id)
-
         if (!articleResponse.success) {
           throw new Error(articleResponse.message || 'Failed to fetch article details')
         }
 
         setArticle(articleResponse.payload)
-        
-        // Get reviews using the article id since it represents the spot
-        const reviewsResponse = await getReviewsBySpotId(articleResponse.payload.spot_id)
 
+        const reviewsResponse = await getReviewsBySpotId(articleResponse.payload.spot_id)
         if (reviewsResponse.success) {
           setReviews(reviewsResponse.payload)
         } else {
@@ -54,6 +56,40 @@ const SpotDetailPage = () => {
 
     fetchData()
   }, [id])
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault()
+    if (!isLogin) {
+      navigate('/login')
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+      const newReview = {
+        user_id: user.id,
+        spot_id: article.spot_id,
+        resto_id: null,
+        rating: rating.toFixed(2),
+        content: reviewContent,
+      }
+
+      const response = await createReview(newReview)
+      if (response.success) {
+        const reviewWithUser = {
+          ...response.payload,
+          username: user.username
+        }
+        setReviews([...reviews, reviewWithUser])
+        setReviewContent('')
+        setRating(5)
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -210,7 +246,44 @@ const SpotDetailPage = () => {
               </div>
             )}
           </div>
-          
+          {isLogin ? (
+            <form onSubmit={handleSubmitReview} className="space-y-4 mt-6">
+              <h3 className="text-xl text-[#CCBA78] font-medium">Leave a Review</h3>
+              <div>
+                <label className="block text-[#CCBA78]/70 mb-1">Your Rating:</label>
+                <RatingStars rating={rating} setRating={setRating} editable />
+              </div>
+              <div>
+                <label htmlFor="review" className="block text-[#CCBA78]/70 mb-1">Your Review:</label>
+                <textarea
+                  id="review"
+                  value={reviewContent}
+                  onChange={(e) => setReviewContent(e.target.value)}
+                  rows={4}
+                  className="w-full p-3 rounded-lg bg-[#1A0E05] border border-[#CCBA78]/30 text-[#CCBA78] focus:outline-none focus:ring-2 focus:ring-[#CCBA78]"
+                  placeholder="Share your experience..."
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </form>
+          ) : (
+            <div className="mt-6">
+              <p className="text-[#CCBA78]/80 mb-4">You must be logged in to leave a review.</p>
+              <Link 
+                to="/login"
+                className="inline-block bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+              >
+                Login to Review
+              </Link>
+            </div>
+          )}
           <div className="space-y-4">
             {reviews.map((review, index) => (
               <div 

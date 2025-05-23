@@ -1,17 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useAuth } from '../hooks/useAuth'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // ← untuk status login
-  const navigate = useNavigate()
 
-  useEffect(() => {
-    // Cek apakah token tersedia
-    const token = localStorage.getItem('token')
-    setIsLoggedIn(!!token)
-  }, [])
+  const navigate = useNavigate()
+  const { isLogin, logout } = useAuth()
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -22,15 +18,13 @@ const Navbar = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    setIsLoggedIn(false)
+    logout()
     navigate('/login', { state: { message: 'You have logged out successfully.' } })
   }
 
   return (
     <nav className="relative px-4 py-2 bg-[#3D1E0F]/80 shadow-lg backdrop-blur-md z-50">
       <div className="flex items-center justify-between">
-        {/* Navigation Links */}
         <div className="flex-1">
           <div className={`${isOpen ? 'block' : 'hidden'} md:block transition-all duration-300`}>
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
@@ -55,7 +49,7 @@ const Navbar = () => {
                 <span className="block h-0.5 bg-[#CCBA78] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded-full absolute left-0 -bottom-1 w-full"></span>
               </Link>
 
-              {isLoggedIn ? (
+              {isLogin ? (
                 <button 
                   onClick={handleLogout}
                   className="text-[#CCBA78] text-2xl md:text-3xl font-['Island_Moments'] hover:text-white transition-colors"
@@ -74,7 +68,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Search Bar (tidak berubah) */}
+        {/* Search Bar */}
         <div className="hidden md:block ml-6">
           <form onSubmit={handleSubmit} className="relative">
             <input
@@ -112,7 +106,7 @@ const Navbar = () => {
           </form>
         </div>
 
-        {/* Mobile menu toggle button */}
+        {/* Mobile menu toggle */}
         <button 
           className="md:hidden text-[#CCBA78]"
           onClick={() => setIsOpen(!isOpen)}

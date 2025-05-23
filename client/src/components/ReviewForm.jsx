@@ -1,18 +1,20 @@
 import { useState } from 'react'
-import { useAuth } from '../contexts/AuthContext'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import { createReview } from '../services/review_api'
+import RatingStars from './RatingStars'
 
-const ReviewForm = ({ restaurantId, spotId, onReviewAdded }) => {
+const ReviewForm = ({ spotId, restaurantId, onReviewAdded }) => {
   const [rating, setRating] = useState(0)
   const [content, setContent] = useState('')
   const [hoverRating, setHoverRating] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const { user, isAuthenticated } = useAuth()
+  const { user } = useAuth()
 
-  const handleRatingChange = (newRating) => {
-    setRating(newRating)
+  const handleRatingClick = (value) => {
+    setRating(value)
     if (error && error === 'Please select a rating') {
       setError('')
     }
@@ -24,12 +26,6 @@ const ReviewForm = ({ restaurantId, spotId, onReviewAdded }) => {
     // Reset messages
     setError('')
     setSuccess('')
-    
-    // Check if user is logged in
-    if (!isAuthenticated || !user) {
-      setError('Please login to submit a review')
-      return
-    }
 
     // Validate rating
     if (rating === 0) {
@@ -47,113 +43,119 @@ const ReviewForm = ({ restaurantId, spotId, onReviewAdded }) => {
       setSubmitting(true)
       
       const reviewData = {
-        content,
-        rating,
-        // Only include the relevant ID to avoid backend confusion
-        ...(restaurantId && { resto_id: restaurantId }),
-        ...(spotId && { spot_id: spotId })
+        user_id: user.id,
+        spot_id: spotId,
+        resto_id: restaurantId,
+        content: content,
+        rating: rating.toFixed(2)
       }
       
       const response = await createReview(reviewData)
       
-      // Handle success
-      setContent('')
-      setRating(0)
-      setSuccess('Your review has been submitted successfully!')
-      
-      // Call the callback function to refresh reviews if provided
-      if (onReviewAdded && typeof onReviewAdded === 'function') {
-        // Pass the new review from response if available
-        const newReview = response.payload || response.data
-        onReviewAdded(newReview)
+      if (response.success) {
+        // Add username to the review for immediate display
+        const reviewWithUser = {
+          ...response.payload,
+          username: user.username
+        }
+        setContent('')
+        setRating(0)
+        setSuccess('Your review has been submitted successfully!')
+        
+        // Notify parent component
+        if (onReviewAdded) {
+          onReviewAdded(reviewWithUser)
+        }
       }
     } catch (err) {
       console.error('Error submitting review:', err)
-      setError(err.response?.data?.message || 'Failed to submit review. Please try again later.')
+      setError(err.response?.data?.message || 'Failed to submit review. Please try again.')
     } finally {
       setSubmitting(false)
     }
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="bg-gray-100 p-4 rounded-md mb-6">
-        <p className="text-gray-700">Please <a href="/login" className="text-[#CCBA78] font-medium hover:underline">login</a> to submit a review.</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-      <h3 className="text-lg font-semibold text-[#3D1E0F] mb-4">Share Your Experience</h3>
-      
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-          {error}
-        </div>
-      )}
-      
-      {success && (
-        <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
-          {success}
-        </div>
-      )}
-      
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2 font-medium">Rating</label>
-          <div className="flex">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                className="text-3xl focus:outline-none mr-1"
-                onClick={() => handleRatingChange(star)}
-                onMouseEnter={() => setHoverRating(star)}
+    <div className="bg-gradient-to-r from-[#3D1E0F]/80 to-[#2A1509]/80 rounded-xl p-6 border border-[#CCBA78]/10">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <h3 className="text-xl text-[#CCBA78] font-medium">Leave a Review</h3>
+          
+          {error && (
+            <div className="p-3 bg-red-900/20 border border-red-500/20 text-red-200 rounded-lg">
+              {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="p-3 bg-green-900/20 border border-green-500/20 text-green-200 rounded-lg">
+              {success}
+            </div>
+          )}
+
+          <div className="mb-4">
+            <label className="block text-[#CCBA78] text-sm font-medium mb-2">
+              Rating
+            </label>
+            <div className="flex items-center space-x-4">
+              <div 
+                className="flex space-x-1 cursor-pointer"
                 onMouseLeave={() => setHoverRating(0)}
               >
-                <span className={star <= (hoverRating || rating) ? "text-yellow-500" : "text-gray-300"}>
-                  ★
-                </span>
-              </button>
-            ))}
-            <span className="ml-2 text-gray-600 self-center">
-              {rating > 0 ? `${rating} star${rating > 1 ? 's' : ''}` : 'Select a rating'}
-            </span>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <div
+                    key={star}
+                    onClick={() => handleRatingClick(star)}
+                    onMouseEnter={() => setHoverRating(star)}
+                    className="transition-transform hover:scale-110"
+                  >
+                    <RatingStars 
+                      rating={hoverRating || rating >= star ? 1 : 0}
+                    />
+                  </div>
+                ))}
+              </div>
+              <span className="text-[#CCBA78]/70">
+                {rating ? `${rating} star${rating > 1 ? 's' : ''}` : 'Select a rating'}
+              </span>
+            </div>
           </div>
-        </div>
-        
-        <div className="mb-4">
-          <label htmlFor="review" className="block text-gray-700 mb-2 font-medium">Your Review</label>
-          <textarea
-            id="review"
-            rows="4"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#CCBA78]"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Tell others about your experience..."
-            disabled={submitting}
-          ></textarea>
-        </div>
-        
-        <div className="text-right">
+
+          <div>
+            <label htmlFor="review" className="block text-[#CCBA78]/70 mb-1">
+              Your Review
+            </label>
+            <textarea
+              id="review"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={4}
+              className="w-full p-3 rounded-lg bg-[#1A0E05] border border-[#CCBA78]/30 text-[#CCBA78] focus:outline-none focus:ring-2 focus:ring-[#CCBA78]"
+              placeholder="Share your experience..."
+              required
+              disabled={submitting}
+            />
+          </div>
+
           <button
             type="submit"
             disabled={submitting}
-            className="px-6 py-2 bg-[#CCBA78] text-white rounded-md hover:bg-[#D8C78E] focus:outline-none focus:ring-2 focus:ring-[#CCBA78] disabled:opacity-50 transition-colors"
+            className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 ${
+              submitting
+                ? 'bg-[#CCBA78]/50 cursor-not-allowed'
+                : 'bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] hover:from-[#D8C78E] hover:to-[#CCBA78] text-[#3D1E0F]'
+            }`}
           >
             {submitting ? (
-              <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 Submitting...
-              </span>
+              </div>
             ) : 'Submit Review'}
           </button>
-        </div>
-      </form>
+        </form>
     </div>
   )
 }
