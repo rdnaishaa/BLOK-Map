@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { getRestaurants } from '../../services/restaurant_api'
-import RestaurantCard from '../../components/RestaurantCard'
+import { getRestaurantArticles } from '../../services/articles_api'
 import LoadingSpinner from '../../components/LoadingSpinner'
+import ArticleCard from '../../components/ArticleCard'
 
 const RestaurantPage = () => {
-  const [restaurants, setRestaurants] = useState([])
-  const [filteredRestaurants, setFilteredRestaurants] = useState([])
+  const [articles, setArticles] = useState([])
+  const [filteredArticles, setFilteredArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -14,62 +14,63 @@ const RestaurantPage = () => {
   const [categories, setCategories] = useState([])
   const [locations, setLocations] = useState([])
 
-  // Fetch restaurants from API
+  // Fetch restaurant articles from API
   useEffect(() => {
-    const fetchRestaurants = async () => {
+    const fetchRestaurantArticles = async () => {
       try {
         setLoading(true)
-        const response = await getRestaurants()
+        const response = await getRestaurantArticles()
         
         // Handle payload structure
         const data = response.payload
-        setRestaurants(data)
-        setFilteredRestaurants(data)
+        setArticles(data)
+        setFilteredArticles(data)
 
         // Extract unique categories and locations
-        const uniqueCategories = [...new Set(data.map(restaurant => restaurant.kategori_nama))]
+        const uniqueCategories = [...new Set(data.map(article => article.kategori))]
           .filter(Boolean)
           .map(cat => ({ id: cat, name: cat }))
         
-        const uniqueLocations = [...new Set(data.map(restaurant => restaurant.lokasi))]
+        const uniqueLocations = [...new Set(data.map(article => article.lokasi))]
           .filter(Boolean)
 
         setCategories(uniqueCategories)
         setLocations(uniqueLocations)
       } catch (err) {
-        console.error('Error fetching restaurants:', err)
-        setError('Failed to load restaurants. Please try again later.')
+        console.error('Error fetching restaurant articles:', err)
+        setError('Failed to load restaurant articles. Please try again later.')
       } finally {
         setLoading(false)
       }
     }
     
-    fetchRestaurants()
+    fetchRestaurantArticles()
   }, [])
 
-  // Filter restaurants based on search term and filters
+  // Filter articles based on search term and filters
   useEffect(() => {
-    let result = restaurants
+    let result = articles
     
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
-      result = result.filter(restaurant => 
-        restaurant.namaRestaurant.toLowerCase().includes(term) ||
-        restaurant.lokasi.toLowerCase().includes(term) ||
-        restaurant.informasiRestaurant?.toLowerCase().includes(term)
+      result = result.filter(article => 
+        article.judulArtikel?.toLowerCase().includes(term) ||
+        article.kontenArtikel?.toLowerCase().includes(term) ||
+        article.restaurant?.namaRestaurant?.toLowerCase().includes(term) ||
+        article.restaurant?.lokasi?.toLowerCase().includes(term)
       )
     }
 
     if (categoryFilter) {
-      result = result.filter(restaurant => restaurant.kategori === categoryFilter)
+      result = result.filter(article => article.kategori === categoryFilter)
     }
 
     if (locationFilter) {
-      result = result.filter(restaurant => restaurant.lokasi === locationFilter)
+      result = result.filter(article => article.lokasi === locationFilter)
     }
     
-    setFilteredRestaurants(result)
-  }, [searchTerm, categoryFilter, locationFilter, restaurants])
+    setFilteredArticles(result)
+  }, [searchTerm, categoryFilter, locationFilter, articles])
 
   if (loading) {
     return (
@@ -81,8 +82,8 @@ const RestaurantPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen">
-        <div className="container w-full p-6">
+      <div className="min-h-screen w-full bg-[#3D1E0F]">
+        <div className="container mx-auto p-6">
           <div className="bg-red-600/20 border border-red-600 text-white p-4 rounded-md">
             <p>{error}</p>
             <button 
@@ -98,9 +99,9 @@ const RestaurantPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#3D1E0F]">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-['Special_Elite'] text-[#CCBA78] mb-6">Restaurants & Cafes</h1>
+    <div className="min-h-screen w-full bg-[#3D1E0F]">
+      <div className="container mx-auto p-6">
+        <h1 className="text-4xl font-['Special_Elite'] text-[#CCBA78] mb-6">Restaurant Articles</h1>
         
         <div className="bg-[#2A1509]/70 rounded-lg p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -108,7 +109,7 @@ const RestaurantPage = () => {
               <label className="block text-[#CCBA78] mb-2">Search</label>
               <input
                 type="text"
-                placeholder="Search restaurants..."
+                placeholder="Search articles..."
                 className="w-full p-2 rounded bg-[#2A1509] border border-[#CCBA78] text-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -160,9 +161,9 @@ const RestaurantPage = () => {
           </div>
         </div>
 
-        {filteredRestaurants.length === 0 ? (
+        {filteredArticles.length === 0 ? (
           <div className="bg-white/10 rounded-lg p-8 text-center">
-            <p className="text-white text-xl">No restaurants found matching your criteria.</p>
+            <p className="text-white text-xl">No articles found matching your criteria.</p>
             <button 
               onClick={() => {
                 setSearchTerm('');
@@ -176,8 +177,17 @@ const RestaurantPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRestaurants.map(restaurant => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+            {filteredArticles.map(article => (
+              <ArticleCard
+                key={article.id} 
+                article={{
+                  ...article,
+                  image_url: article.image_url,
+                  judulartikel: article.judulartikel,
+                  kontenartikel: article.kontenartikel,
+                  restaurant_id: article.restaurant_id,
+                }}
+              />
             ))}
           </div>
         )}

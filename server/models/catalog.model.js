@@ -27,7 +27,8 @@ exports.createCatalog = async (catalog) => {
 exports.getCatalogs = async () => {
   try {
     const res = await db.query(
-      `SELECT 
+      `SELECT
+        c.id,
         c.namakatalog,
         c.lokasi,
         c.harga,
@@ -62,6 +63,28 @@ exports.getCatalogById = async (id) => {
     return res.rows[0];
   } catch (error) {
     console.error("Error fetching catalog by id:", error);
+    throw error;
+  }
+};
+
+exports.getCatalogByRestaurantId = async (restaurantId) => {
+  try {
+    const res = await db.query(
+      `SELECT 
+        c.id,
+        c.namakatalog,
+        c.harga,
+        c.deskripsikatalog,
+        c.image_url,
+        r.namarestaurant
+      FROM catalogs c
+      LEFT JOIN restaurants r ON c.restaurant_id = r.id
+      WHERE c.restaurant_id = $1`,
+      [restaurantId]
+    );
+    return res.rows;
+  } catch (error) {
+    console.error("Error fetching catalog by restaurant id:", error);
     throw error;
   }
 };

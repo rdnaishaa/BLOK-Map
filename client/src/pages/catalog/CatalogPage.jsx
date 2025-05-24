@@ -31,7 +31,7 @@ const CatalogPage = () => {
   }, [])
   
   // Get unique categories from catalogs
-  const categories = ['all', ...new Set(catalogs.map(catalog => catalog.category))]
+  const categories = [...new Set(catalogs.map(catalog => catalog.kategori_nama))]
   
   // Filtered catalogs based on search and category
   const filteredCatalogs = catalogs.filter(catalog => {
@@ -41,7 +41,7 @@ const CatalogPage = () => {
       catalog.description?.toLowerCase().includes(searchTerm.toLowerCase())
     
     // Check category filter
-    const matchesCategory = categoryFilter === 'all' || catalog.category === categoryFilter
+    const matchesCategory = categoryFilter === 'all' || catalog.kategori_nama === categoryFilter
     
     return matchesSearch && matchesCategory
   })
@@ -95,9 +95,10 @@ const CatalogPage = () => {
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
               >
+                <option value="all">All Categories</option>
                 {categories.map(category => (
                   <option key={category} value={category}>
-                    {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
+                    {category}
                   </option>
                 ))}
               </select>
@@ -118,7 +119,7 @@ const CatalogPage = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredCatalogs.map(catalog => (
                 <CatalogCard key={catalog.id} catalog={catalog} />
               ))}

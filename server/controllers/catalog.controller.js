@@ -28,6 +28,20 @@ exports.getCatalogDetail = async (req, res) => {
   }
 };
 
+exports.getCatalogByRestaurantId = async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const catalogs = await catalogModel.getCatalogByRestaurantId(restaurantId);
+    if (!catalogs || catalogs.length === 0) {
+      return baseResponse(res, false, 404, "No catalogs found for this restaurant", null);
+    }
+    return baseResponse(res, true, 200, "Catalogs retrieved successfully", catalogs);
+  } catch (error) {
+    console.error("Error getting catalogs by restaurant ID:", error);
+    return baseResponse(res, false, 500, "Error retrieving catalogs", error.message);
+  }
+};
+
 exports.createCatalog = async (req, res) => {
   try {
     const {

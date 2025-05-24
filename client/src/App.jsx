@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 

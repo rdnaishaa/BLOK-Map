@@ -9,19 +9,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://blok-map.vercel.app'
-];
-
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: ['http://localhost:5173', 'https://localhost:3000', 'https://blok-map.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 app.use(express.json());

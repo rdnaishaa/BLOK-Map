@@ -27,49 +27,51 @@ exports.createSpot = async (spotData) => {
     }
 };
 
-exports.getSpots = async ({ search, kategori, lokasi }) => {
-    try {
-        let query = `
-        SELECT 
-            s.id,
-            s.namaTempat,
-            s.lokasi,
-            s.rating,
-            s.price,
-            ks.kategori as kategori_nama
-        FROM spots s
-        LEFT JOIN kategori_spot ks ON s.kategoriSpot_id = ks.id
-        `;
-        const conditions = [];
-        const params = [];
+exports.getSpots = async ({ search, kategori, lokasi } = {}) => {
+  try {
+    let query = `
+      SELECT 
+        s.id,
+        s.namatempat,
+        s.lokasi,
+        s.rating,
+        s.image_url,
+        s.price,
+        ks.kategori as kategori_nama
+      FROM spots s
+      LEFT JOIN kategori_spot ks ON s.kategorispot_id = ks.id
+    `;
+    
+    const params = [];
+    const conditions = [];
 
-        if (search) {
-            conditions.push(`s.namaTempat ILIKE $${params.length + 1}`);
-            params.push(`%${search}%`);
-        }
-
-        if (kategori) {
-            conditions.push(`ks.kategori = $${params.length + 1}`);
-            params.push(kategori);
-        }
-
-        if (lokasi) {
-            conditions.push(`s.lokasi = $${params.length + 1}`);
-            params.push(lokasi);
-        }
-
-        if (conditions.length > 0) {
-            query += " WHERE " + conditions.join(" AND ");
-        }
-
-        query += " ORDER BY s.namaTempat";
-
-        const res = await db.query(query, params);
-        return res.rows;
-    } catch (error) {
-        console.error("Error getting spots:", error);
-        throw error;
+    if (search) {
+      conditions.push(`s.namatempat ILIKE $${params.length + 1}`);
+      params.push(`%${search}%`);
     }
+
+    if (kategori) {
+      conditions.push(`ks.kategori = $${params.length + 1}`);
+      params.push(kategori);
+    }
+
+    if (lokasi) {
+      conditions.push(`s.lokasi = $${params.length + 1}`);
+      params.push(lokasi);
+    }
+
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    query += ` ORDER BY s.namatempat`;
+
+    const result = await db.query(query, params);
+    return result.rows;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
 };
 
 exports.getSpotById = async (id) => {
