@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { getRestaurantArticleById } from '../../services/articles_api'
 import { getReviewsByRestaurantId } from '../../services/review_api'
 import { getCatalogsByRestaurantId } from '../../services/catalogs_api'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import MapEmbed from '../../components/MapEmbed'
 import ReviewForm from '../../components/ReviewForm'
+import RatingStars from '../../components/RatingStars'
 import { useAuth } from '../../hooks/useAuth'
 
 
@@ -227,11 +228,14 @@ const RestaurantDetailPage = () => {
           </div>
 
           {isLogin ? (
-            <ReviewForm 
-              restaurantId={article.restaurant_id}
-              spotId={null}
-              onReviewAdded={handleReviewAdded}
-            />
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-[#CCBA78] mb-4">Leave a Review</h3>
+              <ReviewForm 
+                restaurantId={article.restaurant_id}
+                spotId={null}
+                onReviewAdded={handleReviewAdded}
+              />
+            </div>
           ) : (
             <div className="text-center py-6 bg-[#3D1E0F]/50 rounded-lg mb-6">
               <p className="text-[#CCBA78] mb-4">Please log in to leave a review</p>
@@ -244,31 +248,28 @@ const RestaurantDetailPage = () => {
             </div>
           )}
           
-          <div className="bg-[#2A1509]/70 rounded-lg p-6">
-            <h2 className="text-xl font-medium text-[#CCBA78] mb-4">Reviews</h2>
-            <div className="space-y-4">
-              {reviews.map((review, index) => (
-                <div key={review.id || index} className="flex items-start p-4 bg-[#3D1E0F] rounded-lg">
-                  <div className="flex-shrink-0">
-                    <div className="w-11 h-11 bg-[#CCBA78]/20 rounded-full"></div>
-                  </div>
-                  <div className="ml-3">
-                    <div className="flex items-center">
-                      <p className="text-[#CCBA78]">{review.username}</p>
-                      <RatingStars rating={review.rating} className="ml-2" />
-                    </div>
-                    <p className="text-[#CCBA78]/70 mt-1">{review.content}</p>
-                  </div>
+          <div className="space-y-4">
+            {reviews.map((review, index) => (
+              <div key={review.id || index} className="flex items-start p-4 bg-[#3D1E0F] rounded-lg">
+                <div className="flex-shrink-0">
+                  <div className="w-11 h-11 bg-[#CCBA78]/20 rounded-full"></div>
                 </div>
-              ))}
-              {reviews.length === 0 && (
-                <p className="text-center text-[#CCBA78]/70">No reviews yet</p>
-              )}
-            </div>
+                <div className="ml-3">
+                  <div className="flex items-center">
+                    <p className="text-[#CCBA78]">{review.username}</p>
+                    <RatingStars rating={review.rating} className="ml-2" />
+                  </div>
+                  <p className="text-[#CCBA78]/70 mt-1">{review.content}</p>
+                </div>
+              </div>
+            ))}
+            {reviews.length === 0 && (
+              <p className="text-center text-[#CCBA78]/70">No reviews yet</p>
+            )}
           </div>
+        </div>
       </div>
     </div>
-  </div>
   )
 }
 export default RestaurantDetailPage

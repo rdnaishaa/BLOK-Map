@@ -1,24 +1,25 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, } from 'react-router-dom'
 import { getSpotArticleById } from '../../services/articles_api'
-import { getReviewsBySpotId, createReview } from '../../services/review_api'
+import { getReviewsBySpotId } from '../../services/review_api'
 import { useAuth } from '../../hooks/useAuth'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import RatingStars from '../../components/RatingStars'
 import MapEmbed from '../../components/MapEmbed'
+import ReviewForm from '../../components/ReviewForm'
 
 const SpotDetailPage = () => {
-  const navigate = useNavigate()
   const { id } = useParams()
   const [article, setArticle] = useState(null)
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [imageLoaded, setImageLoaded] = useState(false)
-  const [rating, setRating] = useState(5)
-  const [reviewContent, setReviewContent] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user, isLogin } = useAuth()
+  const { isLogin } = useAuth()
+
+  const handleReviewAdded = (newReview) => {
+    setReviews(prevReviews => [...prevReviews, newReview])
+  }
 
   const calculateAverageRating = (reviews) => {
     if (!reviews || reviews.length === 0) return 0
@@ -56,40 +57,6 @@ const SpotDetailPage = () => {
 
     fetchData()
   }, [id])
-
-  const handleSubmitReview = async (e) => {
-    e.preventDefault()
-    if (!isLogin) {
-      navigate('/login')
-      return
-    }
-
-    try {
-      setIsSubmitting(true)
-      const newReview = {
-        user_id: user.id,
-        spot_id: article.spot_id,
-        resto_id: null,
-        rating: rating.toFixed(2),
-        content: reviewContent,
-      }
-
-      const response = await createReview(newReview)
-      if (response.success) {
-        const reviewWithUser = {
-          ...response.payload,
-          username: user.username
-        }
-        setReviews([...reviews, reviewWithUser])
-        setReviewContent('')
-        setRating(5)
-      }
-    } catch (error) {
-      console.error('Error submitting review:', error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -234,91 +201,54 @@ const SpotDetailPage = () => {
         </div>
 
         {/* Reviews Section */}
-        <div className="bg-gradient-to-r from-[#2A1509]/70 to-[#3D1E0F]/70 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-[#CCBA78]/10 hover:border-[#CCBA78]/20 transition-all duration-500">
+        <div className="bg-[#2A1509]/70 rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <div className="w-1 h-8 bg-gradient-to-b from-[#CCBA78] to-[#D8C78E] rounded-full mr-4"></div>
-              <h2 className="text-2xl font-semibold text-[#CCBA78]">Reviews</h2>
-            </div>
+            <h2 className="text-xl font-medium text-[#CCBA78]">Reviews</h2>
             {reviews.length > 0 && (
               <div className="bg-[#CCBA78]/10 px-4 py-2 rounded-full">
                 <span className="text-[#CCBA78] font-medium">{reviews.length} total</span>
               </div>
             )}
           </div>
+
           {isLogin ? (
-            <form onSubmit={handleSubmitReview} className="space-y-4 mt-6">
-              <h3 className="text-xl text-[#CCBA78] font-medium">Leave a Review</h3>
-              <div>
-                <label className="block text-[#CCBA78]/70 mb-1">Your Rating:</label>
-                <RatingStars rating={rating} setRating={setRating} editable />
-              </div>
-              <div>
-                <label htmlFor="review" className="block text-[#CCBA78]/70 mb-1">Your Review:</label>
-                <textarea
-                  id="review"
-                  value={reviewContent}
-                  onChange={(e) => setReviewContent(e.target.value)}
-                  rows={4}
-                  className="w-full p-3 rounded-lg bg-[#1A0E05] border border-[#CCBA78]/30 text-[#CCBA78] focus:outline-none focus:ring-2 focus:ring-[#CCBA78]"
-                  placeholder="Share your experience..."
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Review'}
-              </button>
-            </form>
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-[#CCBA78] mb-4">Leave a Review</h3>
+              <ReviewForm 
+                restaurantId={null}
+                spotId={article.spot_id}
+                onReviewAdded={handleReviewAdded}
+              />
+            </div>
           ) : (
-            <div className="mt-6">
-              <p className="text-[#CCBA78]/80 mb-4">You must be logged in to leave a review.</p>
-              <Link 
+            <div className="text-center py-6 bg-[#3D1E0F]/50 rounded-lg mb-6">
+              <p className="text-[#CCBA78] mb-4">Please log in to leave a review</p>
+              <Link
                 to="/login"
-                className="inline-block bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+                className="inline-block px-6 py-2 bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] rounded-xl font-semibold hover:from-[#D8C78E] hover:to-[#CCBA78] transition-all duration-300"
               >
-                Login to Review
+                Log In
               </Link>
             </div>
           )}
+          
           <div className="space-y-4">
             {reviews.map((review, index) => (
-              <div 
-                key={review.id || index} 
-                className="group bg-gradient-to-r from-[#3D1E0F]/80 to-[#2A1509]/80 rounded-xl p-6 hover:scale-[1.02] transition-all duration-300 border border-[#CCBA78]/5 hover:border-[#CCBA78]/20"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-gradient-to-r from-[#CCBA78]/20 to-[#D8C78E]/20 rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-6 h-6 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
+              <div key={review.id || index} className="flex items-start p-4 bg-[#3D1E0F] rounded-lg">
+                <div className="flex-shrink-0">
+                  <div className="w-11 h-11 bg-[#CCBA78]/20 rounded-full"></div>
+                </div>
+                <div className="ml-3">
+                  <div className="flex items-center">
+                    <p className="text-[#CCBA78]">{review.username}</p>
+                    <RatingStars rating={review.rating} className="ml-2" />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-[#CCBA78] font-semibold text-lg">{review.username}</p>
-                      <RatingStars rating={review.rating} className="scale-110" />
-                    </div>
-                    <p className="text-[#CCBA78]/80 leading-relaxed">{review.content}</p>
-                  </div>
+                  <p className="text-[#CCBA78]/70 mt-1">{review.content}</p>
                 </div>
               </div>
             ))}
-            
             {reviews.length === 0 && (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-[#CCBA78]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-[#CCBA78]/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
-                <p className="text-[#CCBA78]/70 text-lg">No reviews yet</p>
-                <p className="text-[#CCBA78]/50 text-sm mt-2">Be the first to share your experience!</p>
-              </div>
+              <p className="text-center text-[#CCBA78]/70">No reviews yet</p>
             )}
           </div>
         </div>
