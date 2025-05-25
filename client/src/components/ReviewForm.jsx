@@ -25,6 +25,10 @@ const ReviewForm = ({ spotId, restaurantId, onReviewAdded }) => {
   const [success, setSuccess] = useState('')
   const { user } = useAuth()
 
+  if (user?.isAdmin) {
+    return null
+  }
+
   const handleRatingClick = (value) => {
     setRating(value)
     if (error && error === 'Please select a rating') {

@@ -3,6 +3,8 @@ import { lazy, Suspense } from 'react'
 import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
+import ProtectedRoute from './components/ProtectedRoute'
+import AdminPanel from './components/AdminPanel'
 
 // Lazy-loaded pages
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -34,6 +36,7 @@ function App() {
             <Route path="/how-to-get" element={<Layout><HowToGetPage /></Layout>} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
           </Routes>
         </Suspense>
       </Router>

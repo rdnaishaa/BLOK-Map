@@ -24,17 +24,15 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Fixed Navbar */}
       <nav className="fixed top-0 left-0 right-0 px-4 py-3 bg-[#3D1E0F]/90 shadow-lg backdrop-blur-md z-50 border-b border-[#CCBA78]/20">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
-          
           {/* Logo/Brand */}
           <div className="flex-shrink-0">
             <Link 
               to="/" 
               className="text-[#CCBA78] text-3xl md:text-4xl font-['Special_Elite'] hover:text-white transition-colors duration-300 flex items-center gap-2"
             >
-              <span className="text-2xl">🗺️</span>
+              <span className="text-2xl">ðŸ—ºï¸</span>
               <span className="hidden sm:block">BLOK-M(ap)</span>
               <span className="sm:hidden">FH</span>
             </Link>
@@ -59,6 +57,12 @@ const Navbar = () => {
                 Reviews
                 <span className="block h-0.5 bg-[#CCBA78] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded-full absolute left-0 -bottom-1 w-full"></span>
               </Link>
+              {user?.isAdmin && (
+                <Link to="/admin" className="text-[#CCBA78] text-xl lg:text-3xl font-['Island_Moments'] relative group hover:text-white transition-colors">
+                  Admin
+                  <span className="block h-0.5 bg-[#CCBA78] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded-full absolute left-0 -bottom-1 w-full"></span>
+                </Link>
+              )}
               <Link to="/how-to-get" className="text-[#CCBA78] text-xl lg:text-3xl font-['Island_Moments'] relative group hover:text-white transition-colors">
                 How to Get
                 <span className="block h-0.5 bg-[#CCBA78] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded-full absolute left-0 -bottom-1 w-full"></span>

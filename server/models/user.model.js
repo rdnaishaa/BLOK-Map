@@ -2,19 +2,43 @@ const db = require("../config/pg.database");
 const bcrypt = require('bcrypt');
 
 exports.registerUser = async (user) => {
-    const { username, email, password, role, first_name, last_name } = user;
-    try {
-        const hashed_password = await bcrypt.hash(password, 10);
-        const res = await db.query(
-            `INSERT INTO users (username, email, password_hash, role, first_name, last_name)
-            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-            [username, email, hashed_password, role, first_name, last_name]
-        );
-        return res.rows[0]; 
-    } catch (error) {
-        console.error("Error registering user:", error);
-        throw error;
+  const { username, email, password, first_name, last_name, role = 'user' } = user;
+
+  try {
+    const hashed_password = await bcrypt.hash(password, 10);
+
+    const res = await db.query(
+      `INSERT INTO users 
+        (username, email, password_hash, role, first_name, last_name)
+       VALUES ($1, $2, $3, $4, $5, $6) 
+       RETURNING *`,
+      [username, email, hashed_password, role, first_name, last_name]
+    );
+
+    return res.rows[0];
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getOrCreateAdmin = async () => {
+  try {
+    let admin = await this.getUserByEmail(ADMIN_CREDENTIALS.email);
+    if (!admin) {
+      admin = await this.registerUser({
+        username: ADMIN_CREDENTIALS.username,
+        email: ADMIN_CREDENTIALS.email,
+        password: ADMIN_CREDENTIALS.password,
+        role: ADMIN_CREDENTIALS.role,
+        first_name: 'Admin',
+        last_name: 'Super'
+      });
     }
+    return admin;
+  } catch (error) {
+    console.error("Error getting or creating admin:", error);
+    throw error;
+  }
 }
 
 exports.loginUser = async (email, password) => {

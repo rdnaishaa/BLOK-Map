@@ -40,48 +40,35 @@ export const getReviewsBySpotId = async (spotId) => {
 }
 
 export const createReview = async (reviewData, token) => {
-  try {
-    const response = await api.post('/reviews', reviewData, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
-    if (!response.data) {
-      throw new Error('No response data received');
-    }
-    return response.data;
-  } catch (error) {
-    console.error('Error creating review:', error);
-    throw error;
-  }
-}
+  const response = await fetch(`${API_URL}/reviews`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(reviewData),
+  });
+  return await response.json();
+};
 
 export const updateReview = async (id, reviewData, token) => {
-  try {
-    // Pastikan rating dikirim sebagai number
-    if (reviewData.rating !== undefined) {
-      reviewData.rating = Number(reviewData.rating);
-    }
-    const response = await api.patch(
-      `/reviews/${id}`,
-      reviewData,
-      token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
-    );
-    if (!response.data) {
-      throw new Error('No response data received');
-    }
-    return response.data;
-  } catch (error) {
-    console.error(`Error updating review ${id}:`, error);
-    throw error;
-  }
-}
+  const response = await fetch(`${API_URL}/reviews/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(reviewData),
+  });
+  return await response.json();
+};
 
 export const deleteReview = async (id, token) => {
-  try {
-    const response = await api.delete(`/reviews/${id}`, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
-    if (!response.data) {
-      throw new Error('No response data received');
-    }
-    return response.data;
-  } catch (error) {
-    console.error(`Error deleting review ${id}:`, error);
-    throw error;
-  }
-}
+  const response = await fetch(`${API_URL}/reviews/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await response.json();
+};

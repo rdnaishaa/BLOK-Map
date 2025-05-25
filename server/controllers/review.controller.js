@@ -108,10 +108,10 @@ const ReviewController = {
         );
       }
 
-      if (review.user_id !== req.user.id && req.user.username !== 'sbd') {
-        return res.status(403).json(
-          baseResponse(res, false, 403, "Not authorized to update this review")
-        );
+      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
+         return res.status(403).json(
+            baseResponse(res, false, 403, "Not authorized to update this review")
+         );
       }
 
       if (fields.rating !== undefined && (fields.rating < 0 || fields.rating > 5)) {
@@ -150,11 +150,11 @@ const ReviewController = {
         );
       }
 
-      if (review.user_id !== req.user.id && req.user.username !== 'sbd') {
+      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
         return res.status(403).json(
           baseResponse(res, false, 403, "Not authorized to delete this review")
         );
-      }
+    }
 
       const result = await ReviewModel.delete(id);
       return res.status(200).json(
