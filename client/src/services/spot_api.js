@@ -39,3 +39,34 @@ export const getSpotById = async (id) => {
     throw error;
   }
 }
+
+export const addSpot = async (spotData, token) => {
+  try {
+    const response = await api.post('/spots', spotData, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating spot:', error);
+    throw error;
+  }
+};
+
+export const editSpot = async (spotData, token) => {
+  try {
+    const { id, ...fields } = spotData;
+    const response = await api.patch(`/spots/${id}`, fields, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating spot:', error);
+    throw error;
+  }
+};
+
+export const deleteSpot = async (id, token) => {
+  try {
+    const response = await api.delete(`/spots/${id}`, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting spot:', error);
+    throw error;
+  }
+};

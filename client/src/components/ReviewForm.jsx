@@ -62,7 +62,7 @@ const ReviewForm = ({ spotId, restaurantId, onReviewAdded }) => {
         rating: rating.toFixed(2)
       }
       
-      const response = await createReview(reviewData)
+      const response = await createReview(reviewData, user.token)
       
       if (response.success) {
         // Add username to the review for immediate display

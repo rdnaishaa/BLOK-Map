@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { getSpotArticles } from '../../services/articles_api'
+import { addSpot, editSpot, deleteSpot } from '../../services/spot_api'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import ArticleCard from '../../components/ArticleCard'
+import { useAuth } from '../../hooks/useAuth'
 
 const SpotPage = () => {
+  const { user } = useAuth();
   const [articles, setArticles] = useState([])
   const [filteredArticles, setFilteredArticles] = useState([])
   const [loading, setLoading] = useState(true)
@@ -16,6 +19,15 @@ const SpotPage = () => {
   const [viewMode, setViewMode] = useState('grid') // grid or list
   const [sortBy, setSortBy] = useState('newest') // newest, oldest, name
   const [showFilters, setShowFilters] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [modalData, setModalData] = useState({
+    judul: '',
+    konten: '',
+    kategori: '',
+    lokasi: '',
+    image: null
+  });
 
   // Fetch spot articles from API
   useEffect(() => {
@@ -58,13 +70,13 @@ const SpotPage = () => {
     
     // Apply filters
     if (searchTerm) {
-      const term = searchTerm.toLowerCase()
+      const term = searchTerm.toLowerCase();
       result = result.filter(article => 
-        article.judulArtikel?.toLowerCase().includes(term) ||
-        article.kontenArtikel?.toLowerCase().includes(term) ||
-        article.spot?.namaSpot?.toLowerCase().includes(term) ||
-        article.spot?.lokasi?.toLowerCase().includes(term)
-      )
+        article.judulartikel?.toLowerCase().includes(term) ||
+        article.kontenartikel?.toLowerCase().includes(term) ||
+        article.kategori?.toLowerCase().includes(term) ||
+        article.lokasi?.toLowerCase().includes(term)
+      );
     }
 
     if (categoryFilter) {
@@ -99,6 +111,68 @@ const SpotPage = () => {
   }
 
   const activeFiltersCount = [searchTerm, categoryFilter, locationFilter].filter(Boolean).length
+
+  const handleAdd = () => {
+    setModalMode('add');
+    setModalData({ judul: '', konten: '', kategori: '', lokasi: '', image: null });
+    setModalOpen(true);
+  };
+
+  const handleEdit = (article) => {
+    setModalMode('edit');
+    setModalData({
+      id: article.id,
+      judul: article.judulartikel || '',
+      konten: article.kontenartikel || '',
+      kategori: article.kategori || '',
+      lokasi: article.lokasi || '',
+      image: null
+    });
+    setModalOpen(true);
+  };
+
+  const handleModalChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'image') {
+      setModalData((prev) => ({ ...prev, image: files[0] }));
+    } else {
+      setModalData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleModalSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (modalMode === 'add') {
+        await addSpot(modalData, user.token);
+      } else {
+        await editSpot(modalData, user.token);
+      }
+      // Fetch ulang data
+      const response = await getSpotArticles();
+      const data = response.payload;
+      setArticles(data);
+      setFilteredArticles(data);
+      setModalOpen(false);
+    } catch (err) {
+      alert('Failed to save article!');
+      setModalOpen(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this article?')) return;
+    try {
+      await deleteSpot(id, user.token);
+      // Fetch ulang data
+      const response = await getSpotArticles();
+      const data = response.payload;
+      setArticles(data);
+      setFilteredArticles(data);
+    } catch (err) {
+      alert('Failed to delete article!');
+    }
+  };
 
   if (loading) {
     return (
@@ -161,16 +235,21 @@ const SpotPage = () => {
       </div>
 
       <div className="container mx-auto p-6 relative z-10">
-        {/* Hero Header */}
-        <div className="text-center mb-12 animate-fade-in-up">
-          <h1 className="text-4xl md:text-6xl font-['Special_Elite'] text-transparent bg-gradient-to-r from-[#CCBA78] via-[#D8C78E] to-[#CCBA78] bg-clip-text mb-4 leading-tight">
-            Discover Amazing Spots
-          </h1>
-          <p className="text-[#CCBA78]/80 text-lg md:text-xl max-w-2xl mx-auto">
-            Explore curated articles about the most incredible places and hidden gems
-          </p>
-          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#CCBA78] to-transparent mx-auto mt-6"></div>
-        </div>
+        <h1 className="text-4xl md:text-6xl font-['Special_Elite'] text-transparent bg-gradient-to-r from-[#CCBA78] via-[#D8C78E] to-[#CCBA78] bg-clip-text mb-4 leading-tight flex items-center justify-between">
+          Discover Amazing Spots
+          {user?.isAdmin && (
+            <button
+              onClick={handleAdd}
+              className="ml-4 px-4 py-2 bg-[#2A1509] text-white rounded hover:bg-[#3D1E0F] text-base shadow"
+            >
+              + Add Article
+            </button>
+          )}
+        </h1>
+        <p className="text-[#CCBA78]/80 text-lg md:text-xl max-w-2xl mx-auto">
+          Explore curated articles about the most incredible places and hidden gems
+        </p>
+        <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#CCBA78] to-transparent mx-auto mt-6"></div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
@@ -426,20 +505,124 @@ const SpotPage = () => {
                     </div>
                   </>
                 ) : (
-                  <ArticleCard
-                    article={{
-                      ...article,
-                      image_url: article.image_url,
-                      judulartikel: article.judulartikel,
-                      kontenartikel: article.kontenartikel,
-                      spot_id: article.spot_id,
-                    }}
-                  />
+                  <>
+                    <ArticleCard
+                      article={{
+                        ...article,
+                        image_url: article.image_url,
+                        judulartikel: article.judulartikel,
+                        kontenartikel: article.kontenartikel,
+                        spot_id: article.spot_id,
+                      }}
+                    />
+                    {user?.isAdmin && (
+                      <div className="absolute top-3 right-3 flex gap-2 z-20">
+                        <button
+                          className="px-3 py-1 bg-yellow-400 text-[#3D1E0F] rounded-lg font-bold text-xs hover:bg-yellow-500 shadow"
+                          onClick={() => handleEdit(article)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="px-3 py-1 bg-red-500 text-white rounded-lg font-bold text-xs hover:bg-red-600 shadow"
+                          onClick={() => handleDelete(article.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ))}
           </div>
         )}
+
+        {modalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl relative">
+              <button
+                className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
+                onClick={() => setModalOpen(false)}
+              >
+                &times;
+              </button>
+              <h2 className="text-2xl font-bold mb-4 text-[#3D1E0F]">{modalMode === 'add' ? 'Add' : 'Edit'} Article</h2>
+              <form onSubmit={handleModalSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-[#CCBA78] mb-1">Title</label>
+                  <input
+                    type="text"
+                    name="judul"
+                    className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
+                    value={modalData.judul}
+                    onChange={handleModalChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#CCBA78] mb-1">Content</label>
+                  <textarea
+                    name="konten"
+                    className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
+                    rows={4}
+                    value={modalData.konten}
+                    onChange={handleModalChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#CCBA78] mb-1">Category</label>
+                  <input
+                    type="text"
+                    name="kategori"
+                    className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
+                    value={modalData.kategori}
+                    onChange={handleModalChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#CCBA78] mb-1">Location</label>
+                  <input
+                    type="text"
+                    name="lokasi"
+                    className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
+                    value={modalData.lokasi}
+                    onChange={handleModalChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#CCBA78] mb-1">Image (optional)</label>
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    className="w-full"
+                    onChange={handleModalChange}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] hover:from-[#D8C78E] hover:to-[#CCBA78] text-[#3D1E0F]"
+                  >
+                    {modalMode === 'add' ? 'Add Article' : 'Save Changes'}
+                  </button>
+                  <button
+                    type="button"
+                    className="flex-1 py-3 rounded-xl font-semibold transition-all duration-300 bg-gray-200 hover:bg-gray-300 text-[#3D1E0F]"
+                    onClick={() => setModalOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* Custom CSS for animations */}

@@ -39,9 +39,9 @@ export const getReviewsBySpotId = async (spotId) => {
   }
 }
 
-export const createReview = async (reviewData) => {
+export const createReview = async (reviewData, token) => {
   try {
-    const response = await api.post('/reviews', reviewData);
+    const response = await api.post('/reviews', reviewData, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
     if (!response.data) {
       throw new Error('No response data received');
     }
@@ -52,9 +52,17 @@ export const createReview = async (reviewData) => {
   }
 }
 
-export const updateReview = async (id, reviewData) => {
+export const updateReview = async (id, reviewData, token) => {
   try {
-    const response = await api.patch(`/reviews/${id}`, reviewData);
+    // Pastikan rating dikirim sebagai number
+    if (reviewData.rating !== undefined) {
+      reviewData.rating = Number(reviewData.rating);
+    }
+    const response = await api.patch(
+      `/reviews/${id}`,
+      reviewData,
+      token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+    );
     if (!response.data) {
       throw new Error('No response data received');
     }
@@ -65,9 +73,9 @@ export const updateReview = async (id, reviewData) => {
   }
 }
 
-export const deleteReview = async (id) => {
+export const deleteReview = async (id, token) => {
   try {
-    const response = await api.delete(`/reviews/${id}`);
+    const response = await api.delete(`/reviews/${id}`, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
     if (!response.data) {
       throw new Error('No response data received');
     }
