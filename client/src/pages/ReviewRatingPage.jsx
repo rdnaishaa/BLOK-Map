@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import ReviewCard from '../components/ReviewCard'
-import { getReviews } from '../services/review_api'
+import { getReviews, deleteReview, updateReview } from '../services/review_api'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { useAuth } from '../hooks/useAuth'
 
 const ReviewRatingPage = () => {
   const [reviews, setReviews] = useState([])
@@ -15,6 +16,15 @@ const ReviewRatingPage = () => {
     restaurant: 0,
     spot: 0
   })
+
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editReview, setEditReview] = useState(null)
+  const [editContent, setEditContent] = useState('')
+  const [editRating, setEditRating] = useState(0)
+  const [editLoading, setEditLoading] = useState(false)
+  const [editError, setEditError] = useState('')
+
+  const { user } = useAuth()
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -63,6 +73,222 @@ const ReviewRatingPage = () => {
     review.spot_name?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  // Handler for delete review (admin only)
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this review?')) return;
+    try {
+      await deleteReview(id, user.token)
+      setReviews(reviews => reviews.filter(r => r.id !== id))
+    } catch (err) {
+      alert('Failed to delete review!')
+    }
+  }
+
+  const openEditModal = (review) => {
+    setEditReview(review)
+    setEditContent(review.content)
+    setEditRating(Number(review.rating))
+    setEditError('')
+    setEditModalOpen(true)
+  }
+
+  const closeEditModal = () => {
+    setEditModalOpen(false)
+    setEditReview(null)
+    setEditContent('')
+    setEditRating(0)
+    setEditError('')
+  }
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault()
+    setEditError('')
+    if (!editContent.trim()) {
+      setEditError('Content cannot be empty')
+      return
+    }
+    if (editRating < 1 || editRating > 5) {
+      setEditError('Rating must be between 1 and 5')
+      return
+    }
+    try {
+      setEditLoading(true)
+      const response = await updateReview(editReview.id, { content: editContent, rating: editRating }, user.token)
+      if (response.success) {
+        setReviews(reviews => reviews.map(r => r.id === editReview.id ? { ...r, content: editContent, rating: editRating } : r))
+        closeEditModal()
+      } else {
+        setEditError(response.message || 'Failed to update review')
+      }
+    } catch (err) {
+      setEditError('Failed to update review')
+    } finally {
+      setEditLoading(false)
+    }
+  }
+
+  // Enhanced Review Card Component
+  const EnhancedReviewCard = ({ review, index }) => {
+    const isRestaurant = review.resto_id !== null && review.spot_id === null
+    const isSpot = review.spot_id !== null && review.resto_id === null
+    
+    const formatDate = (dateString) => {
+      return new Date(dateString).toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    }
+
+    const renderStars = (rating) => {
+      const stars = []
+      const fullStars = Math.floor(rating)
+      const hasHalfStar = rating % 1 !== 0
+      
+      for (let i = 0; i < fullStars; i++) {
+        stars.push(
+          <svg key={i} className="w-4 h-4 fill-[#CCBA78] text-[#CCBA78]" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+        )
+      }
+      
+      if (hasHalfStar) {
+        stars.push(
+          <svg key="half" className="w-4 h-4 text-[#CCBA78]" viewBox="0 0 20 20">
+            <defs>
+              <linearGradient id="half-fill">
+                <stop offset="50%" stopColor="currentColor"/>
+                <stop offset="50%" stopColor="transparent"/>
+              </linearGradient>
+            </defs>
+            <path fill="url(#half-fill)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+        )
+      }
+      
+      return stars
+    }
+
+    return (
+      <div className="relative bg-white/90 border border-[#CCBA78]/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
+        {/* Review Type Badge */}
+        <div className="absolute top-0 left-0 right-0 z-10">
+          <div className={`px-4 py-2 text-xs font-bold text-white flex items-center gap-2 ${
+            isRestaurant 
+              ? 'bg-gradient-to-r from-[#5D2E1F] to-[#3D1E0F]' 
+              : 'bg-gradient-to-r from-[#6B3E2A] to-[#4A2817]'
+          }`}>
+            {isRestaurant ? (
+              <>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 01-1 1H8a1 1 0 01-1-1v-1h4v1zm-4-3a1 1 0 011-1h2a1 1 0 110 2H8a1 1 0 01-1-1z" clipRule="evenodd"/>
+                </svg>
+                <span>RESTAURANT REVIEW</span>
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                </svg>
+                <span>SPOT REVIEW</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="p-6 pt-12">
+          {/* Place Name */}
+          <div className="mb-4">
+            <h3 className="text-lg font-bold text-[#3D1E0F] mb-1 line-clamp-1">
+              {isRestaurant ? review.restaurant_name : review.spot_name}
+            </h3>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              {isRestaurant ? (
+                <svg className="w-4 h-4 text-[#8B5A3C]" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M8 5a1 1 0 100 2v5a1 1 0 001 1h4a1 1 0 100-2V6h1a1 1 0 100-2H8zM6 7a1 1 0 012 0v8a1 1 0 11-2 0V7zM4 9a1 1 0 012 0v6a1 1 0 11-2 0V9z"/>
+                </svg>
+              ) : (
+                <svg className="w-4 h-4 text-[#8B5A3C]" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                </svg>
+              )}
+              <span className="capitalize">
+                {isRestaurant ? 'Restaurant & Cafe' : 'Hangout Spot'}
+              </span>
+            </div>
+          </div>
+
+          {/* Rating */}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-1">
+              {renderStars(review.rating)}
+            </div>
+            <span className="text-lg font-bold text-[#3D1E0F]">{review.rating}</span>
+            <span className="text-gray-500 text-sm">/5</span>
+          </div>
+
+          {/* Review Title */}
+          {review.title && (
+            <h4 className="font-semibold text-[#3D1E0F] mb-2 line-clamp-1">
+              {review.title}
+            </h4>
+          )}
+
+          {/* Review Content */}
+          <p className="text-gray-700 text-sm leading-relaxed mb-4 line-clamp-3">
+            {review.content}
+          </p>
+
+          {/* Review Meta */}
+          <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-3">
+            <div className="flex items-center gap-1">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
+              </svg>
+              <span>{review.username || 'Anonymous'}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/>
+              </svg>
+              <span>{review.created_at ? new Date(review.created_at).toLocaleDateString('id-ID') : 'Recent'}</span>
+            </div>
+          </div>
+
+          {/* Admin CRUD buttons */}
+          {user?.isAdmin && (
+            <div className="flex gap-2 mt-4 pt-3 border-t border-gray-100">
+              <button
+                className="flex-1 px-3 py-2 bg-[#CCBA78] text-[#3D1E0F] rounded-lg font-medium text-xs hover:bg-[#D8C78E] transition-colors duration-200 flex items-center justify-center gap-1"
+                onClick={() => openEditModal(review)}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Edit
+              </button>
+              <button
+                className="flex-1 px-3 py-2 bg-[#8B4B3A] text-white rounded-lg font-medium text-xs hover:bg-[#7A3F2E] transition-colors duration-200 flex items-center justify-center gap-1"
+                onClick={() => handleDelete(review.id)}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Delete
+              </button>
+            </div>
+          )}
+
+          {/* Floating number badge */}
+          <div className="absolute top-2 right-2 w-6 h-6 bg-gradient-to-br from-[#CCBA78]/90 to-[#D8C78E]/90 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-lg group-hover:scale-110 transition-transform duration-300">
+            {index + 1}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (loading) return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#3D1E0F]">
       <div className="flex flex-col items-center">
@@ -73,16 +299,16 @@ const ReviewRatingPage = () => {
   )
 
   if (error) return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex justify-center items-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#F5F5F4] via-[#F0EDE8] to-[#EBE6DF] flex justify-center items-center p-4">
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-[#CCBA78]/30 p-8 max-w-md w-full">
-        <div className="text-red-600 p-6 rounded-xl bg-red-50 border-l-4 border-red-400 mb-6">
+        <div className="text-[#8B4B3A] p-6 rounded-xl bg-[#CCBA78]/10 border-l-4 border-[#8B4B3A] mb-6">
           <div className="flex items-center mb-2">
             <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
             <span className="font-semibold text-lg">Something went wrong</span>
           </div>
-          <p className="text-red-700">{error}</p>
+          <p className="text-[#6B3E2A]">{error}</p>
         </div>
         <button 
           onClick={() => window.location.reload()}
@@ -103,14 +329,14 @@ const ReviewRatingPage = () => {
             <h1 className="text-5xl md:text-6xl font-['Special_Elite'] mb-4 tracking-wide">
               Review & Rating
             </h1>
-            <p className="text-xl text-amber-200 mb-8 font-light">
+            <p className="text-xl text-[#CCBA78] mb-8 font-light">
               Discover amazing places through authentic reviews from our community
             </p>
             
             {/* Search Bar */}
             <div className="relative max-w-2xl mx-auto">
               <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                <svg className="h-6 w-6 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-6 w-6 text-[#CCBA78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -119,7 +345,7 @@ const ReviewRatingPage = () => {
                 placeholder="Search reviews, restaurants, or spots..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-14 pr-6 py-4 bg-white/10 backdrop-blur-md border-2 border-amber-300/30 rounded-2xl text-white placeholder-amber-200 focus:outline-none focus:border-amber-300 focus:ring-4 focus:ring-amber-300/20 transition-all duration-300 text-lg"
+                className="w-full pl-14 pr-6 py-4 bg-white/10 backdrop-blur-md border-2 border-[#CCBA78]/30 rounded-2xl text-white placeholder-[#CCBA78] focus:outline-none focus:border-[#CCBA78] focus:ring-4 focus:ring-[#CCBA78]/20 transition-all duration-300 text-lg"
               />
             </div>
           </div>
@@ -141,7 +367,7 @@ const ReviewRatingPage = () => {
               <h3 className="text-xl font-semibold text-[#3D1E0F] mb-4">Filter Reviews</h3>
               <div className="flex flex-wrap gap-3">
                 {[
-                  { key: 'all', label: 'All Reviews', icon: '🌟', count: totalCounts.all },
+                  { key: 'all', label: 'All Reviews', icon: '⭐', count: totalCounts.all },
                   { key: 'restaurant', label: 'Restaurant & Cafe', icon: '🍽️', count: totalCounts.restaurant },
                   { key: 'spot', label: 'Spot Hangout', icon: '📍', count: totalCounts.spot }
                 ].map(({ key, label, icon, count }) => (
@@ -170,13 +396,13 @@ const ReviewRatingPage = () => {
             </div>
             
             {searchTerm && (
-              <div className="bg-amber-100 border border-amber-300 rounded-xl p-4">
-                <p className="text-amber-800 text-sm font-medium">
+              <div className="bg-[#CCBA78]/10 border border-[#CCBA78]/30 rounded-xl p-4">
+                <p className="text-[#3D1E0F] text-sm font-medium">
                   Showing {filteredReviews.length} results for "{searchTerm}"
                 </p>
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="text-amber-600 hover:text-amber-800 text-sm underline mt-1"
+                  className="text-[#8B5A3C] hover:text-[#3D1E0F] text-sm underline mt-1"
                 >
                   Clear search
                 </button>
@@ -189,20 +415,11 @@ const ReviewRatingPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredReviews.length > 0 ? (
             filteredReviews.map((review, index) => (
-              <div
-                key={review.id}
-                className="relative bg-white/90 border border-[#CCBA78]/20 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 group overflow-hidden"
-                style={{
-                  animationDelay: `${index * 120}ms`,
-                  animation: 'fadeInUp 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards'
-                }}
-              >
-                <ReviewCard review={review} />
-                {/* Floating number badge */}
-                <div className="absolute top-3 right-3 w-7 h-7 bg-gradient-to-br from-[#CCBA78]/80 to-[#D8C78E]/80 rounded-full flex items-center justify-center text-white font-bold text-xs shadow group-hover:scale-110 transition-transform duration-300 opacity-80">
-                  {index + 1}
-                </div>
-              </div>
+              <EnhancedReviewCard 
+                key={review.id} 
+                review={review} 
+                index={index}
+              />
             ))
           ) : (
             <div className="col-span-full">
@@ -280,6 +497,56 @@ const ReviewRatingPage = () => {
         )}
       </div>
 
+      {/* Edit Review Modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl relative">
+            <button
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
+              onClick={closeEditModal}
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-bold mb-4 text-[#3D1E0F]">Edit Review</h2>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[#CCBA78] mb-1">Content</label>
+                <textarea
+                  className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F] focus:outline-none focus:ring-2 focus:ring-[#CCBA78]"
+                  rows={4}
+                  value={editContent}
+                  onChange={e => setEditContent(e.target.value)}
+                  required
+                  disabled={editLoading}
+                />
+              </div>
+              <div>
+                <label className="block text-[#CCBA78] mb-1">Rating</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={5}
+                  step={0.1}
+                  className="w-24 p-2 rounded bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
+                  value={editRating}
+                  onChange={e => setEditRating(Number(e.target.value))}
+                  required
+                  disabled={editLoading}
+                />
+              </div>
+              {editError && <div className="text-red-600 text-sm">{editError}</div>}
+              <button
+                type="submit"
+                disabled={editLoading}
+                className="w-full py-3 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] hover:from-[#D8C78E] hover:to-[#CCBA78] text-[#3D1E0F]"
+              >
+                {editLoading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         @keyframes fadeInUp {
           from {
@@ -290,6 +557,20 @@ const ReviewRatingPage = () => {
             opacity: 1;
             transform: translateY(0);
           }
+        }
+        
+        .line-clamp-1 {
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        
+        .line-clamp-3 {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </div>

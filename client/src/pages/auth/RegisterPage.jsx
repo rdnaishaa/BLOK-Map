@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser } from '../../services/auth_api';
+import Layout from '../../components/Layout';
+import ImageSlider from '../../components/ImageSlider';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -53,164 +55,171 @@ function Register() {
   };
 
   return (
-    <div className="register-container bg-[#3D1E0F] text-white" style={{ 
-      maxWidth: '500px', 
-      margin: '2rem auto', 
-      padding: '2rem',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-      borderRadius: '8px'
-    }}>
-      <h1 className="text-[#CCBA78] font-['Special_Elite']" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Register</h1>
-      
-      {error && (
-        <div className="bg-red-700 text-white p-3 mb-4 rounded text-center">
-          {error}
-        </div>
-      )}
-      
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            Username:
-          </label>
-          <input 
-            type="text" 
-            name="username" 
-            value={formData.username}
-            onChange={handleChange}
-            className="bg-[#2A1509] border-[#CCBA78]"
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              borderRadius: '4px',
-              border: '1px solid',
-              color: 'white'
-            }}
-            required
-            disabled={loading}
-          />
-        </div>
-        
-        <div style={{ marginBottom: '1rem' }}>
-          <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            First Name:
-          </label>
-          <input 
-            type="text" 
-            name="first_name" 
-            value={formData.first_name}
-            onChange={handleChange}
-            className="bg-[#2A1509] border-[#CCBA78]"
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              borderRadius: '4px',
-              border: '1px solid',
-              color: 'white'
-            }}
-            required
-            disabled={loading}
-          />
-        </div>
-        
-        <div style={{ marginBottom: '1rem' }}>
-          <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            Last Name:
-          </label>
-          <input 
-            type="text" 
-            name="last_name" 
-            value={formData.last_name}
-            onChange={handleChange}
-            className="bg-[#2A1509] border-[#CCBA78]"
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              borderRadius: '4px',
-              border: '1px solid',
-              color: 'white'
-            }}
-            required
-            disabled={loading}
-          />
-        </div>
-        
-        <div style={{ marginBottom: '1rem' }}>
-          <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            Email:
-          </label>
-          <input 
-            type="email" 
-            name="email" 
-            value={formData.email}
-            onChange={handleChange}
-            className="bg-[#2A1509] border-[#CCBA78]"
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              borderRadius: '4px',
-              border: '1px solid',
-              color: 'white'
-            }}
-            required
-            disabled={loading}
-          />
-        </div>
-        
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-            Password:
-          </label>
-          <input 
-            type="password" 
-            name="password" 
-            value={formData.password}
-            onChange={handleChange}
-            className="bg-[#2A1509] border-[#CCBA78]"
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              borderRadius: '4px',
-              border: '1px solid',
-              color: 'white'
-            }}
-            required
-            disabled={loading}
-          />
-          <div className="mt-1 text-xs text-gray-300">
-            Password must be at least 6 characters long, include a number, and a special character.
+    <Layout>
+      <div className="min-h-screen flex flex-col md:flex-row bg-[#3D1E0F]">
+        {/* Kiri: ImageSlider */}
+        <div className="hidden md:flex flex-1 items-center justify-center bg-[#2A1509]">
+          <div className="w-full max-w-lg p-8">
+            <ImageSlider />
           </div>
         </div>
-        
-        <button 
-          type="submit"
-          className="bg-[#CCBA78] hover:bg-[#D8C78E] transition-colors"
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            color: '#3D1E0F',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '1rem',
-            fontWeight: '700',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1
-          }}
-          disabled={loading}
-        >
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-        
-        <div className="text-center mt-4">
-          <p className="text-white">
-            Already have an account?{' '} 
-            <Link to="/login" className="text-[#CCBA78] hover:text-white transition-colors">
-              Sign In
-            </Link>
-          </p>
+        {/* Kanan: Form Register */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-full max-w-md p-8 bg-[#3D1E0F] text-white rounded-xl shadow-xl">
+            <h1 className="text-[#CCBA78] font-['Special_Elite'] text-center mb-6">Register</h1>
+            
+            {error && (
+              <div className="bg-red-700 text-white p-3 mb-4 rounded text-center">
+                {error}
+              </div>
+            )}
+            
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Username:
+                </label>
+                <input 
+                  type="text" 
+                  name="username" 
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="bg-[#2A1509] border-[#CCBA78]"
+                  style={{ 
+                    width: '100%', 
+                    padding: '0.75rem',
+                    borderRadius: '4px',
+                    border: '1px solid',
+                    color: 'white'
+                  }}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  First Name:
+                </label>
+                <input 
+                  type="text" 
+                  name="first_name" 
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  className="bg-[#2A1509] border-[#CCBA78]"
+                  style={{ 
+                    width: '100%', 
+                    padding: '0.75rem',
+                    borderRadius: '4px',
+                    border: '1px solid',
+                    color: 'white'
+                  }}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Last Name:
+                </label>
+                <input 
+                  type="text" 
+                  name="last_name" 
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  className="bg-[#2A1509] border-[#CCBA78]"
+                  style={{ 
+                    width: '100%', 
+                    padding: '0.75rem',
+                    borderRadius: '4px',
+                    border: '1px solid',
+                    color: 'white'
+                  }}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Email:
+                </label>
+                <input 
+                  type="email" 
+                  name="email" 
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="bg-[#2A1509] border-[#CCBA78]"
+                  style={{ 
+                    width: '100%', 
+                    padding: '0.75rem',
+                    borderRadius: '4px',
+                    border: '1px solid',
+                    color: 'white'
+                  }}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label className="text-[#CCBA78]" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Password:
+                </label>
+                <input 
+                  type="password" 
+                  name="password" 
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="bg-[#2A1509] border-[#CCBA78]"
+                  style={{ 
+                    width: '100%', 
+                    padding: '0.75rem',
+                    borderRadius: '4px',
+                    border: '1px solid',
+                    color: 'white'
+                  }}
+                  required
+                  disabled={loading}
+                />
+                <div className="mt-1 text-xs text-gray-300">
+                  Password must be at least 6 characters long, include a number, and a special character.
+                </div>
+              </div>
+              
+              <button 
+                type="submit"
+                className="bg-[#CCBA78] hover:bg-[#D8C78E] transition-colors"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  color: '#3D1E0F',
+                  border: 'none',
+                  borderRadius: '4px',
+                  fontSize: '1rem',
+                  fontWeight: '700',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1
+                }}
+                disabled={loading}
+              >
+                {loading ? 'Registering...' : 'Register'}
+              </button>
+              
+              <div className="text-center mt-4">
+                <p className="text-white">
+                  Already have an account?{' '} 
+                  <Link to="/login" className="text-[#CCBA78] hover:text-white transition-colors">
+                    Sign In
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </div>
         </div>
-      </form>
-    </div>
+      </div>
+    </Layout>
   );
 }
 

@@ -1,11 +1,12 @@
-exports.authorize = (...roles) => {
-    return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-        return res.status(403).json({
-            success: false,
-            message: `User role '${req.user.role}' is not authorized to access this route`,
-        });
-        }
-        next();
-    };
+// Middleware to check if user is admin (username === 'sbd')
+module.exports = function isAdmin(req, res, next) {
+  try {
+    // req.user harus sudah diisi oleh middleware autentikasi sebelumnya
+    if (req.user && req.user.username === 'sbd') {
+      return next();
+    }
+    return res.status(403).json({ message: 'Forbidden: Admins only' });
+  } catch (err) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
 };

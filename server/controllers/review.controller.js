@@ -108,9 +108,15 @@ const ReviewController = {
         );
       }
 
-      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
+      if (review.user_id !== req.user.id && req.user.username !== 'sbd') {
         return res.status(403).json(
           baseResponse(res, false, 403, "Not authorized to update this review")
+        );
+      }
+
+      if (fields.rating !== undefined && (fields.rating < 0 || fields.rating > 5)) {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "Rating must be between 0 and 5")
         );
       }
 
@@ -126,7 +132,7 @@ const ReviewController = {
         baseResponse(res, true, 200, "Review updated successfully", updatedReview)
       );
     } catch (error) {
-      console.error("Error updating review fields:", error);
+      console.error("Error updating review fields (detail):", error);
       return res.status(500).json(
         baseResponse(res, false, 500, "Error updating review fields", error.message)
       );
@@ -144,7 +150,7 @@ const ReviewController = {
         );
       }
 
-      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
+      if (review.user_id !== req.user.id && req.user.username !== 'sbd') {
         return res.status(403).json(
           baseResponse(res, false, 403, "Not authorized to delete this review")
         );
