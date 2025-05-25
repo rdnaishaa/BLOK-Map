@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://localhost:3000', 'https://blok-map.vercel.app'],
+  origin: ['http://localhost:5173', 'https://localhost:3000', 'https://blok-map.vercel.app', 'https://blok-m-ap.vercel.app/'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
