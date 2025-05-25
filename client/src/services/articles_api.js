@@ -112,3 +112,44 @@ export const deleteArticle = async (id) => {
     throw error
   }
 }
+
+export const addRestaurantArticle = async (data, token) => {
+  try {
+    const formData = new FormData();
+    Object.keys(data).forEach(key => {
+      if (key !== 'image') {
+        formData.append(key, data[key]);
+      }
+    });
+    if (data.image instanceof File) {
+      formData.append('image', data.image);
+    }
+    const response = await api.post('/articles/create', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error adding restaurant article:', error);
+    throw error;
+  }
+};
+
+export const editRestaurantArticle = async (data, token) => {
+  try {
+    // data harus mengandung id artikel yang akan diedit
+    const { id, judul, konten, kategori, lokasi } = data;
+    // Hanya kirim field yang valid, jangan kirim image jika tidak upload gambar baru
+    const response = await api.patch(
+      `/articles/update/${id}`,
+      { judul, konten, kategori, lokasi },
+      token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error editing restaurant article:', error);
+    throw error;
+  }
+};

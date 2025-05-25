@@ -19,6 +19,12 @@ const HomePage = () => {
   const [activeSection, setActiveSection] = useState(null)
   const navigate = useNavigate()
 
+  // Refs untuk scrolling
+  const reviewRef = useRef(null)
+  const catalogRef = useRef(null)
+  const articleRef = useRef(null)
+  const autoScrollRef = useRef(null)
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,9 +48,59 @@ const HomePage = () => {
     fetchData()
   }, [])
 
-  const reviewRef = useRef(null)
-  const catalogRef = useRef(null)
-  const articleRef = useRef(null)
+  // Auto scroll untuk reviews
+  useEffect(() => {
+    if (reviews.length > 0) {
+      const startAutoScroll = () => {
+        autoScrollRef.current = setInterval(() => {
+          if (reviewRef.current) {
+            const container = reviewRef.current
+            const scrollAmount = 2 // Kecepatan scroll (pixel per interval)
+            
+            container.scrollLeft += scrollAmount
+            
+            // Jika sudah sampai ujung, reset ke awal
+            if (container.scrollLeft >= container.scrollWidth - container.clientWidth) {
+              container.scrollLeft = 0
+            }
+          }
+        }, 50) // Interval 50ms untuk smooth scrolling
+      }
+
+      startAutoScroll()
+
+      return () => {
+        if (autoScrollRef.current) {
+          clearInterval(autoScrollRef.current)
+        }
+      }
+    }
+  }, [reviews])
+
+  // Pause auto scroll saat hover
+  const pauseAutoScroll = () => {
+    if (autoScrollRef.current) {
+      clearInterval(autoScrollRef.current)
+    }
+  }
+
+  // Resume auto scroll saat mouse leave
+  const resumeAutoScroll = () => {
+    if (reviews.length > 0) {
+      autoScrollRef.current = setInterval(() => {
+        if (reviewRef.current) {
+          const container = reviewRef.current
+          const scrollAmount = 2
+          
+          container.scrollLeft += scrollAmount
+          
+          if (container.scrollLeft >= container.scrollWidth - container.clientWidth) {
+            container.scrollLeft = 0
+          }
+        }
+      }, 50)
+    }
+  }
 
   const scroll = (ref, direction) => {
     if (ref.current) {
@@ -147,7 +203,7 @@ const HomePage = () => {
         </div>
       </div>
       
-      {/* Reviews Section - Spill the Tea */}
+      {/* Reviews Section - Spill the Tea dengan Auto Scroll */}
       <section className="py-16 px-6 md:px-12 relative overflow-hidden">
         {/* Background Decoration */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#CCBA78]/10 to-transparent rounded-full blur-3xl"></div>
@@ -161,19 +217,21 @@ const HomePage = () => {
         />
         
         <div className="relative">
-          <ScrollButton direction="left" onClick={() => scroll(reviewRef, 'left')} position="-left-6" />
           <div 
             ref={reviewRef}
-            className="flex overflow-x-auto hide-scrollbar scroll-smooth gap-6 pb-4 px-8"
+            className="flex flex-grow overflow-x-auto hide-scrollbar scroll-smooth gap-6 pb-4 px-8"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            onMouseEnter={pauseAutoScroll}
+            onMouseLeave={resumeAutoScroll}
           >
             {reviews.length > 0 ? (
-              reviews.map((review, index) => (
+              // Duplikasi reviews untuk seamless loop
+              [...reviews, ...reviews, ...reviews].map((review, index) => (
                 <div 
-                  key={review.id} 
+                  key={`${review.id}-${index}`} 
                   className="flex-none w-80 transform transition-all duration-500 hover:scale-105"
                   style={{
-                    animationDelay: `${index * 200}ms`,
+                    animationDelay: `${(index % reviews.length) * 200}ms`,
                     animation: 'fadeInScale 0.8s ease-out forwards'
                   }}
                 >
@@ -196,7 +254,11 @@ const HomePage = () => {
               <EmptyState message="No reviews available yet" icon="🤔" />
             )}
           </div>
-          <ScrollButton direction="right" onClick={() => scroll(reviewRef, 'right')} position="-right-6" />
+          
+          {/* Pause indicator */}
+          <div className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm opacity-0 hover:opacity-100 transition-opacity duration-300">
+            Hover to pause
+          </div>
         </div>
       </section>
 
@@ -247,14 +309,14 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Articles Section - Yapping Time */}
+      {/* Spots Section - Yapping Time */}
       <section className="py-16 px-6 md:px-12 relative overflow-hidden">
         {/* Background Decoration */}
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-[#D8C78E]/10 to-transparent rounded-full blur-3xl"></div>
         
         <SectionHeader 
           title="Yapping Time" 
-          onClick={goToArticles}
+          onClick={() => navigate('/spots')}
           icon="💬"
           description="Stories, tips, and interesting reads"
         />

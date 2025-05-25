@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { getCatalogs } from '../../services/catalogs_api'
+import { getCatalogs, addCatalog, editCatalog, deleteCatalog } from '../../services/catalogs_api'
+import { useAuth } from '../../hooks/useAuth'
 import CatalogCard from '../../components/CatalogCard'
 import LoadingSpinner from '../../components/LoadingSpinner'
 
@@ -9,7 +10,15 @@ const CatalogPage = () => {
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
-  
+  const { user } = useAuth();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [modalData, setModalData] = useState({
+    name: '',
+    description: '',
+    kategori_nama: '',
+  });
+
   useEffect(() => {
     const fetchCatalogs = async () => {
       try {
@@ -46,6 +55,58 @@ const CatalogPage = () => {
     return matchesSearch && matchesCategory
   })
 
+  const handleAdd = () => {
+    setModalMode('add');
+    setModalData({ name: '', description: '', kategori_nama: '' });
+    setModalOpen(true);
+  };
+
+  const handleEdit = (catalog) => {
+    setModalMode('edit');
+    setModalData({
+      id: catalog.id,
+      name: catalog.name || '',
+      description: catalog.description || '',
+      kategori_nama: catalog.kategori_nama || '',
+    });
+    setModalOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this catalog?')) return;
+    try {
+      await deleteCatalog(id, user.token);
+      const response = await getCatalogs();
+      const data = response.payload || response.data || [];
+      setCatalogs(data);
+    } catch (err) {
+      alert('Failed to delete catalog!');
+    }
+  };
+
+  const handleModalChange = (e) => {
+    const { name, value } = e.target;
+    setModalData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleModalSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (modalMode === 'add') {
+        await addCatalog(modalData, user.token);
+      } else {
+        await editCatalog(modalData, user.token);
+      }
+      const response = await getCatalogs();
+      const data = response.payload || response.data || [];
+      setCatalogs(data);
+      setModalOpen(false);
+    } catch (err) {
+      alert('Failed to save catalog!');
+      setModalOpen(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-[#3D1E0F]">
@@ -75,7 +136,83 @@ const CatalogPage = () => {
   return (
     <div className="min-h-screen bg-[#3D1E0F] text-white">
       <div className="container mx-auto p-6">
-        <h1 className="font-['Special_Elite'] text-4xl text-[#CCBA78] mb-6">Food & Drink Catalog</h1>
+        <h1 className="font-['Special_Elite'] text-4xl text-[#CCBA78] mb-6 flex items-center justify-between">
+          Food & Drink Catalog
+          {user?.isAdmin && (
+            <button
+              onClick={handleAdd}
+              className="ml-4 px-4 py-2 bg-[#2A1509] text-white rounded hover:bg-[#3D1E0F] text-base shadow"
+            >
+              + Add Catalog
+            </button>
+          )}
+        </h1>
+        
+        {modalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl relative">
+              <button
+                className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
+                onClick={() => setModalOpen(false)}
+              >
+                &times;
+              </button>
+              <h2 className="text-2xl font-bold mb-4 text-[#3D1E0F]">
+                {modalMode === 'add' ? 'Add Catalog' : 'Edit Catalog'}
+              </h2>
+              <form onSubmit={handleModalSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-[#CCBA78] mb-1">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
+                    value={modalData.name}
+                    onChange={handleModalChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#CCBA78] mb-1">Description</label>
+                  <textarea
+                    name="description"
+                    className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
+                    rows={3}
+                    value={modalData.description}
+                    onChange={handleModalChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#CCBA78] mb-1">Category</label>
+                  <input
+                    type="text"
+                    name="kategori_nama"
+                    className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
+                    value={modalData.kategori_nama}
+                    onChange={handleModalChange}
+                    required
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] hover:from-[#D8C78E] hover:to-[#CCBA78] text-[#3D1E0F]"
+                  >
+                    {modalMode === 'add' ? 'Add Catalog' : 'Save Changes'}
+                  </button>
+                  <button
+                    type="button"
+                    className="flex-1 py-3 rounded-xl font-semibold transition-all duration-300 bg-gray-200 hover:bg-gray-300 text-[#3D1E0F]"
+                    onClick={() => setModalOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
         
         <div className="mb-8">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -121,7 +258,25 @@ const CatalogPage = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredCatalogs.map(catalog => (
-                <CatalogCard key={catalog.id} catalog={catalog} />
+                <div key={catalog.id} className="relative group">
+                  <CatalogCard catalog={catalog} />
+                  {user?.isAdmin && (
+                    <div className="absolute top-3 right-3 flex gap-2 z-20">
+                      <button
+                        className="px-3 py-1 bg-yellow-400 text-[#3D1E0F] rounded-lg font-bold text-xs hover:bg-yellow-500 shadow"
+                        onClick={() => handleEdit(catalog)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-red-500 text-white rounded-lg font-bold text-xs hover:bg-red-600 shadow"
+                        onClick={() => handleDelete(catalog.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}

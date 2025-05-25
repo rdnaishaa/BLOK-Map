@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = 'https://blok-map.vercel.app'
+const API_URL = 'http://localhost:3000'
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -11,11 +11,20 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    // Ambil user dari localStorage dan ambil token dari user jika ada
+    let token = localStorage.getItem('token');
+    if (!token) {
+      const user = localStorage.getItem('user');
+      if (user) {
+        try {
+          token = JSON.parse(user).token;
+        } catch {}
+      }
     }
-    return config
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
   },
   (error) => Promise.reject(error)
 )

@@ -60,3 +60,24 @@ export const deleteCatalog = async (id) => {
     throw error
   }
 }
+
+export const addCatalog = async (catalogData, token) => {
+  try {
+    const response = await api.post('/catalogs', catalogData, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined)
+    return response.data
+  } catch (error) {
+    console.error('Error creating catalog:', error)
+    throw error
+  }
+}
+
+export const editCatalog = async (catalogData, token) => {
+  try {
+    const { id, ...fields } = catalogData
+    const response = await api.patch(`/catalogs/${id}`, fields, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined)
+    return response.data
+  } catch (error) {
+    console.error('Error updating catalog:', error)
+    throw error
+  }
+}

@@ -14,12 +14,23 @@ export const AuthProvider = ({ children }) => {
   const [isLogin, setIsLogin] = useState(false)
 
   useEffect(() => {
+    const storedUser = localStorage.getItem('user')
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+      setIsLogin(true)
+      setLoading(false)
+      return
+    }
     const initializeAuth = async () => {
       try {
         const userData = await getCurrentUser()
         if (userData) {
-          setUser(userData)
+          setUser({ ...userData, isAdmin: userData.username === 'sbd' })
           setIsLogin(true)
+          localStorage.setItem(
+            'user',
+            JSON.stringify({ ...userData, isAdmin: userData.username === 'sbd' })
+          )
         }
       } catch (error) {
         console.error('Auth initialization error:', error)
@@ -34,8 +45,12 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const userData = await loginUser({ email, password })
-      setUser(userData)
+      setUser({ ...userData, isAdmin: userData.username === 'sbd' })
       setIsLogin(true)
+      localStorage.setItem(
+        'user',
+        JSON.stringify({ ...userData, isAdmin: userData.username === 'sbd' })
+      )
       return { success: true }
     } catch (error) {
       console.error('Login error:', error)
@@ -46,8 +61,12 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const newUser = await registerUser(userData)
-      setUser(newUser)
+      setUser({ ...newUser, isAdmin: newUser.username === 'sbd' })
       setIsLogin(true)
+      localStorage.setItem(
+        'user',
+        JSON.stringify({ ...newUser, isAdmin: newUser.username === 'sbd' })
+      )
       return { success: true }
     } catch (error) {
       console.error('Registration error:', error)
@@ -60,6 +79,7 @@ export const AuthProvider = ({ children }) => {
       await apiLogoutUser()
       setUser(null)
       setIsLogin(false)
+      localStorage.removeItem('user')
     } catch (error) {
       console.error('Logout error:', error)
     }
