@@ -48,6 +48,54 @@ exports.getAllArticles = async (req, res) => {
   }
 };
 
+exports.getAllRestaurantsArticles = async (req, res) => {
+  try {
+    const articles = await articlesModel.getAllRestaurantsArticles();
+    return baseResponse(res, true, 200, "Restaurant articles retrieved successfully", articles);
+  } catch (error) {
+    console.error("Error getting all restaurant articles:", error);
+    return baseResponse(res, false, 500, "Internal server error", error.message);
+  }
+}
+
+exports.getAllSpotsArticles = async (req, res) => {
+  try {
+    const articles = await articlesModel.getAllSpotsArticles();
+    return baseResponse(res, true, 200, "Spot articles retrieved successfully", articles);
+  } catch (error) {
+    console.error("Error getting all spot articles:", error);
+    return baseResponse(res, false, 500, "Internal server error", error.message);
+  }
+}
+
+exports.getRestaurantArticleById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const article = await articlesModel.getRestaurantArticleById(id);
+    if (!article) {
+      return baseResponse(res, false, 404, "Article not found", null);
+    }
+    return baseResponse(res, true, 200, "Article retrieved successfully", article);
+  } catch (error) {
+    console.error("Error getting article by ID:", error);
+    return baseResponse(res, false, 500, "Internal server error", error.message);
+  }
+};
+
+exports.getSpotArticleById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const article = await articlesModel.getSpotArticleById(id);
+    if (!article) {
+      return baseResponse(res, false, 404, "Article not found", null);
+    }
+    return baseResponse(res, true, 200, "Article retrieved successfully", article);
+  } catch (error) {
+    console.error("Error getting article by ID:", error);
+    return baseResponse(res, false, 500, "Internal server error", error.message);
+  }
+}
+
 exports.updateArticleFields = async (req, res) => {
   try {
     const { id } = req.params;

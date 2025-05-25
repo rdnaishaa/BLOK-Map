@@ -9,6 +9,8 @@ const ReviewModel = {
         r.rating,
         r.content,
         r.created_at,
+        r.spot_id,
+        r.resto_id,
         u.username,
         s.namatempat as spot_name,
         rest.namarestaurant as restaurant_name
@@ -46,31 +48,41 @@ const ReviewModel = {
     }
   },
 
- async updateReviewFields(id, fields) {
+  async updateReviewFields(id, fields) {
     try {
+      const allowedFields = ['content', 'rating'];
       const updateFields = [];
       const values = [];
       let paramCount = 1;
 
-      // Dynamically build the query based on provided fields
       for (const [key, value] of Object.entries(fields)) {
-        updateFields.push(`${key} = $${paramCount}`);
-        values.push(value);
-        paramCount++;
+        if (allowedFields.includes(key)) {
+          updateFields.push(`${key} = $${paramCount}`);
+          // Pastikan rating dikirim sebagai number
+          values.push(key === 'rating' ? Number(value) : value);
+          paramCount++;
+        }
       }
+
+      if (updateFields.length === 0) {
+        throw new Error('No valid fields provided for update');
+      }
+
+      // Tambahkan updated_at
+      updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
 
       values.push(id); // Add the ID as the last parameter
 
       const query = `
         UPDATE reviews
-        SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
+        SET ${updateFields.join(", ")}
         WHERE id = $${paramCount}
         RETURNING *`;
 
       const result = await pool.query(query, values);
 
-      if (result.rows.length === 0) return null; // If no rows are updated, return null
-      return result.rows[0]; // Return the updated review
+      if (result.rows.length === 0) return null;
+      return result.rows[0];
     } catch (error) {
       console.error("Error updating review fields:", error);
       throw new Error(error.message);
@@ -106,7 +118,58 @@ const ReviewModel = {
     } catch (error) {
       throw new Error(error.message);
     }
-  }
+  },
+
+  async getByRestaurantId(restaurantId) {
+    const query = `
+      SELECT 
+        r.id,
+        r.user_id,
+        r.rating,
+        r.content,
+        r.created_at,
+        u.username,
+        rest.namarestaurant as restaurant_name
+      FROM reviews r
+      LEFT JOIN users u ON r.user_id = u.id
+      LEFT JOIN restaurants rest ON r.resto_id = rest.id
+      WHERE r.resto_id = $1
+      ORDER BY r.created_at DESC
+    `;
+    try {
+      const result = await pool.query(query, [restaurantId]);
+      return result.rows;
+    } catch (error) {
+      console.error("Error fetching reviews by restaurant id:", error);
+      throw new Error(error.message);
+    }
+  },
+
+  async getBySpotId(spotId) {
+    const query = `
+      SELECT 
+        r.id,
+        r.user_id,
+        r.rating,
+        r.content,
+        r.created_at,
+        u.username,
+        s.namatempat as spot_name
+      FROM reviews r
+      LEFT JOIN users u ON r.user_id = u.id
+      LEFT JOIN spots s ON r.spot_id = s.id
+      WHERE r.spot_id = $1
+      ORDER BY r.created_at DESC
+    `;
+    try {
+      const result = await pool.query(query, [spotId]);
+      return result.rows;
+    } catch (error) {
+      console.error("Error fetching reviews by spot id:", error);
+      throw new Error(error.message);
+    }
+  },
+
 };
 
 module.exports = ReviewModel;

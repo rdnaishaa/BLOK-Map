@@ -16,6 +16,46 @@ const ReviewController = {
     }
   },
 
+  async getReviewsByRestaurantId(req, res) {
+    try {
+      const { restaurant_id } = req.params;
+      const reviews = await ReviewModel.getByRestaurantId(restaurant_id);
+      if (!reviews) {
+        return res.status(404).json(
+          baseResponse(res, false, 404, "No reviews found for this restaurant")
+        );
+      }
+      return res.status(200).json(
+        baseResponse(res, true, 200, "Reviews retrieved successfully", reviews)
+      );
+    } catch (error) {
+      console.error("Error getting reviews by restaurant id:", error);
+      return res.status(500).json(
+        baseResponse(res, false, 500, "Error retrieving reviews", error.message)
+      )
+    }
+  },
+
+  async getReviewsBySpotId(req, res) {
+    try {
+      const { spot_id } = req.params;
+      const reviews = await ReviewModel.getBySpotId(spot_id);
+      if (!reviews) {
+        return res.status(404).json(
+          baseResponse(res, false, 404, "No reviews found for this spot")
+        );
+      }
+      return res.status(200).json(
+        baseResponse(res, true, 200, "Reviews retrieved successfully", reviews)
+      );
+    } catch (error) {
+      console.error("Error getting reviews by spot id:", error);
+      return res.status(500).json(
+        baseResponse(res, false, 500, "Error retrieving reviews", error.message)
+      );
+    }
+  },
+  
   async createReview(req, res) {
     try {
       const { content, rating, spot_id, resto_id, user_id } = req.body;
@@ -68,9 +108,15 @@ const ReviewController = {
         );
       }
 
-      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
+      if (review.user_id !== req.user.id && req.user.username !== 'sbd') {
         return res.status(403).json(
           baseResponse(res, false, 403, "Not authorized to update this review")
+        );
+      }
+
+      if (fields.rating !== undefined && (fields.rating < 0 || fields.rating > 5)) {
+        return res.status(400).json(
+          baseResponse(res, false, 400, "Rating must be between 0 and 5")
         );
       }
 
@@ -86,7 +132,7 @@ const ReviewController = {
         baseResponse(res, true, 200, "Review updated successfully", updatedReview)
       );
     } catch (error) {
-      console.error("Error updating review fields:", error);
+      console.error("Error updating review fields (detail):", error);
       return res.status(500).json(
         baseResponse(res, false, 500, "Error updating review fields", error.message)
       );
@@ -104,7 +150,7 @@ const ReviewController = {
         );
       }
 
-      if (review.user_id !== req.user.id && req.user.role !== 'admin') {
+      if (review.user_id !== req.user.id && req.user.username !== 'sbd') {
         return res.status(403).json(
           baseResponse(res, false, 403, "Not authorized to delete this review")
         );

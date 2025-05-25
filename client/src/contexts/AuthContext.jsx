@@ -6,69 +6,99 @@ import {
   logoutUser as apiLogoutUser,
 } from '../services/auth_api'
 
-const AuthContext = createContext()
+export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isLogin, setIsLogin] = useState(false)
 
   useEffect(() => {
-    const initializeUser = async () => {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        setLoading(false)
-        return
-      }
-
+    const storedUser = localStorage.getItem('user')
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+      setIsLogin(true)
+      setLoading(false)
+      return
+    }
+    const initializeAuth = async () => {
       try {
         const userData = await getCurrentUser()
-        setUser(userData)
-      } catch (err) {
-        console.error('Gagal memuat data user:', err)
-        apiLogoutUser()
-        setUser(null)
+        if (userData) {
+          setUser({ ...userData, isAdmin: userData.username === 'sbd' })
+          setIsLogin(true)
+          localStorage.setItem(
+            'user',
+            JSON.stringify({ ...userData, isAdmin: userData.username === 'sbd' })
+          )
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    initializeUser()
+    initializeAuth()
   }, [])
 
   const login = async (email, password) => {
-    const payload = await loginUser({ email, password })
-    localStorage.setItem('token', payload.token)
-    setUser({
-      id: payload.id,
-      username: payload.username,
-      email: payload.email,
-      role: payload.role,
-      first_name: payload.first_name,
-      last_name: payload.last_name,
-    })
+    try {
+      const userData = await loginUser({ email, password })
+      setUser({ ...userData, isAdmin: userData.username === 'sbd' })
+      setIsLogin(true)
+      localStorage.setItem(
+        'user',
+        JSON.stringify({ ...userData, isAdmin: userData.username === 'sbd' })
+      )
+      return { success: true }
+    } catch (error) {
+      console.error('Login error:', error)
+      return { success: false, error: error.message }
+    }
   }
 
   const register = async (userData) => {
-    const payload = await registerUser(userData)
-    localStorage.setItem('token', payload.token)
-    setUser({
-      id: payload.id,
-      username: payload.username,
-      email: payload.email,
-      role: payload.role,
-      first_name: payload.first_name,
-      last_name: payload.last_name,
-    })
+    try {
+      const newUser = await registerUser(userData)
+      setUser({ ...newUser, isAdmin: newUser.username === 'sbd' })
+      setIsLogin(true)
+      localStorage.setItem(
+        'user',
+        JSON.stringify({ ...newUser, isAdmin: newUser.username === 'sbd' })
+      )
+      return { success: true }
+    } catch (error) {
+      console.error('Registration error:', error)
+      return { success: false, error: error.message }
+    }
   }
 
-  const logout = () => {
-    apiLogoutUser()
-    setUser(null)
+  const logout = async () => {
+    try {
+      await apiLogoutUser()
+      setUser(null)
+      setIsLogin(false)
+      localStorage.removeItem('user')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  }
+
+  const value = {
+    user,
+    loading,
+    isLogin,
+    login,
+    register,
+    logout,
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )
 }
+
+export default AuthProvider
