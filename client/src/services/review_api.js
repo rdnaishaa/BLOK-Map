@@ -40,35 +40,49 @@ export const getReviewsBySpotId = async (spotId) => {
 }
 
 export const createReview = async (reviewData, token) => {
-  const response = await fetch(`${API_URL}/reviews`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(reviewData),
-  });
-  return await response.json();
+  try {
+    const response = await api.post('/reviews', reviewData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    throw error;
+  }
 };
 
 export const updateReview = async (id, reviewData, token) => {
-  const response = await fetch(`${API_URL}/reviews/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(reviewData),
-  });
-  return await response.json();
+  try {
+    const response = await api.patch(`/reviews/${id}`, reviewData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    throw error;
+  }
 };
 
 export const deleteReview = async (id, token) => {
-  const response = await fetch(`${API_URL}/reviews/${id}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return await response.json();
+  try {
+    const response = await api.delete(`/reviews/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    throw error;
+  }
 };

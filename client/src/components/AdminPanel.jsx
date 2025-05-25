@@ -1,7 +1,7 @@
 // client/src/components/AdminPanel.jsx
 import { useState, useEffect } from 'react'
 import { getRestaurants, createRestaurant, deleteRestaurant } from '../services/restaurant_api'
-import { getSpots, createSpot, deleteSpot } from '../services/spot_api'
+import { getSpots, addSpot, deleteSpot } from '../services/spot_api'
 import { getCatalogs, createCatalog, deleteCatalog } from '../services/catalogs_api'
 import { useAuth } from '../hooks/useAuth'
 

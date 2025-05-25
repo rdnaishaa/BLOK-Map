@@ -127,6 +127,29 @@ exports.login = async (req, res) => {
       return baseResponse(res, false, 401, 'Invalid email or password', null);
     }
 
+    // Tambahkan pembuatan JWT dan userData untuk user biasa
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRATION }
+    );
+
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      token
+    };
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
     return baseResponse(res, true, 200, 'User logged in successfully', userData);
   } catch (error) {
     console.error('Error logging in user:', error);

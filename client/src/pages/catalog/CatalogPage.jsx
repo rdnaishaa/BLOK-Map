@@ -134,7 +134,7 @@ const CatalogPage = () => {
   }
   
   return (
-    <div className="min-h-screen bg-[#3D1E0F] text-white">
+    <div className="min-h-screen w-full bg-[#3D1E0F] pt-20">
       <div className="container mx-auto p-6">
         <h1 className="font-['Special_Elite'] text-4xl text-[#CCBA78] mb-6 flex items-center justify-between">
           Food & Drink Catalog

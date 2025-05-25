@@ -50,17 +50,29 @@ function Login() {
     try {
       const result = await login(formData.email, formData.password);
 
-      if (result.success) {
+      // Perbaikan: result bisa berupa {success, error} atau langsung userData
+      if (result && result.success) {
         // If login was successful, redirect
         const from = location.state?.from?.pathname || '/';
         navigate(from, { replace: true });
-      } else {
-        // If login failed, show error
+      } else if (result && result.error) {
         setError(result.error || 'Login failed. Please check your credentials.');
+      } else {
+        setError('Login failed. Please check your credentials.');
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      // Tangkap error dari backend jika ada
+      if (err.response && err.response.data) {
+        setError(
+          err.response.data.message ||
+          err.response.data.error ||
+          'Internal Server Error'
+        );
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

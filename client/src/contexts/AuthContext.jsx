@@ -29,7 +29,8 @@ export const AuthProvider = ({ children }) => {
         if (userData) {
           const userWithRole = { 
             ...userData, 
-            isAdmin: userData.role === 'admin'
+            isAdmin: userData.role === 'admin',
+            role: userData.role // pastikan role selalu ada
           }
           setUser(userWithRole)
           setIsLogin(true)
@@ -50,7 +51,8 @@ export const AuthProvider = ({ children }) => {
       const userData = await loginUser({ email, password })
       const userWithRole = { 
         ...userData, 
-        isAdmin: userData.role === 'admin'
+        isAdmin: userData.role === 'admin',
+        role: userData.role // pastikan role selalu ada
       }
       setUser(userWithRole)
       setIsLogin(true)
@@ -67,7 +69,8 @@ export const AuthProvider = ({ children }) => {
       const newUser = await registerUser(userData)
       const userWithRole = { 
         ...newUser, 
-        isAdmin: newUser.role === 'admin'
+        isAdmin: newUser.role === 'admin',
+        role: newUser.role // pastikan role selalu ada
       }
       setUser(userWithRole)
       setIsLogin(true)

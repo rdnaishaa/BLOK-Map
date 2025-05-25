@@ -141,7 +141,7 @@ export const editRestaurantArticle = async (data, token) => {
   try {
     // data harus mengandung id artikel yang akan diedit
     const { id, judul, konten, kategori, lokasi } = data;
-    // Hanya kirim field yang valid, jangan kirim image jika tidak upload gambar baru
+    // Kirim field yang valid, jangan kirim image jika tidak upload gambar baru
     const response = await api.patch(
       `/articles/update/${id}`,
       { judul, konten, kategori, lokasi },
@@ -149,6 +149,10 @@ export const editRestaurantArticle = async (data, token) => {
     );
     return response.data;
   } catch (error) {
+    if (error.response && error.response.data) {
+      // return agar error backend bisa ditampilkan di frontend
+      return error.response.data;
+    }
     console.error('Error editing restaurant article:', error);
     throw error;
   }
