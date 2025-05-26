@@ -141,18 +141,33 @@ exports.getAllSpotsArticles = async () => {
 
 exports.updateArticleFields = async (id, fields) => {
   try {
+    // Hanya izinkan field yang ada di tabel
+    const allowedFields = [
+      'judulArtikel',
+      'kontenArtikel',
+      'kategori',
+      'lokasi',
+      'image_url',
+      'restaurant_id',
+      'spot_id'
+    ];
     const updateFields = [];
     const values = [];
     let paramCount = 1;
 
-    // Dynamically build the query based on provided fields
     for (const [key, value] of Object.entries(fields)) {
-      updateFields.push(`${key} = $${paramCount}`);
-      values.push(value);
-      paramCount++;
+      if (allowedFields.includes(key)) {
+        updateFields.push(`${key} = $${paramCount}`);
+        values.push(value);
+        paramCount++;
+      }
     }
 
-    values.push(id); 
+    if (updateFields.length === 0) {
+      throw new Error('No valid fields to update');
+    }
+
+    values.push(id);
 
     const query = `
       UPDATE articles
@@ -162,8 +177,8 @@ exports.updateArticleFields = async (id, fields) => {
 
     const res = await db.query(query, values);
 
-    if (res.rows.length === 0) return null; 
-    return res.rows[0]; 
+    if (res.rows.length === 0) return null;
+    return res.rows[0];
   } catch (error) {
     console.error("Error updating article fields:", error);
     throw error;

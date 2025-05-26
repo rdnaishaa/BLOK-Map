@@ -99,18 +99,31 @@ exports.getSpotArticleById = async (req, res) => {
 exports.updateArticleFields = async (req, res) => {
   try {
     const { id } = req.params;
-    const fields = req.body; 
-    
+    let fields = req.body;
+    // Mapping field dari frontend ke field database
+    if (fields.title) {
+      fields.judulArtikel = fields.title;
+      delete fields.title;
+    }
+    if (fields.content) {
+      fields.kontenArtikel = fields.content;
+      delete fields.content;
+    }
+    if (fields.category) {
+      fields.kategori = fields.category;
+      delete fields.category;
+    }
+    if (fields.location) {
+      fields.lokasi = fields.location;
+      delete fields.location;
+    }
     if (Object.keys(fields).length === 0) {
       return baseResponse(res, false, 400, "No fields provided for update", null);
     }
-
     const updatedArticle = await articlesModel.updateArticleFields(id, fields);
-
     if (!updatedArticle) {
       return baseResponse(res, false, 404, "Article not found", null);
     }
-
     return baseResponse(res, true, 200, "Article updated successfully", updatedArticle);
   } catch (error) {
     console.error("Error updating article fields:", error);

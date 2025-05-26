@@ -105,6 +105,9 @@ const ReviewRatingPage = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault()
     setEditError('')
+    // Debug log user dan review
+    console.log('USER:', user)
+    console.log('EDIT REVIEW:', editReview)
     if (!editContent.trim()) {
       setEditError('Content cannot be empty')
       return
