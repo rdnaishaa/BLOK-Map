@@ -16,21 +16,25 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      const parsedUser = JSON.parse(storedUser)
+      setUser(parsedUser)
       setIsLogin(true)
       setLoading(false)
       return
     }
+    
     const initializeAuth = async () => {
       try {
         const userData = await getCurrentUser()
         if (userData) {
-          setUser({ ...userData, isAdmin: userData.username === 'sbd' })
+          const userWithRole = { 
+            ...userData, 
+            isAdmin: userData.role === 'admin',
+            role: userData.role // pastikan role selalu ada
+          }
+          setUser(userWithRole)
           setIsLogin(true)
-          localStorage.setItem(
-            'user',
-            JSON.stringify({ ...userData, isAdmin: userData.username === 'sbd' })
-          )
+          localStorage.setItem('user', JSON.stringify(userWithRole))
         }
       } catch (error) {
         console.error('Auth initialization error:', error)
@@ -45,12 +49,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const userData = await loginUser({ email, password })
-      setUser({ ...userData, isAdmin: userData.username === 'sbd' })
+      const userWithRole = { 
+        ...userData, 
+        isAdmin: userData.role === 'admin',
+        role: userData.role // pastikan role selalu ada
+      }
+      setUser(userWithRole)
       setIsLogin(true)
-      localStorage.setItem(
-        'user',
-        JSON.stringify({ ...userData, isAdmin: userData.username === 'sbd' })
-      )
+      localStorage.setItem('user', JSON.stringify(userWithRole))
       return { success: true }
     } catch (error) {
       console.error('Login error:', error)
@@ -61,12 +67,14 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const newUser = await registerUser(userData)
-      setUser({ ...newUser, isAdmin: newUser.username === 'sbd' })
+      const userWithRole = { 
+        ...newUser, 
+        isAdmin: newUser.role === 'admin',
+        role: newUser.role // pastikan role selalu ada
+      }
+      setUser(userWithRole)
       setIsLogin(true)
-      localStorage.setItem(
-        'user',
-        JSON.stringify({ ...newUser, isAdmin: newUser.username === 'sbd' })
-      )
+      localStorage.setItem('user', JSON.stringify(userWithRole))
       return { success: true }
     } catch (error) {
       console.error('Registration error:', error)

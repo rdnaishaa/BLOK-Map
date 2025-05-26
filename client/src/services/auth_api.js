@@ -13,14 +13,18 @@ export const loginUser = async (credentials) => {
 
 export const registerUser = async (userData) => {
   try {
-    const response = await api.post('/auth/register', userData, {
-      withCredentials: true
-    })
-    return response.data.payload
+    const response = await api.post('/auth/register', {
+      username: userData.username,
+      email: userData.email,
+      password: userData.password,
+      first_name: userData.first_name,
+      last_name: userData.last_name
+    });
+    return response.data.payload;
   } catch (error) {
-    throw error.response?.data || error
+    throw error.response?.data || error;
   }
-}
+};
 
 export const getCurrentUser = async () => {
   try {

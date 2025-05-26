@@ -1,45 +1,50 @@
 const jwt = require('jsonwebtoken');
-const db = require('../config/pg.database');
+const baseResponse = require('../utils/baseResponse.util');
+const db = require('../config/pg.database'); // Tambahkan ini agar db tersedia
 
 exports.protect = async (req, res, next) => {
   let token;
 
-  // Get token from Authorization header
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
     token = req.headers.authorization.split(' ')[1];
   }
 
   if (!token) {
-    return res.status(401).json({ success: false, message: 'Not authorized to access this route' });
+    return res.status(401).json({ success: false, message: 'Not authorized' });
   }
 
   try {
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Get user from database
     const result = await db.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
-    const user = result.rows[0];
 
-    if (!user) {
+    if (!result.rows[0]) {
       return res.status(401).json({ success: false, message: 'User not found' });
     }
 
-    req.user = user; // Attach user to request object
+    req.user = result.rows[0];
+    // Normalisasi role ke lowercase agar konsisten di seluruh aplikasi
+    if (req.user.role && typeof req.user.role === 'string') {
+      req.user.role = req.user.role.toLowerCase();
+    }
     next();
   } catch (err) {
-    return res.status(401).json({ success: false, message: 'Not authorized' });
+    return res.status(401).json({ success: false, message: 'Invalid token' });
   }
 };
 
-exports.authorize = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        error: `User role '${req.user.role}' is not authorized to access this route`
-      });
-    }
-    next();
-  };
+exports.isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: 'Permission denied. Admin only.' });
+};
+
+exports.isUser = (req, res, next) => {
+  if (req.user && req.user.role === 'user') {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: 'Permission denied. User only.' });
 };

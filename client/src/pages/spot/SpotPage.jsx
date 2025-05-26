@@ -226,7 +226,7 @@ const SpotPage = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#3D1E0F] relative overflow-hidden">
+    <div className="min-h-screen w-full bg-[#3D1E0F] pt-20">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#CCBA78]/5 rounded-full blur-3xl animate-pulse"></div>

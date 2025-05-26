@@ -96,10 +96,10 @@ const RestaurantPage = () => {
     setModalMode('edit')
     setModalData({
       id: article?.id,
-      judul: article?.judulartikel || '',
-      konten: article?.kontenartikel || '',
-      kategori: article?.kategori || '',
-      lokasi: article?.lokasi || '',
+      judul: article?.title || article?.judul || article?.judulartikel || '',
+      konten: article?.content || article?.konten || article?.kontenartikel || '',
+      kategori: article?.category || article?.kategori || '',
+      lokasi: article?.location || article?.lokasi || '',
       image: null
     })
     setModalOpen(true)
@@ -126,9 +126,16 @@ const RestaurantPage = () => {
     try {
       let response;
       if (modalMode === 'add') {
-        response = await addRestaurantArticle(modalData, user.token);
+        response = await addRestaurantArticle(modalData, user?.token);
       } else {
-        response = await editRestaurantArticle({ ...modalData, id: modalData.id }, user.token);
+        // Hanya kirim field yang memang ada di tabel articles
+        const updatePayload = {
+          id: modalData.id,
+          judul: modalData.judul,
+          konten: modalData.konten,
+        };
+        if (modalData.restaurant_id) updatePayload.restaurant_id = modalData.restaurant_id;
+        response = await editRestaurantArticle(updatePayload, user?.token);
       }
       if (response && response.success) {
         // Fetch ulang data artikel agar tampilan terupdate
@@ -144,10 +151,23 @@ const RestaurantPage = () => {
           .filter(Boolean)
         setCategories(uniqueCategories);
         setLocations(uniqueLocations);
+        setModalOpen(false);
+      } else {
+        // Tampilkan pesan error dari backend jika ada
+        alert(response?.message || response?.error || 'Failed to save article!');
+        setModalOpen(false);
       }
-      setModalOpen(false);
     } catch (err) {
-      alert('Failed to save article!');
+      // Tampilkan pesan error dari backend jika ada (403 forbidden, dsb)
+      if (err?.response?.data?.message) {
+        alert(err.response.data.message);
+      } else if (err?.response?.data?.error) {
+        alert(err.response.data.error);
+      } else if (err && err.message) {
+        alert(err.message);
+      } else {
+        alert('Failed to save article!');
+      }
       setModalOpen(false);
     }
   }
@@ -179,7 +199,7 @@ const RestaurantPage = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#3D1E0F]">
+    <div className="min-h-screen w-full bg-[#3D1E0F] pt-20">
       <div className="container mx-auto p-6">
         <h1 className="text-4xl font-['Special_Elite'] text-[#CCBA78] mb-6 flex items-center justify-between">
           Restaurant Articles
@@ -341,7 +361,6 @@ const RestaurantPage = () => {
                   className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
                   value={modalData.kategori}
                   onChange={handleModalChange}
-                  required
                 >
                   <option value="">Select category</option>
                   {categories.map(cat => (
@@ -356,7 +375,6 @@ const RestaurantPage = () => {
                   className="w-full p-3 rounded-lg bg-[#F5F5F4] border border-[#CCBA78]/30 text-[#3D1E0F]"
                   value={modalData.lokasi}
                   onChange={handleModalChange}
-                  required
                 >
                   <option value="">Select location</option>
                   {locations.map((loc, idx) => (

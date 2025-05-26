@@ -75,6 +75,7 @@ const ReviewRatingPage = () => {
 
   // Handler for delete review (admin only)
   const handleDelete = async (id) => {
+    if (!user?.isAdmin) return; // Hanya admin
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
       await deleteReview(id, user.token)
@@ -85,6 +86,7 @@ const ReviewRatingPage = () => {
   }
 
   const openEditModal = (review) => {
+    if (!user?.isAdmin) return; // Hanya admin
     setEditReview(review)
     setEditContent(review.content)
     setEditRating(Number(review.rating))
@@ -103,6 +105,9 @@ const ReviewRatingPage = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault()
     setEditError('')
+    // Debug log user dan review
+    console.log('USER:', user)
+    console.log('EDIT REVIEW:', editReview)
     if (!editContent.trim()) {
       setEditError('Content cannot be empty')
       return

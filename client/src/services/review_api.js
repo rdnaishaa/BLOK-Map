@@ -41,47 +41,48 @@ export const getReviewsBySpotId = async (spotId) => {
 
 export const createReview = async (reviewData, token) => {
   try {
-    const response = await api.post('/reviews', reviewData, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
-    if (!response.data) {
-      throw new Error('No response data received');
-    }
+    const response = await api.post('/reviews', reviewData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
-    console.error('Error creating review:', error);
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
     throw error;
   }
-}
+};
 
 export const updateReview = async (id, reviewData, token) => {
   try {
-    // Pastikan rating dikirim sebagai number
-    if (reviewData.rating !== undefined) {
-      reviewData.rating = Number(reviewData.rating);
-    }
-    const response = await api.patch(
-      `/reviews/${id}`,
-      reviewData,
-      token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
-    );
-    if (!response.data) {
-      throw new Error('No response data received');
-    }
+    const response = await api.patch(`/reviews/${id}`, reviewData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
-    console.error(`Error updating review ${id}:`, error);
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
     throw error;
   }
-}
+};
 
 export const deleteReview = async (id, token) => {
   try {
-    const response = await api.delete(`/reviews/${id}`, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
-    if (!response.data) {
-      throw new Error('No response data received');
-    }
+    const response = await api.delete(`/reviews/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
-    console.error(`Error deleting review ${id}:`, error);
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
     throw error;
   }
-}
+};

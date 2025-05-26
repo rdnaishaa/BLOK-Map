@@ -139,16 +139,33 @@ export const addRestaurantArticle = async (data, token) => {
 
 export const editRestaurantArticle = async (data, token) => {
   try {
-    // data harus mengandung id artikel yang akan diedit
     const { id, judul, konten, kategori, lokasi } = data;
-    // Hanya kirim field yang valid, jangan kirim image jika tidak upload gambar baru
+    // Debug token dan data
+    console.log('editRestaurantArticle token:', token);
+    console.log('editRestaurantArticle data:', { id, judul, konten, kategori, lokasi });
+    if (!token) {
+      console.warn('No token provided to editRestaurantArticle!');
+      return { success: false, message: 'No token provided' };
+    }
+    if (!id || !judul || !konten) {
+      console.warn('Ada field kosong:', { id, judul, konten });
+      return { success: false, message: 'ID, judul, dan konten harus diisi!' };
+    }
+    // Kirim field yang valid
+    const payload = { title: judul, content: konten, category: kategori, location: lokasi };
+    if (data.restaurant_id) payload.restaurant_id = data.restaurant_id;
+    if (data.author_id) payload.author_id = data.author_id;
+    console.log('Payload PATCH:', payload);
     const response = await api.patch(
       `/articles/update/${id}`,
-      { judul, konten, kategori, lokasi },
-      token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+      payload,
+      { headers: { Authorization: `Bearer ${token}` } }
     );
     return response.data;
   } catch (error) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
     console.error('Error editing restaurant article:', error);
     throw error;
   }

@@ -8,35 +8,53 @@ const validatePassword = (password) => {
   return regex.test(password);
 }
 
+const ADMIN_CREDENTIALS = {
+  email: "adminsuper@blok-m.com",
+  username: "adminsuper",
+  password: "blok-Mterbaik1!",
+  role: "admin"
+};
+
 exports.register = async (req, res) => {
   try {
-    const { username, email, password, role, first_name, last_name } = req.body;
+    const { username, email, password, first_name, last_name } = req.body;
 
-    if (!username || !email || !password) {
-      return baseResponse(res, false, 400, 'Please provide username, email, and password', null);
+    if (!username || !email || !password || !first_name || !last_name) {
+      return baseResponse(res, false, 400, 'All fields are required', null);
     }
+
+    // Validasi password
+    const validatePassword = (password) => {
+      const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+      return regex.test(password);
+    };
 
     if (!validatePassword(password)) {
       return baseResponse(res, false, 400, 'Password must be at least 6 characters long, include a number, and a special character', null);
     }
 
+    // Cek apakah email sudah terdaftar
     const existingUser = await userRepository.getUserByEmail(email);
     if (existingUser) {
       return baseResponse(res, false, 400, 'Email already exists', null);
     }
 
+    // Buat user dengan role default 'user'
     const newUser = await userRepository.registerUser({
       username,
       email,
       password,
-      role: role || 'user',
       first_name,
-      last_name
+      last_name,
+      role: 'user' // Hardcoded role
     });
 
-    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRATION
-    });
+    // Generate JWT yang menyertakan id dan role
+    const token = jwt.sign(
+      { id: newUser.id, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRATION }
+    );
 
     const userData = {
       id: newUser.id,
@@ -48,25 +66,60 @@ exports.register = async (req, res) => {
       token
     };
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
-
     return baseResponse(res, true, 201, 'User registered successfully', userData);
+
   } catch (error) {
-    console.error('Error registering user:', error);
+    console.error('Registration error:', error.message);
     return baseResponse(res, false, 500, 'Internal server error', null);
   }
-}
+};
 
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return baseResponse(res, false, 400, 'Please provide email and password', null);
+    // Handle admin super user login
+    if (email === ADMIN_CREDENTIALS.email) {
+      if (password !== ADMIN_CREDENTIALS.password) {
+        return baseResponse(res, false, 401, 'Invalid credentials', null);
+      }
+
+      // Check if admin exists in DB, if not create it
+      let admin = await userRepository.getUserByEmail(ADMIN_CREDENTIALS.email);
+      if (!admin) {
+        admin = await userRepository.registerUser({
+          username: ADMIN_CREDENTIALS.username,
+          email: ADMIN_CREDENTIALS.email,
+          password: ADMIN_CREDENTIALS.password,
+          role: ADMIN_CREDENTIALS.role,
+          first_name: 'Admin',
+          last_name: 'Super'
+        });
+      }
+
+      const token = jwt.sign(
+        { id: admin.id, role: admin.role },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRATION }
+      );
+
+      const userData = {
+        id: admin.id,
+        username: admin.username,
+        email: admin.email,
+        role: admin.role,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        token
+      };
+
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+
+      return baseResponse(res, true, 200, 'Admin logged in successfully', userData);
     }
 
     const user = await userRepository.loginUser(email, password);
@@ -74,9 +127,12 @@ exports.login = async (req, res) => {
       return baseResponse(res, false, 401, 'Invalid email or password', null);
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRATION
-    });
+    // Tambahkan pembuatan JWT dan userData untuk user biasa
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRATION }
+    );
 
     const userData = {
       id: user.id,
@@ -93,7 +149,6 @@ exports.login = async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
     });
-
 
     return baseResponse(res, true, 200, 'User logged in successfully', userData);
   } catch (error) {
