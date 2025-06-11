@@ -222,26 +222,26 @@ const CatalogDetailPage = () => {
                     Back
                   </button>
                   
-                  {catalog.restaurant_id ? (
-                    <Link 
-                      to={`/restaurants/${catalog.restaurant_id}`}
-                      className="w-full px-6 py-4 bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] rounded-2xl hover:from-[#D8C78E] hover:to-[#E5D4A1] transition-all duration-300 transform hover:scale-[1.02] font-semibold shadow-lg flex items-center justify-center"
-                    >
-                      <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                      View Restaurant
-                    </Link>
-                  ) : (
-                    <button 
-                      className="w-full px-6 py-4 bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] rounded-2xl hover:from-[#D8C78E] hover:to-[#E5D4A1] transition-all duration-300 transform hover:scale-[1.02] font-semibold shadow-lg flex items-center justify-center"
-                    >
-                      <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
-                      </svg>
-                      Add to Cart
-                    </button>
-                  )}
+                 {catalog.restaurant_id ? (
+  <Link 
+    to={`/restaurants/${catalog.restaurant_id}`}
+    className="w-full px-6 py-4 bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] rounded-2xl hover:from-[#D8C78E] hover:to-[#E5D4A1] transition-all duration-300 transform hover:scale-[1.02] font-semibold shadow-lg flex items-center justify-center"
+  >
+    <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+    View Restaurant
+  </Link>
+) : (
+  <button 
+    className="w-full px-6 py-4 bg-gradient-to-r from-[#CCBA78] to-[#D8C78E] text-[#3D1E0F] rounded-2xl hover:from-[#D8C78E] hover:to-[#E5D4A1] transition-all duration-300 transform hover:scale-[1.02] font-semibold shadow-lg flex items-center justify-center"
+  >
+    <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+    </svg>
+    Add to Cart
+  </button>
+)}
                 </div>
               </div>
             </div>
