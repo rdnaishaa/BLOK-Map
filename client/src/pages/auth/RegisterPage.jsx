@@ -11,7 +11,6 @@ function Register() {
     last_name: '',
     email: '',
     password: '',
-    // No need to expose role selection - all users register as 'user' by default
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,7 +38,6 @@ function Register() {
         password: formData.password,
         first_name: formData.first_name,
         last_name: formData.last_name,
-        role: 'user' // Default role is always 'user'
       });
       
       // On successful registration, redirect to login page

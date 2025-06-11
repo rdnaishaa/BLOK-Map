@@ -31,6 +31,7 @@ exports.protect = async (req, res, next) => {
     }
     next();
   } catch (err) {
+    console.error(err); // Tambahkan log error detail
     return res.status(401).json({ success: false, message: 'Invalid token' });
   }
 };

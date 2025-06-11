@@ -7,21 +7,26 @@ export const loginUser = async (credentials) => {
     })
     return response.data.payload
   } catch (error) {
+    console.error('Login error:', error)
     throw error.response?.data || error
   }
 }
 
 export const registerUser = async (userData) => {
   try {
+    // Hanya kirim field yang dibutuhkan backend
     const response = await api.post('/auth/register', {
       username: userData.username,
       email: userData.email,
       password: userData.password,
       first_name: userData.first_name,
       last_name: userData.last_name
+    }, {
+      withCredentials: true
     });
     return response.data.payload;
   } catch (error) {
+    console.error('Registration error:', error)
     throw error.response?.data || error;
   }
 };
@@ -29,7 +34,7 @@ export const registerUser = async (userData) => {
 export const getCurrentUser = async () => {
   try {
     const response = await api.get('/auth/me', {
-      withCredentials: true, // ⬅️ cookie login dikirim
+      withCredentials: true
     })
     return response.data.payload
   } catch (error) {
@@ -45,25 +50,32 @@ export const updateUser = async (userId, userData) => {
     })
     return response.data.payload
   } catch (error) {
+    console.error('Update user error:', error)
     throw error.response?.data || error
   }
 }
 
 export const deleteUser = async (userId, userData) => {
   try {
-    const response = await api.delete(`/auth/delete/${userId}`, userData, {
+    const response = await api.delete(`/auth/delete/${userId}`, {
+      data: userData, // ✅ PERBAIKI: data harus dalam object config
       withCredentials: true
     })
     return response.data.payload
   } catch (error) {
+    console.error('Delete user error:', error)
     throw error.response?.data || error
   }
 }
 
 export const logoutUser = async () => {
   try {
-    await api.post('/auth/logout') 
+    await api.post('/auth/logout', {}, { // ✅ TAMBAHKAN empty data object dan config
+      withCredentials: true
+    }) 
+    return { success: true }
   } catch (error) {
     console.error('Logout error:', error)
+    throw error.response?.data || error
   }
 }
